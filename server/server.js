@@ -19,9 +19,24 @@ app.get("/pokemons", async (req, res) => {
                 FROM POKEMONS;
         `);
 
-		console.log(rows);
+		const pokemonList = rows.map((data) => {
+			const { pokemon_id, name, hp, attack, defense, speed, sp_attack, sp_defense, total } = data;
+			return {
+				pokemon_id,
+				name,
+				stats: {
+					hp,
+					attack,
+					defense,
+					speed,
+					sp_attack,
+					sp_defense,
+					total,
+				},
+			};
+		});
 
-		res.status(200).json(rows);
+		res.status(200).json(pokemonList);
 	} catch (err) {
 		console.error(err);
 	}
@@ -29,32 +44,50 @@ app.get("/pokemons", async (req, res) => {
 
 app.get("/pokemons/:id", async (req, res) => {
 	try {
-		const pokemond_id = req.params.id;
+		const pokemon_id = req.params.id;
 		const { rows } = await pool.query(
 			`
             SELECT *
                 FROM POKEMONS
-                WHERE POKEMOND_ID = $1;
+                WHERE POKEMON_ID = $1;
         `,
-			[pokemond_id]
+			[pokemon_id]
 		);
 
 		if (rows.length == 0) {
-			const errMsg = `Pokemon with ID:${pokemond_id} does not exist.`;
+			const errMsg = `Pokemon with ID:${pokemon_id} does not exist.`;
 			throw new Error(errMsg);
 		}
 
-		console.log(rows);
-		res.status(200).json(rows);
+		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total } = rows[0];
+
+		const pokemonInfo = {
+			pokemon_id,
+			name,
+			stats: {
+				hp,
+				attack,
+				defense,
+				speed,
+				sp_attack,
+				sp_defense,
+				total,
+			},
+		};
+
+		console.log(pokemonInfo);
+		res.status(200).json(pokemonInfo);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(errMsg);
+		res.status(400).send(err);
 	}
 });
 
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
 	try {
 		const formData = req.body;
+
+		console.log(formData);
 
 		const { rows } = await pool.query(
 			`
@@ -70,11 +103,11 @@ app.get("/login", async (req, res) => {
 			throw new Error(errMsg);
 		}
 
-		console.log(rows);
-		res.status(200).json(rows);
+		console.log(rows[0]);
+		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(errMsg);
+		res.status(400).send(err.message);
 	}
 });
 
@@ -84,10 +117,8 @@ app.get("/owned-pokemons/:trainerId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-            SELECT OP.ID, OP.NICKNAME, P.*, PIT.TEAM_ID
+            SELECT OP.ID, OP.POKEMON_ID, OP.NICKNAME, PIT.TEAM_ID
                 FROM OWNED_POKEMONS OP
-                JOIN POKEMONS P
-                    ON OP.POKEMON_ID = P.POKEMON_ID
                 LEFT JOIN POKEMON_IN_TEAM PIT
                     ON OP.ID =  PIT.OWNED_POKEMON_ID
                 WHERE TRAINER_ID = $1;
@@ -255,5 +286,5 @@ app.post("/trainers", async (req, res) => {
 
 // Server Start
 app.listen(PORT, () => {
-	console.log(`Server Started on https://localhost:${PORT}`);
+	console.log(`Server Started on http://localhost:${PORT}`);
 });

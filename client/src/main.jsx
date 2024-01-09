@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Root from "./routes/root";
+import App from "./routes/App";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -13,16 +13,25 @@ import AllPokemons from "./routes/pokemons/AllPokemons";
 import MyPokemons from "./routes/pokemons/MyPokemons";
 import Home from "./routes/home/Home";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import SignUp from "./routes/signup/Signup";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <Root />,
+		element: <App />,
 		errorElement: <ErrorPage />,
 		children: [
 			{
 				path: "/",
 				element: <Home />,
+			},
+			{
+				path: "login/",
+				element: <Login />,
+			},
+			{
+				path: "signup/",
+				element: <SignUp />,
 			},
 			{
 				path: "/",
@@ -39,10 +48,6 @@ const router = createBrowserRouter([
 				],
 			},
 		],
-	},
-	{
-		path: "login/",
-		element: <Login />,
 	},
 ]);
 

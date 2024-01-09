@@ -111,6 +111,29 @@ app.post("/login", async (req, res) => {
 	}
 });
 
+app.post("/signup", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		console.log(formData);
+
+		const { rows } = await pool.query(
+			`
+			INSERT INTO
+			TRAINERS(NAME, PASSWORD)
+			VALUES ($1, $2) RETURNING *;
+        `,
+			[formData.name, formData.password]
+		);
+
+		console.log(rows[0]);
+		res.status(200).json(rows[0]);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err.message);
+	}
+});
+
 app.get("/owned-pokemons/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;

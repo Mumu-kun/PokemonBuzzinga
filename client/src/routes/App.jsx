@@ -7,30 +7,37 @@ function LoginOrLogout() {
 
 	if (!user) {
 		return (
-			<span className="bg-slate-500 p-2 w-32 rounded-lg">
-				<Link to="/login">Login</Link>
-			</span>
+			<>
+				<span className="bg-slate-500 p-2 w-32 rounded-lg">
+					<Link to="/login">Login</Link>
+				</span>
+				<span className="bg-slate-500 p-2 w-32 rounded-lg">
+					<Link to="/signup">Sign Up</Link>
+				</span>
+			</>
 		);
 	}
 
 	return (
-		<button
-			className="bg-slate-500 p-2 w-32 rounded-lg"
-			onClick={() => {
-				navigate("/");
-				userDispatch({
-					type: "LOGOUT",
-				});
-			}}
-		>
-			Logout
-		</button>
+		<>
+			<button
+				className="bg-slate-500 p-2 w-32 rounded-lg"
+				onClick={() => {
+					navigate("/");
+					userDispatch({
+						type: "LOGOUT",
+					});
+				}}
+			>
+				{user.name} : Logout
+			</button>
+		</>
 	);
 }
 
-function Root() {
+function App() {
 	return (
-		<div className="min-h-dvh flex flex-col items-center bg-slate-900 text-slate-200">
+		<div className=" min-h-dvh flex flex-col items-center bg-slate-900 text-slate-200">
 			<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
 				<span className="bg-slate-500 p-2 w-32 rounded-lg">
 					<Link to={`/my-pokemons/`}>My Pokemons</Link>
@@ -46,4 +53,4 @@ function Root() {
 	);
 }
 
-export default Root;
+export default App;

@@ -12,6 +12,7 @@ const pool = new Pool(
 				host: PGHOST,
 				port: PGPORT,
 				database: PGDATABASE,
+				ssl: {},
 		  }
 		: {
 				host: PGHOST,
@@ -19,7 +20,7 @@ const pool = new Pool(
 				username: PGUSER,
 				password: PGPASSWORD,
 				port: PGPORT,
-				// ssl: "require",
+				ssl: {},
 				// connection: {
 				// 	options: `project=${ENDPOINT_ID}`,
 				// },

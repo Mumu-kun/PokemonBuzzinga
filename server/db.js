@@ -2,13 +2,28 @@ import pg from "pg";
 import "dotenv/config";
 
 const Pool = pg.Pool;
+let { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID, NODE_ENV } = process.env;
 
-const pool = new Pool({
-	user: process.env.USER,
-	password: process.env.PASSWORD,
-	host: process.env.DBHOST,
-	port: process.env.DBPORT,
-	database: process.env.DB,
-});
+const pool = new Pool(
+	NODE_ENV === "dev"
+		? {
+				user: PGUSER,
+				password: PGPASSWORD,
+				host: PGHOST,
+				port: PGPORT,
+				database: PGDATABASE,
+		  }
+		: {
+				host: PGHOST,
+				database: PGDATABASE,
+				username: PGUSER,
+				password: PGPASSWORD,
+				port: PGPORT,
+				// ssl: "require",
+				// connection: {
+				// 	options: `project=${ENDPOINT_ID}`,
+				// },
+		  }
+);
 
 export default pool;

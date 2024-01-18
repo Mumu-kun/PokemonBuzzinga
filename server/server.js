@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.get("/pokemons", async (req, res) => {
+app.get("/api/pokemons", async (req, res) => {
 	try {
 		const { rows } = await pool.query(`
             SELECT *
@@ -42,7 +42,7 @@ app.get("/pokemons", async (req, res) => {
 	}
 });
 
-app.get("/pokemons/:id", async (req, res) => {
+app.get("/api/pokemons/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
 		const { rows } = await pool.query(
@@ -83,7 +83,7 @@ app.get("/pokemons/:id", async (req, res) => {
 	}
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
 	try {
 		const formData = req.body;
 
@@ -111,7 +111,7 @@ app.post("/login", async (req, res) => {
 	}
 });
 
-app.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
 	try {
 		const formData = req.body;
 
@@ -134,7 +134,7 @@ app.post("/signup", async (req, res) => {
 	}
 });
 
-app.get("/owned-pokemons/:trainerId", async (req, res) => {
+app.get("/api/owned-pokemons/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 
@@ -157,7 +157,7 @@ app.get("/owned-pokemons/:trainerId", async (req, res) => {
 	}
 });
 
-app.post("/owned-pokemons/:trainerId", async (req, res) => {
+app.post("/api/owned-pokemons/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 		const formData = req.body;
@@ -179,7 +179,7 @@ app.post("/owned-pokemons/:trainerId", async (req, res) => {
 	}
 });
 
-app.get("/teams/:trainerId", async (req, res) => {
+app.get("/api/teams/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 
@@ -200,7 +200,7 @@ app.get("/teams/:trainerId", async (req, res) => {
 	}
 });
 
-app.post("/teams/:trainerId", async (req, res) => {
+app.post("/api/teams/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 		const formData = req.body;
@@ -222,7 +222,7 @@ app.post("/teams/:trainerId", async (req, res) => {
 	}
 });
 
-app.get("/team-details/:teamId", async (req, res) => {
+app.get("/api/team-details/:teamId", async (req, res) => {
 	try {
 		const { teamId } = req.params;
 
@@ -249,7 +249,7 @@ app.get("/team-details/:teamId", async (req, res) => {
 	}
 });
 
-app.post("/add-pokemon-to-team/:teamId", async (req, res) => {
+app.post("/api/add-pokemon-to-team/:teamId", async (req, res) => {
 	try {
 		const { teamId } = req.params;
 		const formData = req.body;
@@ -271,7 +271,7 @@ app.post("/add-pokemon-to-team/:teamId", async (req, res) => {
 	}
 });
 
-app.get("/trainers", async (req, res) => {
+app.get("/api/trainers", async (req, res) => {
 	try {
 		const { rows } = await pool.query(`
             SELECT *
@@ -287,7 +287,7 @@ app.get("/trainers", async (req, res) => {
 	}
 });
 
-app.post("/trainers", async (req, res) => {
+app.post("/api/trainers", async (req, res) => {
 	try {
 		const formData = req.body;
 

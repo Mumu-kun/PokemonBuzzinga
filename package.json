@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "client" : "cd ./client && npm run dev",
-    "server" : "cd ./server && npm run dev"
+    "client": "cd ./client && npm run dev",
+    "server": "cd ./server && npm run dev"
   },
   "keywords": [],
   "author": "",

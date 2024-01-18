@@ -1,7 +1,6 @@
 import axios from "axios";
-import "dotenv/config";
 
-const baseURL = process.env.REACT_APP_BASE_URL;
+const baseURL = import.meta.env.REACT_APP_BASE_URL;
 // const baseURL = "http://localhost:8080/api";
 // const baseURL = "https://pokemon-buzzinga-server.onrender.com/api/"
 

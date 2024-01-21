@@ -14,7 +14,7 @@ function PokemonEntry({ pokemon_id, name, stats, buy }) {
 			const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
 			const data = req.data;
 
-			console.log(data);
+			// console.log(data);
 		} catch (error) {
 			console.error(error);
 		}

@@ -9,12 +9,12 @@ function LoginOrLogout() {
 	if (!user) {
 		return (
 			<>
-				<span className="bg-slate-500 p-2 w-32 rounded-lg">
-					<Link to="/login">Login</Link>
-				</span>
-				<span className="bg-slate-500 p-2 w-32 rounded-lg">
-					<Link to="/signup">Sign Up</Link>
-				</span>
+				<Link to="/login" className="bg-slate-500 p-2 w-32 rounded-lg">
+					Login
+				</Link>
+				<Link to="/signup" className="bg-slate-500 p-2 w-32 rounded-lg">
+					Sign Up
+				</Link>
 			</>
 		);
 	}
@@ -39,12 +39,12 @@ function LoginOrLogout() {
 function Navbar() {
 	return (
 		<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
-			<span className="bg-slate-500 p-2 w-32 rounded-lg">
-				<Link to={`/my-pokemons/`}>My Pokemons</Link>
-			</span>
-			<span className="bg-slate-500 p-2 w-32 rounded-lg">
-				<Link to="/pokemons">All Pokemons</Link>
-			</span>
+			<Link to="/my-pokemons/" className="bg-slate-500 p-2 w-32 rounded-lg">
+				My Pokemons
+			</Link>
+			<Link to="/pokemons" className="bg-slate-500 p-2 w-32 rounded-lg">
+				All Pokemons
+			</Link>
 			{LoginOrLogout()}
 		</div>
 	);

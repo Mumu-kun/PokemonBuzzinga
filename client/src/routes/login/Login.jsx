@@ -1,11 +1,15 @@
 import React from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 function Login() {
-	const { userDispatch } = useAuthContext();
+	const { user, userDispatch } = useAuthContext();
 	const navigate = useNavigate();
+
+	if (user) {
+		return <Navigate to="/" />;
+	}
 
 	const loginSubmit = async (e) => {
 		e.preventDefault();

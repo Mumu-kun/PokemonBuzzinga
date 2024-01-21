@@ -45,11 +45,11 @@ function MyPokemons() {
 					myPokemons.map((myPokemon) => {
 						const { id, nickname, team_id, pokemonData } = myPokemon;
 						return (
-							<div className="flex flex-col bg-slate-800 rounded-lg">
+							<div className="flex flex-col bg-slate-800 rounded-lg" key={id}>
 								<div className="text-center p-2 border-b-2 border-slate-500" style={{ wordSpacing: `0.5rem` }}>
 									Nickname : {nickname}
 								</div>
-								<PokemonEntry {...myPokemon.pokemonData} />
+								<PokemonEntry {...pokemonData} />
 							</div>
 						);
 					})}

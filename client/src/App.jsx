@@ -7,13 +7,13 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import AllPokemons from "./routes/pokemons/AllPokemons";
 import MyPokemons from "./routes/pokemons/MyPokemons";
 import ErrorPage from "./utils/ErrorPage";
+import Layout from "./components/Layout";
 
 function App() {
 	return (
-		<div className=" min-h-dvh flex flex-col items-center bg-slate-900 text-slate-200">
-			<BrowserRouter>
-				<Navbar />
-				<Routes>
+		<BrowserRouter>
+			<Routes>
+				<Route element={<Layout />}>
 					<Route path="/" element={<Home />} errorElement={<ErrorPage />} />
 					<Route path="login/" element={<Login />} />
 					<Route path="signup/" element={<SignUp />} />
@@ -21,10 +21,11 @@ function App() {
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="my-pokemons/" element={<MyPokemons />} />
+						<Route path="my-pokemons/" element={<MyPokemons />} />
 					</Route>
-				</Routes>
-			</BrowserRouter>
-		</div>
+				</Route>
+			</Routes>
+		</BrowserRouter>
 	);
 }
 

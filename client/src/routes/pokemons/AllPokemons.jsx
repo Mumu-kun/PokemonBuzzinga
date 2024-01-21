@@ -24,7 +24,8 @@ function AllPokemons() {
 		<>
 			<p className="my-10">List Of All Pokemons</p>
 			<div className="flex flex-wrap justify-center gap-4">
-				{!!pokemons && pokemons.map((pokemonData) => <PokemonEntry {...pokemonData} buy={true} />)}
+				{!!pokemons &&
+					pokemons.map((pokemonData) => <PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} buy={true} />)}
 			</div>
 		</>
 	);

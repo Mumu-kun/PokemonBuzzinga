@@ -1,5 +1,6 @@
-import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+import React from "react";
 import useAuthContext from "../hooks/useAuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
 function LoginOrLogout() {
 	const { user, userDispatch } = useAuthContext();
@@ -35,22 +36,18 @@ function LoginOrLogout() {
 	);
 }
 
-function App() {
+function Navbar() {
 	return (
-		<div className=" min-h-dvh flex flex-col items-center bg-slate-900 text-slate-200">
-			<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
-				<span className="bg-slate-500 p-2 w-32 rounded-lg">
-					<Link to={`/my-pokemons/`}>My Pokemons</Link>
-				</span>
-				<span className="bg-slate-500 p-2 w-32 rounded-lg">
-					<Link to="/pokemons">All Pokemons</Link>
-				</span>
-				{LoginOrLogout()}
-			</div>
-
-			<Outlet />
+		<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
+			<span className="bg-slate-500 p-2 w-32 rounded-lg">
+				<Link to={`/my-pokemons/`}>My Pokemons</Link>
+			</span>
+			<span className="bg-slate-500 p-2 w-32 rounded-lg">
+				<Link to="/pokemons">All Pokemons</Link>
+			</span>
+			{LoginOrLogout()}
 		</div>
 	);
 }
 
-export default App;
+export default Navbar;

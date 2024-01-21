@@ -1,11 +1,14 @@
 import express from "express";
 import cors from "cors";
+import bcrypt from "bcrypt";
 import "dotenv/config";
 import pool from "./db.js";
 
 const PORT = process.env.PORT || 8080;
 
 const app = express();
+
+const saltRounds = 10;
 
 // Middleware
 app.use(cors());
@@ -93,13 +96,19 @@ app.post("/api/login", async (req, res) => {
 			`
             SELECT *
             FROM TRAINERS
-            WHERE NAME = $1 AND PASSWORD = $2;
+            WHERE NAME = $1;
         `,
-			[formData.name, formData.password]
+			[formData.name]
 		);
 
 		if (rows.length == 0) {
 			const errMsg = `Trainer does not exist.`;
+			throw new Error(errMsg);
+		}
+
+		const passMatch = await bcrypt.compare(formData.password, rows[0].password);
+		if (!passMatch) {
+			const errMsg = `Password does not match.`;
 			throw new Error(errMsg);
 		}
 
@@ -117,13 +126,15 @@ app.post("/api/signup", async (req, res) => {
 
 		console.log(formData);
 
+		const hashedPass = await bcrypt.hash(formData.password, saltRounds);
+
 		const { rows } = await pool.query(
 			`
 			INSERT INTO
 			TRAINERS(NAME, PASSWORD)
 			VALUES ($1, $2) RETURNING *;
         `,
-			[formData.name, formData.password]
+			[formData.name, hashedPass]
 		);
 
 		console.log(rows[0]);

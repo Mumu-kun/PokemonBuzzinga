@@ -26,7 +26,7 @@ function PokemonEntry({ pokemon_id, name, stats, buy }) {
 			<span className="w-32 text-center">{name}</span>
 			<div className="flex flex-col gap-2 pr-2 ">
 				{Object.keys(stats).map((key) => (
-					<span>
+					<span key={key}>
 						{key} : {stats[key]}
 					</span>
 				))}

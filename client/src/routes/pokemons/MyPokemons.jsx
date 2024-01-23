@@ -1,21 +1,22 @@
-import axios from "../../utils/AxiosSetup";
-import React, { useEffect, useMemo, useState } from "react";
-import PokemonEntry from "./PokemonEntry";
+import axiosApi from "../../utils/AxiosSetup";
+import React, { useEffect, useState } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
+import MyPokemonEntry from "./MyPokemonEntry";
 
 function MyPokemons() {
 	const { user } = useAuthContext();
 	const [myPokemons, setMyPokemons] = useState([]);
+	const [teams, setTeams] = useState([]);
 
 	const getMyPokemons = async () => {
 		try {
-			const req = await axios.get(`/owned-pokemons/${user.id}`);
+			const req = await axiosApi.get(`/owned-pokemons/${user.id}`);
 			const data = req.data;
 
 			const pokemonList = [];
 
 			for (const myPokemon of data) {
-				const reqPokemonData = await axios.get(`/pokemons/${myPokemon.pokemon_id}`);
+				const reqPokemonData = await axiosApi.get(`/pokemons/${myPokemon.pokemon_id}`);
 				const pokemonData = reqPokemonData.data;
 				pokemonList.push({
 					...myPokemon,
@@ -33,26 +34,29 @@ function MyPokemons() {
 		}
 	};
 
+	const getTeams = async () => {
+		try {
+			const req = await axiosApi.get(`/teams/${user.id}`);
+			const data = req.data;
+
+			setTeams(data);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	useEffect(() => {
 		getMyPokemons();
+		getTeams();
 	}, []);
 
 	return (
 		<>
-			<p className="my-10">List Of My Pokemons</p>
+			<h1 className="text-h1">My Pokemons</h1>
 			<div className="flex flex-wrap justify-center gap-4">
-				{!!myPokemons &&
-					myPokemons.map((myPokemon) => {
-						const { id, nickname, team_id, pokemonData } = myPokemon;
-						return (
-							<div className="flex flex-col bg-slate-800 rounded-lg" key={id}>
-								<div className="text-center p-2 border-b-2 border-slate-500" style={{ wordSpacing: `0.5rem` }}>
-									Nickname : {nickname}
-								</div>
-								<PokemonEntry {...pokemonData} />
-							</div>
-						);
-					})}
+				{myPokemons.map((myPokemon) => (
+					<MyPokemonEntry key={myPokemon.id} {...myPokemon} teams={teams} getMyPokemons={getMyPokemons} />
+				))}
 			</div>
 		</>
 	);

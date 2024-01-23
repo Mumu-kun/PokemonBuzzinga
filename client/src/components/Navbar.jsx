@@ -2,27 +2,34 @@ import React from "react";
 import useAuthContext from "../hooks/useAuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
-function LoginOrLogout() {
-	const { user, userDispatch } = useAuthContext();
-	const navigate = useNavigate();
-
-	if (!user) {
-		return (
+function LoggedOutElements() {
+	return (
+		<>
 			<>
-				<Link to="/login" className="bg-slate-500 p-2 w-32 rounded-lg">
+				<Link to="/login" className="btn">
 					Login
 				</Link>
-				<Link to="/signup" className="bg-slate-500 p-2 w-32 rounded-lg">
+				<Link to="/signup" className="btn">
 					Sign Up
 				</Link>
 			</>
-		);
-	}
+		</>
+	);
+}
+function LoggedInElements() {
+	const { user, userDispatch } = useAuthContext();
+	const navigate = useNavigate();
 
 	return (
 		<>
+			<Link to="/my-pokemons/" className="btn">
+				My Pokemons
+			</Link>
+			<Link to="/my-teams/" className="btn">
+				My Teams
+			</Link>
 			<button
-				className="bg-slate-500 p-2 w-32 rounded-lg"
+				className="btn"
 				onClick={() => {
 					navigate("/");
 					userDispatch({
@@ -37,15 +44,15 @@ function LoginOrLogout() {
 }
 
 function Navbar() {
+	const { user } = useAuthContext();
+
 	return (
 		<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
-			<Link to="/my-pokemons/" className="bg-slate-500 p-2 w-32 rounded-lg">
-				My Pokemons
-			</Link>
-			<Link to="/pokemons" className="bg-slate-500 p-2 w-32 rounded-lg">
+			<Link to="/pokemons" className="btn">
 				All Pokemons
 			</Link>
-			{LoginOrLogout()}
+
+			{user ? <LoggedInElements /> : <LoggedOutElements />}
 		</div>
 	);
 }

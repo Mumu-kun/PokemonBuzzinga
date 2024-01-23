@@ -8,6 +8,8 @@ import AllPokemons from "./routes/pokemons/AllPokemons";
 import MyPokemons from "./routes/pokemons/MyPokemons";
 import ErrorPage from "./utils/ErrorPage";
 import Layout from "./components/Layout";
+import MyTeams from "./routes/my-teams/MyTeams";
+import TeamPage from "./routes/team/TeamPage";
 
 function App() {
 	return (
@@ -20,8 +22,9 @@ function App() {
 					<Route path="pokemons/" element={<AllPokemons />} />
 
 					<Route element={<ProtectedRoute />}>
+						<Route path="my-teams/" element={<MyTeams />} />
 						<Route path="my-pokemons/" element={<MyPokemons />} />
-						<Route path="my-pokemons/" element={<MyPokemons />} />
+						<Route path="team/:team_id" element={<TeamPage />} />
 					</Route>
 				</Route>
 			</Routes>

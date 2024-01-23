@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+	.text-h1 {
+		@apply text-3xl font-bold my-16;
+	}
+	.text-h3 {
+		@apply text-xl font-bold;
+	}
+
+	.btn {
+		@apply bg-slate-500 p-2 w-32 rounded-lg;
+	}
+
+	.input {
+		@apply py-2 px-4 rounded-lg text-black;
+	}
+}

@@ -5,8 +5,8 @@ console.log(baseURL);
 // const baseURL = "http://localhost:8080/api";
 // const baseURL = "https://pokemon-buzzinga-server.onrender.com/api"
 
-const instance = axios.create({
+const axiosApi = axios.create({
 	baseURL,
 });
 
-export default instance;
+export default axiosApi;

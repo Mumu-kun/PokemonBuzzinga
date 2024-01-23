@@ -78,7 +78,7 @@ app.get("/api/pokemons/:id", async (req, res) => {
 			},
 		};
 
-		console.log(pokemonInfo);
+		// console.log(pokemonInfo);
 		res.status(200).json(pokemonInfo);
 	} catch (err) {
 		console.error(err);
@@ -190,6 +190,28 @@ app.post("/api/owned-pokemons/:trainerId", async (req, res) => {
 	}
 });
 
+app.delete("/api/owned-pokemons/:trainerId", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+		const formData = req.body;
+
+		const { rows } = await pool.query(
+			`
+            DELETE FROM 
+            OWNED_POKEMONS
+            WHERE ID = $1 RETURNING *;
+        `,
+			[formData.pokemonId]
+		);
+
+		// console.log(rows);
+		res.status(200).send(`Freed ${rows[0].nickname}`);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err.detail);
+	}
+});
+
 app.get("/api/teams/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
@@ -203,7 +225,7 @@ app.get("/api/teams/:trainerId", async (req, res) => {
 			[trainerId]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -225,7 +247,7 @@ app.post("/api/teams/:trainerId", async (req, res) => {
 			[trainerId, formData.teamName]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -233,13 +255,82 @@ app.post("/api/teams/:trainerId", async (req, res) => {
 	}
 });
 
-app.get("/api/team-details/:teamId", async (req, res) => {
+app.delete("/api/teams/:trainerId", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+		const formData = req.body;
+		console.log(formData);
+
+		await pool.query(
+			`
+				DELETE FROM
+				POKEMON_IN_TEAM
+				WHERE TEAM_ID = $1;
+			`,
+			[formData.teamId]
+		);
+
+		const { rows } = await pool.query(
+			`
+            DELETE FROM 
+            TEAMS
+            WHERE ID = $1 RETURNING *;
+        `,
+			[formData.teamId]
+		);
+
+		// console.log(rows);
+		res.status(200).send(`Deleted Team ${rows[0]?.team_name}`);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err.detail);
+	}
+});
+
+app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 	try {
 		const { teamId } = req.params;
 
 		const { rows } = await pool.query(
 			`
-            SELECT T.TEAM_NAME, OP.NICKNAME, P.*
+            SELECT OP.ID, OP.NICKNAME, P.POKEMON_ID, P.TOTAL
+                FROM TEAMS T
+                JOIN POKEMON_IN_TEAM PIT
+                    ON T.ID = PIT.TEAM_ID
+                JOIN OWNED_POKEMONS OP
+                    ON PIT.OWNED_POKEMON_ID = OP.ID
+				JOIN POKEMONS P
+                    ON OP.POKEMON_ID = P.POKEMON_ID
+                WHERE T.ID = $1;
+        `,
+			[teamId]
+		);
+
+		console.log(rows);
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/teams/:teamId/details", async (req, res) => {
+	try {
+		const { teamId } = req.params;
+
+		const { rows: rowsTeam } = await pool.query(
+			`
+            SELECT TM.*, TR.NAME
+                FROM TEAMS TM
+				JOIN TRAINERS TR ON (TM.TRAINER_ID = TR.ID)
+                WHERE TM.ID = $1;
+        `,
+			[teamId]
+		);
+
+		const { rows: rowsDetails } = await pool.query(
+			`
+            SELECT OP.ID, OP.NICKNAME, P.*
                 FROM TEAMS T
                 JOIN POKEMON_IN_TEAM PIT
                     ON T.ID = PIT.TEAM_ID
@@ -247,13 +338,13 @@ app.get("/api/team-details/:teamId", async (req, res) => {
                     ON PIT.OWNED_POKEMON_ID = OP.ID
                 JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
-                WHERE TEAM_ID = $1;
+                WHERE T.ID = $1;
         `,
 			[teamId]
 		);
 
-		console.log(rows);
-		res.status(200).json(rows);
+		// console.log(rows);
+		res.status(200).json({ ...rowsTeam[0], pokemons: rowsDetails });
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);
@@ -268,14 +359,43 @@ app.post("/api/add-pokemon-to-team/:teamId", async (req, res) => {
 		const { rows } = await pool.query(
 			`
             INSERT INTO 
-            POKEMON_IN_TEAM(TEAM_ID, OWNED_POKEMON_ID)
-            VALUES($1, $2) RETURNING *;
+           		POKEMON_IN_TEAM(TEAM_ID, OWNED_POKEMON_ID)
+            	VALUES($1, $2)
+			ON CONFLICT (OWNED_POKEMON_ID) DO UPDATE
+				SET TEAM_ID = EXCLUDED.TEAM_ID
+			RETURNING *;
         `,
 			[teamId, formData.ownedPokemonId]
 		);
 
-		console.log(rows);
-		res.status(200).json(rows);
+		// console.log(rows);
+		res.status(200).json(rows[0]);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err.detail);
+	}
+});
+
+app.delete("/api/delete-pokemon-from-team/", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		const { rows } = await pool.query(
+			`
+            DELETE FROM 
+            	POKEMON_IN_TEAM
+            	WHERE OWNED_POKEMON_ID = $1
+			RETURNING *;
+        `,
+			[formData.ownedPokemonId]
+		);
+
+		if (rows.length == 0) {
+			throw Error("No pokemon to remove");
+		}
+
+		// console.log(rows);
+		res.status(200).send("Pokemon successfully removed");
 	} catch (err) {
 		console.error(err);
 		res.status(400).send(err.detail);

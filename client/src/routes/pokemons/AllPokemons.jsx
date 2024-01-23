@@ -22,7 +22,7 @@ function AllPokemons() {
 
 	return (
 		<>
-			<p className="my-10">List Of All Pokemons</p>
+			<h1 className="text-h1">All Pokemons</h1>
 			<div className="flex flex-wrap justify-center gap-4">
 				{!!pokemons &&
 					pokemons.map((pokemonData) => <PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} buy={true} />)}

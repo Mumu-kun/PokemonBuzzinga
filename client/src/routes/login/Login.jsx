@@ -35,11 +35,11 @@ function Login() {
 	};
 
 	return (
-		<div className="min-h-dvh flex flex-col items-center bg-slate-900 text-black">
+		<div className="min-h-dvh flex flex-col items-center bg-slate-900 ">
 			<form method="get" onSubmit={loginSubmit} className="flex flex-col m-auto justify-center items-center gap-5 w-40">
-				<input type="text" name="name" placeholder="Name" className="py-2 px-4 rounded-lg" />
-				<input type="password" name="password" placeholder="Password" className="py-2 px-4 rounded-lg" />
-				<button className="bg-slate-500 p-2 w-32 rounded-lg">Login</button>
+				<input type="text" name="name" placeholder="Name" className="input" />
+				<input type="password" name="password" placeholder="Password" className="input" />
+				<button className="btn">Login</button>
 			</form>
 		</div>
 	);

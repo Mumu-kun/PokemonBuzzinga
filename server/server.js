@@ -13,6 +13,7 @@ const saltRounds = 10;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/api/pokemons", async (req, res) => {
@@ -45,13 +46,40 @@ app.get("/api/pokemons", async (req, res) => {
 	}
 });
 
+app.get("/api/pokemons/:id/image", async (req, res) => {
+	try {
+		const pokemon_id = req.params.id;
+		const { rows } = await pool.query(
+			`
+			SELECT *
+				FROM POKEMON_IMAGES
+				where POKEMON_ID = $1;
+				`,
+			[pokemon_id]
+		);
+
+		if (rows.length == 0) {
+			const errMsg = `Pokemon with ID:${pokemon_id} does not exist.`;
+			throw new Error(errMsg);
+		}
+
+		const { img, ext } = rows[0];
+
+		res.set("Content-Type", `image/${ext}`);
+		res.send(img);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+});
+
 app.get("/api/pokemons/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
 		const { rows } = await pool.query(
 			`
             SELECT *
-                FROM POKEMONS
+                FROM POKEMONS P
                 WHERE POKEMON_ID = $1;
         `,
 			[pokemon_id]
@@ -440,5 +468,5 @@ app.post("/api/trainers", async (req, res) => {
 
 // Server Start
 app.listen(PORT, () => {
-	console.log(`Server Started on http://localhost:${PORT}`);
+	console.log(`Server Started on ${PORT}`);
 });

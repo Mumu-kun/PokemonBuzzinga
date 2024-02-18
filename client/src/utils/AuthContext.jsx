@@ -6,8 +6,10 @@ export const AuthContext = createContext();
 export const authReducer = (user, action) => {
 	switch (action.type) {
 		case "LOGIN":
+			window.localStorage.setItem("user", JSON.stringify(action.payload));
 			return action.payload;
 		case "LOGOUT":
+			window.localStorage.removeItem("user");
 			return null;
 		default:
 			return user;
@@ -15,7 +17,10 @@ export const authReducer = (user, action) => {
 };
 
 export const AuthContextProvider = ({ children }) => {
-	const [user, userDispatch] = useReducer(authReducer, null);
+	const [user, userDispatch] = useReducer(
+		authReducer,
+		window.localStorage.getItem("user") ? JSON.parse(window.localStorage.getItem("user")) : null
+	);
 
 	console.log(`TrainerContext State : ${user?.name}`);
 

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import axiosApi from "../../utils/AxiosSetup";
 import { Link } from "react-router-dom";
 
-function TeamCard({ id, trainer_id, team_name, refreshTeams }) {
+function TeamCard({ team_id, trainer_id, team_name, refreshTeams }) {
 	const [pokemons, setPokemons] = useState([]);
 
 	const getTeamPokemons = async () => {
 		try {
-			const req = await axiosApi.get(`/teams/${id}/pokemons`);
+			const req = await axiosApi.get(`/teams/${team_id}/pokemons`);
 			const data = req.data;
 
 			setPokemons(data);
@@ -18,7 +18,7 @@ function TeamCard({ id, trainer_id, team_name, refreshTeams }) {
 
 	const handleDeleteTeam = async () => {
 		const formData = {
-			teamId: id,
+			teamId: team_id,
 		};
 
 		try {
@@ -47,7 +47,7 @@ function TeamCard({ id, trainer_id, team_name, refreshTeams }) {
 					<span>{pokemon.total}</span>
 				</div>
 			))}
-			<Link to={`/team/${id}`} className="btn text-center mt-auto">
+			<Link to={`/team/${team_id}`} className="btn text-center mt-auto">
 				Details
 			</Link>
 

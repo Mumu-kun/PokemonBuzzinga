@@ -53,7 +53,7 @@ function MyTeams() {
 
 			<div className="flex flex-wrap justify-center gap-4">
 				{teams.map((teamInfo) => (
-					<TeamCard key={teamInfo.id} {...teamInfo} refreshTeams={getTeams} />
+					<TeamCard key={teamInfo.team_id} {...teamInfo} refreshTeams={getTeams} />
 				))}
 			</div>
 		</>

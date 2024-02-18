@@ -18,10 +18,17 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.get("/api/pokemons", async (req, res) => {
 	try {
-		const { rows } = await pool.query(`
+		const { start = 1, limit = 50 } = req.query;
+
+		const { rows } = await pool.query(
+			`
             SELECT *
-                FROM POKEMONS;
-        `);
+                FROM POKEMONS
+				ORDER BY POKEMON_ID
+				LIMIT $1 OFFSET $2;
+        `,
+			[limit, start - 1]
+		);
 
 		const pokemonList = rows.map((data) => {
 			const { pokemon_id, name, hp, attack, defense, speed, sp_attack, sp_defense, total } = data;
@@ -324,12 +331,12 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
             SELECT OP.ID, OP.NICKNAME, P.POKEMON_ID, P.TOTAL
                 FROM TEAMS T
                 JOIN POKEMON_IN_TEAM PIT
-                    ON T.ID = PIT.TEAM_ID
+                    ON T.TEAM_ID = PIT.TEAM_ID
                 JOIN OWNED_POKEMONS OP
                     ON PIT.OWNED_POKEMON_ID = OP.ID
 				JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
-                WHERE T.ID = $1;
+                WHERE T.TEAM_ID = $1;
         `,
 			[teamId]
 		);
@@ -351,7 +358,7 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
             SELECT TM.*, TR.NAME
                 FROM TEAMS TM
 				JOIN TRAINERS TR ON (TM.TRAINER_ID = TR.ID)
-                WHERE TM.ID = $1;
+                WHERE TM.TEAM_ID = $1;
         `,
 			[teamId]
 		);
@@ -361,12 +368,12 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
             SELECT OP.ID, OP.NICKNAME, P.*
                 FROM TEAMS T
                 JOIN POKEMON_IN_TEAM PIT
-                    ON T.ID = PIT.TEAM_ID
+                    ON T.TEAM_ID = PIT.TEAM_ID
                 JOIN OWNED_POKEMONS OP
                     ON PIT.OWNED_POKEMON_ID = OP.ID
                 JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
-                WHERE T.ID = $1;
+                WHERE T.TEAM_ID = $1;
         `,
 			[teamId]
 		);

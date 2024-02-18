@@ -36,7 +36,7 @@ function TeamPage() {
 	return (
 		<>
 			<h1 className="text-h1">
-				{teamDetails.id} : {teamDetails.team_name}
+				{teamDetails.team_id} : {teamDetails.team_name}
 			</h1>
 			<h3 className="text-h3">Trainer : {teamDetails.name}</h3>
 			<div className="flex flex-wrap justify-center gap-4 my-10">

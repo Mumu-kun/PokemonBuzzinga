@@ -1,6 +1,20 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import axios from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
+import { FaHeart, FaShieldAlt, FaListAlt, FaFistRaised } from "react-icons/fa";
+import { LuWind } from "react-icons/lu";
+import { WiStars } from "react-icons/wi";
+import { GiGlassBall } from "react-icons/gi";
+
+const statToStyle = {
+	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
+	attack: { icon: <FaFistRaised />, color: "bg-red-500", textCol: "text-red-500" },
+	defense: { icon: <FaShieldAlt />, color: "bg-blue-400", textCol: "text-blue-400" },
+	speed: { icon: <LuWind />, color: "bg-orange-400", textCol: "text-orange-400" },
+	sp_attack: { icon: <WiStars />, color: "bg-pink-400", textCol: "text-pink-400" },
+	sp_defense: { icon: <GiGlassBall />, color: "bg-violet-500", textCol: "text-violet-500" },
+	total: { icon: <FaListAlt />, color: "bg-slate-700", textCol: "text-slate-700" },
+};
 
 function PokemonEntry({ pokemon_id, name, stats, buy }) {
 	const { user } = useAuthContext();
@@ -21,18 +35,31 @@ function PokemonEntry({ pokemon_id, name, stats, buy }) {
 	};
 
 	return (
-		<div className="flex gap-5 p-4 items-center rounded-lg bg-slate-800">
-			<span className="w-8 pl-2 text-center">{pokemon_id}</span>
-			<span className="w-32 text-center">{name}</span>
-			<div className="flex flex-col gap-2 pr-2 ">
+		<div className="flex flex-col w-64 gap-1 p-6 items-center rounded-lg bg-white text-black">
+			<div className="flex pl-3 w-full text-center">
+				<span>{pokemon_id}</span>
+				<span className="mx-auto">{name}</span>
+			</div>
+			<img src={`${axios.getUri()}pokemons/${pokemon_id}/image`} alt="" className="w-2/3 my-2 aspect-square" />
+			<div className="w-full grid grid-cols-[fit-content(10%)_auto_fit-content(10%)] items-center gap-2 gap-y-1 text-xs">
 				{Object.keys(stats).map((key) => (
-					<span key={key}>
-						{key} : {stats[key]}
-					</span>
+					<>
+						<span className={`${statToStyle[key].textCol}`}>{statToStyle[key].icon}</span>
+						<div className={`mx-1 h-1 bg-opacity-20 ${statToStyle[key].color} rounded-full overflow-hidden`}>
+							<div
+								className={`w-full h-full ${statToStyle[key].color}`}
+								style={{
+									transformOrigin: "left",
+									transform: `scaleX(${key === "total" ? stats[key] / 800 : stats[key] / 255})`,
+								}}
+							></div>
+						</div>
+						<span className={`text-right font-semibold`}>{stats[key]}</span>
+					</>
 				))}
 			</div>
 			{buy && (
-				<button className="bg-slate-500 h-auto p-2 w-32 rounded-lg" onClick={handleBuy}>
+				<button className="btn bg-green-500 text-white mt-4" onClick={handleBuy}>
 					Buy
 				</button>
 			)}

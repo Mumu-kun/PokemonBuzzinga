@@ -37,21 +37,26 @@ function TeamCard({ team_id, trainer_id, team_name, refreshTeams }) {
 	}, []);
 
 	return (
-		<div className="flex flex-col items-center w-48 min-h-80 rounded-lg bg-slate-800 p-4">
+		<div className="flex flex-col gap-2 items-center w-52 min-h-80 rounded-lg bg-white text-black py-4 px-6">
 			{/* <span>{id}</span> */}
 			<span className="text-h3 my-2">{team_name}</span>
-			{pokemons.map((pokemon) => (
-				<div key={pokemon.id} className="flex w-full p-1 justify-start gap-4 text-left text-sm">
-					<span>{pokemon.id} : </span>
-					<span className="flex-auto">{pokemon.nickname} : </span>
-					<span>{pokemon.total}</span>
-				</div>
-			))}
-			<Link to={`/team/${team_id}`} className="btn text-center mt-auto">
+			<div className="flex flex-col w-full gap-2 mb-4 cursor-default">
+				{pokemons.map((pokemon) => (
+					<div
+						key={pokemon.id}
+						className="flex w-full px-4 py-1 justify-start gap-4 text-left text-sm bg-slate-200 rounded-md"
+					>
+						{/* <span>{pokemon.id} : </span> */}
+						<span className="flex-auto">{pokemon.nickname}</span>
+						<span>{pokemon.total}</span>
+					</div>
+				))}
+			</div>
+			<Link to={`/team/${team_id}`} className="btn--green mt-auto">
 				Details
 			</Link>
 
-			<button className="btn bg-red-900 mt-2" onClick={handleDeleteTeam}>
+			<button className="btn--red" onClick={handleDeleteTeam}>
 				Delete
 			</button>
 		</div>

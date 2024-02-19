@@ -16,7 +16,7 @@ const statToStyle = {
 	total: { icon: <FaListAlt />, color: "bg-slate-700", textCol: "text-slate-700" },
 };
 
-function PokemonEntry({ pokemon_id, name, stats, buy }) {
+function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 	const { user } = useAuthContext();
 
 	const handleBuy = async () => {
@@ -35,7 +35,7 @@ function PokemonEntry({ pokemon_id, name, stats, buy }) {
 	};
 
 	return (
-		<div className="flex flex-col w-64 gap-1 p-6 items-center rounded-lg bg-white text-black">
+		<div className={`flex flex-col w-64 gap-1 p-6 items-center rounded-lg bg-white text-black ${PClassName}`}>
 			<div className="flex pl-3 w-full text-center">
 				<span>{pokemon_id}</span>
 				<span className="mx-auto">{name}</span>
@@ -59,7 +59,7 @@ function PokemonEntry({ pokemon_id, name, stats, buy }) {
 				))}
 			</div>
 			{buy && (
-				<button className="btn bg-green-500 text-white mt-4" onClick={handleBuy}>
+				<button className="btn--green mt-4" onClick={handleBuy}>
 					Buy
 				</button>
 			)}

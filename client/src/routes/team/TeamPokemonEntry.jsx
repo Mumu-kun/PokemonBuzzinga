@@ -13,8 +13,6 @@ function TeamPokemonEntry({ id, nickname, pokemonData, getTeamDetails }) {
 
 			const data = req.data;
 
-			// console.log(data);
-
 			getTeamDetails();
 		} catch (error) {
 			console.error(error);
@@ -22,12 +20,12 @@ function TeamPokemonEntry({ id, nickname, pokemonData, getTeamDetails }) {
 	};
 
 	return (
-		<div className="flex flex-col items-center bg-slate-800 rounded-lg p-2">
-			<div className="text-center p-2 border-b-2 border-slate-500 w-3/4" style={{ wordSpacing: `0.5rem` }}>
+		<div className="flex flex-col items-center bg-slate-100 text-black rounded-lg p-2">
+			<div className="text-center p-2 w-3/4" style={{ wordSpacing: `0.5rem` }}>
 				Nickname : {nickname}
 			</div>
-			<PokemonEntry {...pokemonData} />
-			<button className="btn bg-red-900 my-2" onClick={handleRemovePokemon}>
+			<PokemonEntry {...pokemonData} className="border-t-2 border-slate-500 shadow-sm shadow-slate-300" />
+			<button className="btn--red my-2 mt-4" onClick={handleRemovePokemon}>
 				Delete
 			</button>
 		</div>

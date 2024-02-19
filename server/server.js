@@ -166,10 +166,10 @@ app.post("/api/signup", async (req, res) => {
 		const { rows } = await pool.query(
 			`
 			INSERT INTO
-			TRAINERS(NAME, PASSWORD)
-			VALUES ($1, $2) RETURNING *;
+			TRAINERS(NAME, PASSWORD, REGION_ID)
+			VALUES ($1, $2, $3) RETURNING *;
         `,
-			[formData.name, hashedPass]
+			[formData.name, hashedPass, formData.region_id]
 		);
 
 		console.log(rows[0]);
@@ -407,7 +407,7 @@ app.post("/api/add-pokemon-to-team/:teamId", async (req, res) => {
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.detail);
+		res.status(400).send({ message: err.detail });
 	}
 });
 
@@ -470,6 +470,23 @@ app.post("/api/trainers", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(400).send(err.detail);
+	}
+});
+
+// Regions
+app.get("/api/regions", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT *
+				FROM REGIONS
+				ORDER BY REGION_ID;
+		`);
+		console.log(rows);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
 	}
 });
 

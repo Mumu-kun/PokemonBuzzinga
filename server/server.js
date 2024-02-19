@@ -525,18 +525,18 @@ app.get("/api/pokemons/:id", async (req, res) => {
 		);
 
 		
-		const { rows: naturerow } = await pool.query(
-			`
-            SELECT N.*
-            FROM natures N
-            WHERE N.nature_id IN (
-                SELECT nature_id
-                FROM allowed_natures
-                WHERE pokemon_id = $1
-            );
-        `,
-			[pokemon_id]
-		);
+		// const { rows: naturerow } = await pool.query(
+		// 	`
+        //     SELECT N.*
+        //     FROM natures N
+        //     WHERE N.nature_id IN (
+        //         SELECT nature_id
+        //         FROM allowed_natures
+        //         WHERE pokemon_id = $1
+        //     );
+        // `,
+		// 	[pokemon_id]
+		// );
 
 		
 		const { rows: moverow } = await pool.query(
@@ -568,7 +568,7 @@ app.get("/api/pokemons/:id", async (req, res) => {
 				total,
 			},
 			abilities: abilityrow,
-			natures: naturerow,
+			//natures: naturerow,
 			moves: moverow,
 		};
 

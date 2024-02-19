@@ -24,7 +24,6 @@ function MyPokemonEntry({ id, nickname, team_id, pokemonData, teams, getMyPokemo
 
 			const data = req.data;
 
-			console.log(data);
 			setSelectedTeam(selectedOption === "none" ? "none" : data.team_id);
 
 			getMyPokemons();
@@ -53,7 +52,7 @@ function MyPokemonEntry({ id, nickname, team_id, pokemonData, teams, getMyPokemo
 						name="teams"
 						value={selectedTeam ?? "none"}
 						onChange={handleChangeTeam}
-						className="inline-block text-black max-w-48 w-full my-2 p-1 rounded-md"
+						className="inline-block text-black max-w-48 w-full my-2 p-1 rounded-md bg-white"
 					>
 						<option value={"none"}>None</option>
 						<option value={"loading"} hidden>

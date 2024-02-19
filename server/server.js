@@ -80,6 +80,32 @@ app.get("/api/pokemons/:id/image", async (req, res) => {
 	}
 });
 
+app.get("/api/pokemons/:id/moves", async (req, res) => {
+	try {
+		const pokemon_id = req.params.id;
+		const { rows } = await pool.query(
+			`
+            SELECT *
+                FROM POKEMON_MOVESETS PM
+				JOIN MOVES M
+					ON PM.MOVE_ID = M.MOVE_ID
+                WHERE PM.POKEMON_ID = $1;
+        `,
+			[pokemon_id]
+		);
+
+		if (rows.length == 0) {
+			const errMsg = `Pokemon with ID:${pokemon_id} does not exist.`;
+			throw new Error(errMsg);
+		}
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err);
+	}
+});
+
 app.get("/api/pokemons/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
@@ -195,7 +221,7 @@ app.get("/api/owned-pokemons/:trainerId", async (req, res) => {
 			[trainerId]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -247,6 +273,28 @@ app.delete("/api/owned-pokemons/:trainerId", async (req, res) => {
 	}
 });
 
+// Add Move to Pokemon
+app.put("/api/set-move", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		const { rows } = await pool.query(
+			`
+			UPDATE OWNED_POKEMONS
+			SET MOVE_ID = $1
+			WHERE ID = $2 RETURNING *;
+		`,
+			[formData.moveId, formData.ownedPokemonId]
+		);
+
+		// console.log(rows);
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({ message: err.detail });
+	}
+});
+
 app.get("/api/teams/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
@@ -255,7 +303,8 @@ app.get("/api/teams/:trainerId", async (req, res) => {
 			`
             SELECT *
                 FROM TEAMS
-                WHERE TRAINER_ID = $1;
+                WHERE TRAINER_ID = $1
+				ORDER BY TEAM_ID;
         `,
 			[trainerId]
 		);
@@ -336,7 +385,8 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
                     ON PIT.OWNED_POKEMON_ID = OP.ID
 				JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
-                WHERE T.TEAM_ID = $1;
+                WHERE T.TEAM_ID = $1
+				ORDER BY OP.ID;
         `,
 			[teamId]
 		);
@@ -349,6 +399,7 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 	}
 });
 
+// Team Details
 app.get("/api/teams/:teamId/details", async (req, res) => {
 	try {
 		const { teamId } = req.params;
@@ -365,7 +416,7 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
 
 		const { rows: rowsDetails } = await pool.query(
 			`
-            SELECT OP.ID, OP.NICKNAME, P.*
+            SELECT OP.ID, OP.NICKNAME, M.*, P.*
                 FROM TEAMS T
                 JOIN POKEMON_IN_TEAM PIT
                     ON T.TEAM_ID = PIT.TEAM_ID
@@ -373,7 +424,10 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
                     ON PIT.OWNED_POKEMON_ID = OP.ID
                 JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
-                WHERE T.TEAM_ID = $1;
+				LEFT JOIN MOVES M
+					ON M.MOVE_ID = OP.MOVE_ID
+                WHERE T.TEAM_ID = $1
+				ORDER BY OP.ID;
         `,
 			[teamId]
 		);
@@ -481,7 +535,6 @@ app.get("/api/regions", async (req, res) => {
 				FROM REGIONS
 				ORDER BY REGION_ID;
 		`);
-		console.log(rows);
 
 		res.status(200).json(rows);
 	} catch (err) {

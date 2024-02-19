@@ -489,6 +489,97 @@ app.get("/api/regions", async (req, res) => {
 		res.sendStatus(400);
 	}
 });
+app.get("/api/pokemons/:id", async (req, res) => {
+	try {
+		const pokemon_id = req.params.id;
+
+		
+		const { rows: pokemonRows } = await pool.query(
+			`
+            SELECT *
+            FROM pokemons
+            WHERE pokemon_id = $1;
+        `,
+			[pokemon_id]
+		);
+
+		if (pokemonRows.length == 0) {
+			const errMsg = `Pokemon with ID:${pokemon_id} does not exist.`;
+			throw new Error(errMsg);
+		}
+
+		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type1, type2, region_id } = pokemonRows[0];
+
+		
+		const { rows: abilityrow } = await pool.query(
+			`
+            SELECT A.*
+            FROM abilities A
+            WHERE A.ability_id IN (
+                SELECT ability_id
+                FROM allowed_abilities
+                WHERE pokemon_id = $1
+            );
+        `,
+			[pokemon_id]
+		);
+
+		
+		const { rows: naturerow } = await pool.query(
+			`
+            SELECT N.*
+            FROM natures N
+            WHERE N.nature_id IN (
+                SELECT nature_id
+                FROM allowed_natures
+                WHERE pokemon_id = $1
+            );
+        `,
+			[pokemon_id]
+		);
+
+		
+		const { rows: moverow } = await pool.query(
+			`
+            SELECT M.*
+            FROM MOVES M
+            WHERE M.move_id IN (
+                SELECT move_id
+                FROM POKEMON_MOVESETS
+                WHERE pokemon_id = $1
+            );
+        `,
+			[pokemon_id]
+		);
+
+		const pokemonInfo = {
+			pokemon_id,
+			name,
+			type1,
+			type2,
+			region_id,
+			stats: {
+				hp,
+				attack,
+				defense,
+				speed,
+				sp_attack,
+				sp_defense,
+				total,
+			},
+			abilities: abilityrow,
+			natures: naturerow,
+			moves: moverow,
+		};
+
+		res.status(200).json(pokemonInfo);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send(err.message);
+	}
+});
+
+
 
 // Server Start
 app.listen(PORT, () => {

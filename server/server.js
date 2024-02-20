@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.get("/api/pokemons", async (req, res) => {
 	try {
-		const { start = 1, limit = 50 } = req.query;
+		const { start = 1, limit = null } = req.query;
 
 		const { rows } = await pool.query(
 			`
@@ -147,6 +147,7 @@ app.get("/api/pokemons/:id", async (req, res) => {
 	}
 });
 
+// Login
 app.post("/api/login", async (req, res) => {
 	try {
 		const formData = req.body;
@@ -155,7 +156,7 @@ app.post("/api/login", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-            SELECT *
+            SELECT ID, NAME, PASSWORD
             FROM TRAINERS
             WHERE NAME = $1;
         `,
@@ -185,8 +186,6 @@ app.post("/api/signup", async (req, res) => {
 	try {
 		const formData = req.body;
 
-		console.log(formData);
-
 		const hashedPass = await bcrypt.hash(formData.password, saltRounds);
 
 		const { rows } = await pool.query(
@@ -206,6 +205,7 @@ app.post("/api/signup", async (req, res) => {
 	}
 });
 
+// Get and Add Owned Pokemons
 app.get("/api/owned-pokemons/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
@@ -234,16 +234,18 @@ app.post("/api/owned-pokemons/:trainerId", async (req, res) => {
 		const { trainerId } = req.params;
 		const formData = req.body;
 
+		await authenticateRequest(trainerId, req);
+
 		const { rows } = await pool.query(
 			`
             INSERT INTO 
             OWNED_POKEMONS(POKEMON_ID, TRAINER_ID, NICKNAME)
             VALUES($1, $2, $3) RETURNING *;
         `,
-			[formData.pokemonId, trainerId, formData.nickname]
+			[formData.ownedPokemonId, trainerId, formData.nickname]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -256,19 +258,27 @@ app.delete("/api/owned-pokemons/:trainerId", async (req, res) => {
 		const { trainerId } = req.params;
 		const formData = req.body;
 
+		await authenticateRequest(trainerId, req);
+
 		const { rows } = await pool.query(
 			`
             DELETE FROM 
             OWNED_POKEMONS
-            WHERE ID = $1 RETURNING *;
+            WHERE ID = $1 AND TRAINER_ID = $2 RETURNING *;
         `,
-			[formData.pokemonId]
+			[formData.ownedPokemonId, trainerId]
 		);
 
 		// console.log(rows);
 		res.status(200).send(`Freed ${rows[0].nickname}`);
 	} catch (err) {
 		console.error(err);
+
+		if (err?.code == "23503") {
+			res.status(400).send({ message: "Pokemon is in a team. Remove from team first." });
+			return;
+		}
+
 		res.status(400).send(err.detail);
 	}
 });
@@ -277,6 +287,22 @@ app.delete("/api/owned-pokemons/:trainerId", async (req, res) => {
 app.put("/api/set-move", async (req, res) => {
 	try {
 		const formData = req.body;
+
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM OWNED_POKEMONS
+				WHERE ID = $1;
+		`,
+			[formData.ownedPokemonId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Pokemon does not exist");
+		}
+
+		const { trainer_id } = rowsTrainer[0];
+		await authenticateRequest(trainer_id, req);
 
 		const { rows } = await pool.query(
 			`
@@ -322,6 +348,8 @@ app.post("/api/teams/:trainerId", async (req, res) => {
 		const { trainerId } = req.params;
 		const formData = req.body;
 
+		await authenticateRequest(trainerId, req);
+
 		const { rows } = await pool.query(
 			`
             INSERT INTO 
@@ -343,27 +371,16 @@ app.delete("/api/teams/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 		const formData = req.body;
-		console.log(formData);
 
-		await pool.query(
-			`
-				DELETE FROM
-				POKEMON_IN_TEAM
-				WHERE TEAM_ID = $1;
-			`,
-			[formData.teamId]
-		);
+		await authenticateRequest(trainerId, req);
 
 		const { rows } = await pool.query(
 			`
-            DELETE FROM 
-            TEAMS
-            WHERE ID = $1 RETURNING *;
-        `,
+			SELECT * from DELETE_TEAM($1);
+		`,
 			[formData.teamId]
 		);
 
-		// console.log(rows);
 		res.status(200).send(`Deleted Team ${rows[0]?.team_name}`);
 	} catch (err) {
 		console.error(err);
@@ -391,7 +408,7 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 			[teamId]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -445,6 +462,22 @@ app.post("/api/add-pokemon-to-team/:teamId", async (req, res) => {
 		const { teamId } = req.params;
 		const formData = req.body;
 
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM OWNED_POKEMONS
+				WHERE ID = $1;
+		`,
+			[formData.ownedPokemonId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Team does not exist");
+		}
+
+		const { trainer_id } = rowsTrainer[0];
+		await authenticateRequest(trainer_id, req);
+
 		const { rows } = await pool.query(
 			`
             INSERT INTO 
@@ -469,6 +502,22 @@ app.delete("/api/delete-pokemon-from-team/", async (req, res) => {
 	try {
 		const formData = req.body;
 
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM OWNED_POKEMONS
+				WHERE ID = $1;
+		`,
+			[formData.ownedPokemonId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Team does not exist");
+		}
+
+		const { trainer_id } = rowsTrainer[0];
+		await authenticateRequest(trainer_id, req);
+
 		const { rows } = await pool.query(
 			`
             DELETE FROM 
@@ -487,7 +536,7 @@ app.delete("/api/delete-pokemon-from-team/", async (req, res) => {
 		res.status(200).send("Pokemon successfully removed");
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.detail);
+		res.status(400).send({ message: err.detail });
 	}
 });
 
@@ -504,26 +553,6 @@ app.get("/api/trainers", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);
-	}
-});
-
-app.post("/api/trainers", async (req, res) => {
-	try {
-		const formData = req.body;
-
-		const { rows } = await pool.query(
-			`
-            INSERT INTO
-                TRAINERS(NAME, PASSWORD)
-                VALUES ($1, $2) RETURNING *;
-        `,
-			[formData.name, formData.password]
-		);
-
-		res.status(200).json(rows);
-	} catch (err) {
-		console.error(err);
-		res.status(400).send(err.detail);
 	}
 });
 
@@ -546,7 +575,6 @@ app.get("/api/pokemons/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
 
-		
 		const { rows: pokemonRows } = await pool.query(
 			`
             SELECT *
@@ -563,7 +591,6 @@ app.get("/api/pokemons/:id", async (req, res) => {
 
 		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type1, type2, region_id } = pokemonRows[0];
 
-		
 		const { rows: abilityrow } = await pool.query(
 			`
             SELECT A.*
@@ -577,21 +604,19 @@ app.get("/api/pokemons/:id", async (req, res) => {
 			[pokemon_id]
 		);
 
-		
 		// const { rows: naturerow } = await pool.query(
 		// 	`
-        //     SELECT N.*
-        //     FROM natures N
-        //     WHERE N.nature_id IN (
-        //         SELECT nature_id
-        //         FROM allowed_natures
-        //         WHERE pokemon_id = $1
-        //     );
-        // `,
+		//     SELECT N.*
+		//     FROM natures N
+		//     WHERE N.nature_id IN (
+		//         SELECT nature_id
+		//         FROM allowed_natures
+		//         WHERE pokemon_id = $1
+		//     );
+		// `,
 		// 	[pokemon_id]
 		// );
 
-		
 		const { rows: moverow } = await pool.query(
 			`
             SELECT M.*
@@ -632,9 +657,40 @@ app.get("/api/pokemons/:id", async (req, res) => {
 	}
 });
 
-
-
 // Server Start
 app.listen(PORT, () => {
 	console.log(`Server Started on ${PORT}`);
 });
+
+async function authenticateRequest(trainerId, req) {
+	const { user: userJson } = req.headers;
+
+	const user = userJson ? JSON.parse(userJson) : null;
+
+	if (!user) {
+		throw new Error({ detail: "Unauthorized request" });
+	}
+
+	if (trainerId != user.id) {
+		throw new Error({ detail: "Unauthorized request" });
+	}
+
+	const { rows } = await pool.query(
+		`
+			SELECT PASSWORD
+				FROM TRAINERS
+				WHERE ID = $1;
+		`,
+		[user.id]
+	);
+
+	if (rows.length == 0) {
+		throw new Error({ detail: `Trainer does not exist.` });
+	}
+
+	if (user.password != rows[0].password) {
+		throw new Error({ detail: "Unauthorized request" });
+	}
+
+	return true;
+}

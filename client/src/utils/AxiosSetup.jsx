@@ -9,4 +9,9 @@ const axiosApi = axios.create({
 	baseURL,
 });
 
+axiosApi.interceptors.request.use((config) => {
+	config.headers.user = window.localStorage.getItem("user");
+	return config;
+});
+
 export default axiosApi;

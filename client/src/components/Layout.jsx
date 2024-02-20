@@ -4,9 +4,11 @@ import { Outlet } from "react-router-dom";
 
 function Layout() {
 	return (
-		<div className=" min-h-dvh flex flex-col items-center bg-slate-900 text-slate-200">
-			<Navbar />
-			<Outlet />
+		<div className="min-h-dvh bg-slate-900 text-slate-200 flex justify-center">
+			<div className="max-w-[1280px] mx-6 min-h-full flex flex-col items-center ">
+				<Navbar />
+				<Outlet />
+			</div>
 		</div>
 	);
 }

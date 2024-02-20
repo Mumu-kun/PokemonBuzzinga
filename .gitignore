@@ -20,3 +20,5 @@ server/.env.dev
 server/functions
 
 .env
+client/.env
+client/.env

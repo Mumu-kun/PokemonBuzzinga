@@ -11,6 +11,7 @@ function AllPokemons() {
 	const [sortField, setSortField] = useState("id");
 	const [sortOrder, setSortOrder] = useState("asc");
 	const [filterText, setFilterText] = useState("");
+	const [totalPages, setTotalPages] = useState(0);
 
 	const filteredPokemons = useMemo(() => {
 		if (!pokemons) return [];
@@ -33,14 +34,6 @@ function AllPokemons() {
 			});
 		}
 
-		if (offset > 0) {
-			filtered = filtered.slice(offset);
-		}
-
-		if (limit !== -1) {
-			filtered = filtered.slice(0, limit);
-		}
-
 		if (filterText) {
 			filtered = filtered.filter((pokemon) => {
 				return (
@@ -48,6 +41,16 @@ function AllPokemons() {
 					pokemon.pokemon_id.toString().startsWith(filterText)
 				);
 			});
+		}
+
+		setTotalPages(limit ? Math.ceil(filtered.length / limit) : 1);
+
+		if (offset > 0) {
+			filtered = filtered.slice(offset);
+		}
+
+		if (limit) {
+			filtered = filtered.slice(0, limit);
 		}
 
 		return filtered;
@@ -72,18 +75,38 @@ function AllPokemons() {
 		setFilterText(e.target.value);
 	};
 
+	const PrevPageBtn = () => {
+		return (
+			<button
+				className="btn mr-auto"
+				onClick={() => {
+					setOffset((prev) => (prev - limit < 0 ? 0 : prev - limit));
+				}}
+			>
+				Prev
+			</button>
+		);
+	};
+
+	const NextPageBtn = () => {
+		return (
+			<button
+				className="btn ml-auto"
+				onClick={() => {
+					setOffset((prev) => (prev + limit >= totalPages * limit ? prev : prev + limit));
+				}}
+			>
+				Next
+			</button>
+		);
+	};
+
 	return (
 		<>
 			<h1 className="text-h1">All Pokemons</h1>
+
 			<div className="flex w-full justify-between items-center mb-4 gap-4">
-				<button
-					className="btn mr-auto"
-					onClick={() => {
-						setOffset((prev) => (prev - limit < 0 ? 0 : prev - limit));
-					}}
-				>
-					Prev
-				</button>
+				<PrevPageBtn />
 				<input
 					type="text"
 					placeholder="Search Pokemons"
@@ -109,7 +132,7 @@ function AllPokemons() {
 						<option value="80">80</option>
 						<option value="100">100</option>
 						<option value="200">200</option>
-						<option value="-1">All</option>
+						<option value="0">All</option>
 					</select>
 				</div>
 				<div className="bg-slate-700 p-1 rounded-md">
@@ -139,38 +162,23 @@ function AllPokemons() {
 						<option value="desc">Desc</option>
 					</select>
 				</div>
-				<button
-					className="btn ml-auto"
-					onClick={() => {
-						setOffset((prev) => (prev + limit > pokemons.length ? prev : prev + limit));
-					}}
-				>
-					Next
-				</button>
+				<NextPageBtn />
 			</div>
-			<div className="flex flex-wrap justify-center gap-4 mb-4">
+			<div className="mb-4">
+				Page {offset / (limit ? limit : 1) + 1} of {totalPages}
+			</div>
+			<div className="flex flex-wrap justify-center gap-4 mb-8">
 				{!!filteredPokemons &&
 					filteredPokemons.map((pokemonData) => (
 						<PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} buy={true} />
 					))}
 			</div>
 			<div className="flex w-full justify-between">
-				<button
-					className="btn"
-					onClick={() => {
-						setOffset((prev) => (prev - limit < 0 ? 0 : prev - limit));
-					}}
-				>
-					Prev
-				</button>
-				<button
-					className="btn"
-					onClick={() => {
-						setOffset((prev) => prev + limit);
-					}}
-				>
-					Next
-				</button>
+				<PrevPageBtn />
+				<div>
+					Page {offset / (limit ? limit : 1) + 1} of {totalPages}
+				</div>
+				<NextPageBtn />
 			</div>
 		</>
 	);

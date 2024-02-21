@@ -5,6 +5,7 @@ import { FaHeart, FaShieldAlt, FaListAlt, FaFistRaised } from "react-icons/fa";
 import { LuWind } from "react-icons/lu";
 import { WiStars } from "react-icons/wi";
 import { GiGlassBall } from "react-icons/gi";
+import { Link } from "react-router-dom";
 
 const statToStyle = {
 	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
@@ -27,8 +28,6 @@ function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 			};
 			const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
 			const data = req.data;
-
-			// console.log(data);
 		} catch (error) {
 			console.error(error);
 		}
@@ -40,7 +39,9 @@ function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 				<span>{pokemon_id}</span>
 				<span className="mx-auto">{name}</span>
 			</div>
-			<img src={`${axios.getUri()}pokemons/${pokemon_id}/image`} alt="" className="w-2/3 my-2 aspect-square" />
+			<Link to={`/pokemonsdets/${pokemon_id}`}>
+				<img src={`${axios.getUri()}pokemons/${pokemon_id}/image`} alt="" className="w-2/3 my-2 aspect-square mx-auto" />
+			</Link>
 			<div className="w-full grid grid-cols-[fit-content(10%)_auto_fit-content(10%)] items-center gap-2 gap-y-1 text-xs">
 				{Object.keys(stats).map((key) => (
 					<>

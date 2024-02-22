@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { FaHeart, FaShieldAlt, FaListAlt, FaFistRaised } from "react-icons/fa";
 import { LuWind } from "react-icons/lu";
 import { WiStars } from "react-icons/wi";
-import Popup from "./PopupBuy";
+import PopupBuy from "./PopupBuy";
 import { GiGlassBall } from "react-icons/gi";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -64,7 +64,7 @@ export const typeToStyle = {
 	Fairy: { bgColor: "bg-pink-200", textColor: "text-gray-900" },
 };
 
-const PokemonDetailsPage = ({ history }) => {
+const PokemonDetailsPage = () => {
 	const [pokemonDetails, setPokemonDetails] = useState(null);
 	const [showPopup, setShowPopup] = useState(false);
 	const { id } = useParams();
@@ -97,13 +97,16 @@ const PokemonDetailsPage = ({ history }) => {
 
 	const handleSubmitNickname = async (denam) => {
 		setShowPopup(false);
+		const res = await axios.get(`/trainer_money/${user.id}`);
+		let money = res.data;
 		const final_ali = denam || pokemonDetails.name;
 		try {
 			const formData = {
 				pokemonId: pokemonDetails.pokemon_id,
 				nickname: final_ali,
 			};
-			const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
+			money = money - pokemonDetails.price;
+			const request = await axios.post(`/trainer_money/${user.id}`, { balance: money });
 		} catch (error) {
 			console.error(error);
 		}
@@ -162,6 +165,9 @@ const PokemonDetailsPage = ({ history }) => {
 				<div className="text-lg font-semibold text-purple-700">
 					<p>
 						Region: <span className="italic">{pokemonDetails.region}</span>
+					</p>
+					<p className="text-lg font-semibold text-green-600">
+						Price: <span className="italic">{pokemonDetails.price}$</span>
 					</p>
 				</div>
 				<button

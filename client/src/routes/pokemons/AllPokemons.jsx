@@ -1,6 +1,7 @@
 import axios from "../../utils/AxiosSetup";
 import { useEffect, useMemo, useState } from "react";
 import PokemonEntry from "./PokemonEntry";
+import { Link, useNavigate } from "react-router-dom";
 
 const stats = ["hp", "attack", "defense", "speed", "sp_attack", "sp_defense", "total"];
 
@@ -55,6 +56,7 @@ function AllPokemons() {
 
 		return filtered;
 	}, [pokemons, limit, offset, filterText, sortField, sortOrder]);
+	const navigate = useNavigate();
 
 	const getAllPokemons = async () => {
 		try {
@@ -70,6 +72,10 @@ function AllPokemons() {
 	useEffect(() => {
 		getAllPokemons();
 	}, []);
+
+	const dekhNature = () => {
+		navigate("/naturing");
+	};
 
 	const PrevPageBtn = () => {
 		return (
@@ -100,7 +106,9 @@ function AllPokemons() {
 	return (
 		<>
 			<h1 className="text-h1">All Pokemons</h1>
-
+			<button className="teal-button" onClick={dekhNature}>
+				View Natures
+			</button>
 			<div className="flex w-full justify-between items-center mb-4 gap-4">
 				<PrevPageBtn />
 				<input

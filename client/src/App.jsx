@@ -10,6 +10,7 @@ import Layout from "./components/Layout";
 import MyTeams from "./routes/my-teams/MyTeams";
 import TeamPage from "./routes/team/TeamPage";
 import PokemonDetailsPage from "./routes/pokemondets/PokemonDetailsPage";
+import NaturePage from "./routes/pokemons/NaturePage";
 
 function App() {
 	return (
@@ -21,6 +22,7 @@ function App() {
 					<Route path="signup/" element={<SignUp />} />
 					<Route path="pokemons/" element={<AllPokemons />} />
 					<Route path="pokemonsdets/:id" element={<PokemonDetailsPage />} />
+					<Route path="naturing/" element={<NaturePage />} />
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="my-teams/" element={<MyTeams />} />

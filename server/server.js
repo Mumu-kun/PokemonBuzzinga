@@ -411,7 +411,7 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 			[teamId]
 		);
 
-		// console.log(rows);
+		//	// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -550,7 +550,7 @@ app.get("/api/trainers", async (req, res) => {
                 FROM TRAINERS;
         `);
 
-		console.log(rows);
+		//console.log(rows);
 
 		res.status(200).json(rows);
 	} catch (err) {
@@ -631,6 +631,77 @@ app.get("/api/regions", async (req, res) => {
 		res.sendStatus(400);
 	}
 });
+
+app.get("/api/nature", async (req, res) => {
+	try {
+		const { rows: natrows } = await pool.query(`
+			SELECT *
+				FROM natures;
+		`);
+		//console.log(rows);
+
+		const natures = natrows.map((nature) => ({
+			nature_id: nature.nature_id,
+			nature_name: nature.nature,
+			attack_multiplyer: nature.m_attack,
+			defense_multiplyer: nature.m_defense,
+			sp_attack_multiplyer: nature.m_spattack,
+			sp_defense_multiplyer: nature.m_spdefense,
+			speed_multiplyer: nature.m_speed,
+		}));
+
+		res.status(200).json(natures);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/trainer_money/:id", async (req, res) => {
+	try {
+		const trainer_id = req.params.id;
+		const { rows } = await pool.query(
+			`
+			SELECT balance
+				FROM trainers
+				WHERE id = $1;
+		`,
+			[trainer_id]
+		);
+
+		//console.log(rows);
+		const balance = rows[0].balance;
+
+		res.status(200).json(balance);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+app.post("/api/trainer_money/:id", async (req, res) => {
+	try {
+		const trainer_id = req.params.id;
+		const formData = req.body;
+		console.log(formData);
+		const { rows } = await pool.query(
+			`
+			UPDATE trainers
+				SET balance = $1
+				WHERE id = $2
+				RETURNING *;
+		`,
+			[formData.balance, trainer_id]
+		);
+
+		console.log(rows);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
 app.get("/api/pokemons-dets/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
@@ -651,8 +722,22 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			throw new Error(errMsg);
 		}
 
-		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type_1, type_2, region_id, img, ext } =
-			pokemonRows[0];
+		const {
+			name,
+			hp,
+			attack,
+			defense,
+			speed,
+			sp_attack,
+			sp_defense,
+			total,
+			type_1,
+			type_2,
+			region_id,
+			price,
+			img,
+			ext,
+		} = pokemonRows[0];
 
 		const { rows: regionRows } = await pool.query(
 			`
@@ -745,6 +830,7 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			type1,
 			type2,
 			region,
+			price,
 			stats: {
 				hp,
 				attack,

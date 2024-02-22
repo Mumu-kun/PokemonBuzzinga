@@ -17,21 +17,21 @@ const statToStyle = {
 	total: { icon: <FaListAlt />, color: "bg-slate-700", textCol: "text-slate-700" },
 };
 
-function PokemonEntry({ pokemon_id, name, stats, className: PClassName }) {
-	const { user } = useAuthContext();
+function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
+	// const { user } = useAuthContext();
 
-	const handleBuy = async () => {
-		try {
-			const formData = {
-				ownedPokemonId: pokemon_id,
-				nickname: name,
-			};
-			const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
-			const data = req.data;
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	// const handleBuy = async () => {
+	// 	try {
+	// 		const formData = {
+	// 			pokemonId: pokemon_id,
+	// 			nickname: name,
+	// 		};
+	// 		const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
+	// 		const data = req.data;
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 
 	return (
 		<Link

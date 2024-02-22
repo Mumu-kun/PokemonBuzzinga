@@ -176,7 +176,7 @@ const PokemonDetailsPage = () => {
 				>
 					Buy
 				</button>
-				{showPopup && <Popup onSubmit={handleSubmitNickname} onCancel={handleCancelNickname}></Popup>}
+				{showPopup && <PopupBuy onSubmit={handleSubmitNickname} onCancel={handleCancelNickname}></PopupBuy>}
 				<div className="my-4">
 					<p>Types:</p>
 					<div className="flex space-x-2">

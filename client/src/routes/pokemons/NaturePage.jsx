@@ -19,6 +19,7 @@ function NaturePage() {
 
     return (
         <div className="nature-page">
+            <h1 className="title">Natures</h1>
             <div className="fancy-text">
                 <p>Your Pokemon Can Have Different Natures. These Natures May Or May Not Effect You In Battles. What Nature Shall Your Fate Chose</p>
             </div>
@@ -50,6 +51,11 @@ function NaturePage() {
             <style>{`
                 .nature-page {
                     margin: 25px;
+                }
+
+                .title{
+                    font-size: 2.5rem;
+                    margin-bottom: 8px;
                 }
 
                 .fancy-text {

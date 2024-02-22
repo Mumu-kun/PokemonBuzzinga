@@ -489,6 +489,32 @@ app.get("/api/regions", async (req, res) => {
 		res.sendStatus(400);
 	}
 });
+
+app.get("/api/nature", async (req, res) => {
+	try {
+		const { rows: natrows } = await pool.query(`
+			SELECT *
+				FROM natures;
+		`);
+		//console.log(rows);
+		
+        const natures = natrows.map(nature => ({
+            nature_id: nature.nature_id,
+			nature_name: nature.nature,
+			attack_multiplyer: nature.m_attack,
+			defense_multiplyer: nature.m_defense,
+			sp_attack_multiplyer: nature.m_spattack,
+			sp_defense_multiplyer: nature.m_spdefense,
+			speed_multiplyer: nature.m_speed,
+        }));
+
+		res.status(200).json(natures);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
 app.get("/api/pokemons-dets/:id", async (req, res) => {
     try {
         const pokemon_id = req.params.id;

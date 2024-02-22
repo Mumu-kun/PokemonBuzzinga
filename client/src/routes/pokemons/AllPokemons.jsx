@@ -1,12 +1,12 @@
 
-
 import axios from "../../utils/AxiosSetup";
 import React, { useEffect, useState } from "react";
 import PokemonEntry from "./PokemonEntry";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 
 function AllPokemons() {
   const [pokemons, setPokemons] = useState([]);
+  const navigate = useNavigate(); 
 
   const getAllPokemons = async () => {
     try {
@@ -22,9 +22,14 @@ function AllPokemons() {
     getAllPokemons();
   }, []);
 
+  const dekhNature = () => {
+    navigate("/naturing");
+  };
+
   return (
     <>
       <h1 className="text-h1">All Pokemons</h1>
+      <button className="btn--blue" onClick={dekhNature}>View Natures</button> 
       <div className="flex flex-wrap justify-center gap-4">
         {!!pokemons &&
           pokemons.map((pokemonData) => (
@@ -38,6 +43,7 @@ function AllPokemons() {
 }
 
 export default AllPokemons;
+
 
 
 

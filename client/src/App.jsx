@@ -9,8 +9,9 @@ import ErrorPage from "./utils/ErrorPage";
 import Layout from "./components/Layout";
 import MyTeams from "./routes/my-teams/MyTeams";
 import TeamPage from "./routes/team/TeamPage";
-import PokemonDetailsPage from "./routes/pokemons/PokemonDetailsPage";
+import PokemonDetailsPage from "./routes/pokemondets/PokemonDetailsPage";
 import NaturePage from "./routes/pokemons/NaturePage";
+import Profile from "./routes/profile/Profile";
 
 function App() {
 	return (
@@ -23,6 +24,7 @@ function App() {
 					<Route path="pokemons/" element={<AllPokemons />} />
 					<Route path="pokemonsdets/:id" element={<PokemonDetailsPage />} />
 					<Route path="naturing/" element={<NaturePage />} />
+					<Route path="profile/:trainer_id" element={<Profile />} />
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="my-teams/" element={<MyTeams />} />

@@ -66,7 +66,7 @@ export const typeToStyle = {
 
 const PokemonDetailsPage = () => {
 	const [pokemonDetails, setPokemonDetails] = useState(null);
-	const [showPopup, setShowPopup] = useState(false);
+	const [showPopup, showpop] = useState(false);
 	const { id } = useParams();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
@@ -92,11 +92,11 @@ const PokemonDetailsPage = () => {
 	const { stats, abilities, moves } = pokemonDetails;
 
 	const handleBuy = async () => {
-		setShowPopup(true);
+		showpop(true);
 	};
 
 	const handleSubmitNickname = async (denam) => {
-		setShowPopup(false);
+		showpop(false);
 		const res = await axios.get(`/trainer_money/${user.id}`);
 		let money = res.data;
 		const final_ali = denam || pokemonDetails.name;
@@ -113,7 +113,7 @@ const PokemonDetailsPage = () => {
 	};
 
 	const handleCancelNickname = () => {
-		setShowPopup(false);
+		showpop(false);
 	};
 	const handleNext = () => {
 		const nextpok = parseInt(id, 10) + 1;

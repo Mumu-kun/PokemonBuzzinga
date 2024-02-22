@@ -56,6 +56,7 @@ function AllPokemons() {
 
 		return filtered;
 	}, [pokemons, limit, offset, filterText, sortField, sortOrder]);
+
 	const navigate = useNavigate();
 
 	const getAllPokemons = async () => {
@@ -72,11 +73,6 @@ function AllPokemons() {
 	useEffect(() => {
 		getAllPokemons();
 	}, []);
-
-	const dekhNature = () => {
-		navigate("/naturing");
-	};
-
 	const PrevPageBtn = () => {
 		return (
 			<button
@@ -101,6 +97,10 @@ function AllPokemons() {
 				Next
 			</button>
 		);
+	};
+
+	const dekhNature = () => {
+		navigate("/naturing");
 	};
 
 	return (

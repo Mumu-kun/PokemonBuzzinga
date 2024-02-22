@@ -9,7 +9,7 @@ import ErrorPage from "./utils/ErrorPage";
 import Layout from "./components/Layout";
 import MyTeams from "./routes/my-teams/MyTeams";
 import TeamPage from "./routes/team/TeamPage";
-import PokemonDetailsPage from "./routes/pokemondets/PokemonDetailsPage";
+import PokemonDetailsPage from "./routes/pokemons/PokemonDetailsPage";
 import NaturePage from "./routes/pokemons/NaturePage";
 
 function App() {

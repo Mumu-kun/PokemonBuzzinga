@@ -19,7 +19,20 @@ const statToStyle = {
 
 function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 	// const { user } = useAuthContext();
+	// const { user } = useAuthContext();
 
+	// const handleBuy = async () => {
+	// 	try {
+	// 		const formData = {
+	// 			pokemonId: pokemon_id,
+	// 			nickname: name,
+	// 		};
+	// 		const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
+	// 		const data = req.data;
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 	// const handleBuy = async () => {
 	// 	try {
 	// 		const formData = {

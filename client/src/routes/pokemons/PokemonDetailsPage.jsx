@@ -64,7 +64,7 @@ export const typeToStyle = {
   Fairy: { bgColor: "bg-pink-200", textColor: "text-gray-900" },
 };
 
-const PokemonDetailsPage = ({ history }) => {
+const PokemonDetailsPage = () => {
   const [pokemonDetails, setPokemonDetails] = useState(null);
   const [showPopup, showpop] = useState(false);
   const { id } = useParams();

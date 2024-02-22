@@ -9,24 +9,26 @@ import ErrorPage from "./utils/ErrorPage";
 import Layout from "./components/Layout";
 import MyTeams from "./routes/my-teams/MyTeams";
 import TeamPage from "./routes/team/TeamPage";
-import Profile from "./routes/profile/Profile";
+import PokemonDetailsPage from "./routes/pokemons/PokemonDetailsPage";
 
 function App() {
 	return (
 		<BrowserRouter>
 			<Routes>
 				<Route element={<Layout />}>
-					<Route path="/" element={<Home />} errorElement={<ErrorPage />} />
+					<Route path="/" element={<Home />} />
 					<Route path="login/" element={<Login />} />
 					<Route path="signup/" element={<SignUp />} />
-					<Route path="profile/:trainer_id" element={<Profile />} />
 					<Route path="pokemons/" element={<AllPokemons />} />
+					<Route path="pokemonsdets/:id" element={<PokemonDetailsPage />} />
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="my-teams/" element={<MyTeams />} />
 						<Route path="my-pokemons/" element={<MyPokemons />} />
 						<Route path="team/:team_id" element={<TeamPage />} />
 					</Route>
+
+					<Route path="*" element={<ErrorPage />} />
 				</Route>
 			</Routes>
 		</BrowserRouter>

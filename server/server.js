@@ -631,71 +631,120 @@ app.get("/api/regions", async (req, res) => {
 		res.sendStatus(400);
 	}
 });
-app.get("/api/pokemons/:id", async (req, res) => {
+app.get("/api/pokemons-dets/:id", async (req, res) => {
 	try {
 		const pokemon_id = req.params.id;
 
+		// Query to retrieve Pokemon details including image
 		const { rows: pokemonRows } = await pool.query(
 			`
-            SELECT *
-            FROM pokemons
-            WHERE pokemon_id = $1;
-        `,
+            SELECT P.*, PI.img, PI.ext
+            FROM pokemons P
+            LEFT JOIN pokemon_images PI ON P.pokemon_id = PI.pokemon_id
+            WHERE P.pokemon_id = $1;
+            `,
 			[pokemon_id]
 		);
 
-		if (pokemonRows.length == 0) {
+		if (pokemonRows.length === 0) {
 			const errMsg = `Pokemon with ID:${pokemon_id} does not exist.`;
 			throw new Error(errMsg);
 		}
 
-		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type1, type2, region_id } = pokemonRows[0];
+		const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type_1, type_2, region_id, img, ext } =
+			pokemonRows[0];
 
-		const { rows: abilityrow } = await pool.query(
+		const { rows: regionRows } = await pool.query(
 			`
-            SELECT A.*
+            SELECT region_name
+            FROM regions
+            WHERE region_id = $1;
+            `,
+			[region_id]
+		);
+
+		if (regionRows.length === 0) {
+			throw new Error(`Region with ID:${region_id} does not exist.`);
+		}
+
+		const region = regionRows[0].region_name;
+
+		const { rows: typeRows1 } = await pool.query(
+			`
+            SELECT type_name
+            FROM type
+            WHERE type_id IN ($1);
+            `,
+			[type_1]
+		);
+
+		const type1 = typeRows1[0].type_name;
+
+		let type2 = null;
+		if (type_2) {
+			const { rows: typeRows2 } = await pool.query(
+				`
+                SELECT type_name
+                FROM type
+                WHERE type_id IN ($1);
+                `,
+				[type_2]
+			);
+			type2 = typeRows2[0].type_name;
+		}
+
+		const { rows: abilityRows } = await pool.query(
+			`
+            SELECT A.ability_id, A.ability, A.description
             FROM abilities A
             WHERE A.ability_id IN (
                 SELECT ability_id
                 FROM allowed_abilities
                 WHERE pokemon_id = $1
             );
-        `,
+            `,
 			[pokemon_id]
 		);
 
-		// const { rows: naturerow } = await pool.query(
-		// 	`
-		//     SELECT N.*
-		//     FROM natures N
-		//     WHERE N.nature_id IN (
-		//         SELECT nature_id
-		//         FROM allowed_natures
-		//         WHERE pokemon_id = $1
-		//     );
-		// `,
-		// 	[pokemon_id]
-		// );
+		if (abilityRows.length < 1 || abilityRows.length > 2) {
+			throw new Error(`Invalid number of abilities for Pokemon with ID:${pokemon_id}.`);
+		}
 
-		const { rows: moverow } = await pool.query(
+		const abilities = abilityRows.map(({ ability_id, ability, description }) => ({
+			ability_id,
+			ability,
+			description,
+		}));
+
+		const { rows: moveRows } = await pool.query(
 			`
-            SELECT M.*
-            FROM MOVES M
+            SELECT M.move_id, M.move_name, T.type_name AS move_type, M.category, M.power, M.accuracy
+            FROM moves M
+            JOIN type T ON M.type_id = T.type_id
             WHERE M.move_id IN (
                 SELECT move_id
-                FROM POKEMON_MOVESETS
+                FROM pokemon_movesets
                 WHERE pokemon_id = $1
             );
-        `,
+            `,
 			[pokemon_id]
 		);
+
+		const moves = moveRows.map((move) => ({
+			move_id: move.move_id,
+			name: move.move_name,
+			type: move.move_type,
+			category: move.category,
+			power: move.power,
+			accuracy: move.accuracy,
+		}));
 
 		const pokemonInfo = {
 			pokemon_id,
 			name,
 			type1,
 			type2,
-			region_id,
+			region,
 			stats: {
 				hp,
 				attack,
@@ -705,9 +754,9 @@ app.get("/api/pokemons/:id", async (req, res) => {
 				sp_defense,
 				total,
 			},
-			abilities: abilityrow,
-			//natures: naturerow,
-			moves: moverow,
+			moves,
+			abilities,
+			img: `data:image/${ext};base64,${img}`,
 		};
 
 		res.status(200).json(pokemonInfo);

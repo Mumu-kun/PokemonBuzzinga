@@ -17,7 +17,7 @@ const statToStyle = {
 	total: { icon: <FaListAlt />, color: "bg-slate-700", textCol: "text-slate-700" },
 };
 
-function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
+function PokemonEntry({ pokemon_id, name, stats, className: PClassName }) {
 	const { user } = useAuthContext();
 
 	const handleBuy = async () => {
@@ -34,19 +34,21 @@ function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 	};
 
 	return (
-		<div className={`flex flex-col w-64 gap-1 p-6 items-center rounded-lg bg-white text-black ${PClassName}`}>
+		<Link
+			to={`/pokemonsdets/${pokemon_id}`}
+			className={`flex flex-col w-64 gap-2 p-6 items-center rounded-lg bg-white text-black ${PClassName}`}
+		>
 			<div className="flex pl-3 w-full text-center">
 				<span>{pokemon_id}</span>
 				<span className="mx-auto">{name}</span>
 			</div>
-			<Link to={`/pokemonsdets/${pokemon_id}`}>
-				<img
-					src={`${axios.getUri()}pokemons/${pokemon_id}/image`}
-					loading="lazy"
-					alt=""
-					className="w-2/3 my-2 aspect-square mx-auto"
-				/>
-			</Link>
+			<img
+				src={`${axios.getUri()}pokemons/${pokemon_id}/image`}
+				loading="lazy"
+				alt=""
+				className="w-2/3 my-2 aspect-square mx-auto"
+			/>
+
 			<div className="w-full grid grid-cols-[fit-content(10%)_auto_fit-content(10%)] items-center gap-2 gap-y-1 text-xs">
 				{Object.keys(stats).map((key) => (
 					<>
@@ -64,12 +66,7 @@ function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 					</>
 				))}
 			</div>
-			{user && buy && (
-				<button className="btn--green mt-4" onClick={handleBuy}>
-					Buy
-				</button>
-			)}
-		</div>
+		</Link>
 	);
 }
 

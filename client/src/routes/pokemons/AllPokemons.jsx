@@ -166,7 +166,7 @@ function AllPokemons() {
 			<div className="flex flex-wrap justify-center gap-4 mb-8">
 				{!!filteredPokemons &&
 					filteredPokemons.map((pokemonData) => (
-						<PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} buy={true} />
+						<PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} className="transition-all hover:scale-105" />
 					))}
 			</div>
 			<div className="flex w-full justify-between">

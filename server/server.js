@@ -535,7 +535,7 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
             throw new Error(errMsg);
         }
 
-        const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type_1, type_2, region_id, img, ext } = pokemonRows[0];
+        const { name, hp, attack, defense, speed, sp_attack, sp_defense, total, type_1, type_2, region_id, price, img, ext } = pokemonRows[0];
 
         const { rows: regionRows } = await pool.query(
             `
@@ -628,6 +628,7 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
             type1,
             type2,
             region,
+			price,
             stats: {
                 hp,
                 attack,

@@ -166,6 +166,9 @@ const PokemonDetailsPage = () => {
           <p>
             Region: <span className="italic">{pokemonDetails.region}</span>
           </p>
+          <p className="text-lg font-semibold text-green-600">
+            Price: <span className="italic">{pokemonDetails.price}$</span>
+          </p>
         </div>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"

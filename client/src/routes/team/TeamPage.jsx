@@ -2,8 +2,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import TeamPokemonEntry from "./TeamPokemonEntry";
 import axiosApi from "../../utils/AxiosSetup";
+import useAuthContext from "../../hooks/useAuthContext";
+import ErrorPopup from "../../components/ErrorPopup";
 
 function TeamPage() {
+	const { user } = useAuthContext();
+
 	const { team_id } = useParams();
 
 	const [teamDetails, setTeamDetails] = useState();
@@ -25,6 +29,18 @@ function TeamPage() {
 		}
 	};
 
+	const handleSetBattleTeam = async () => {
+		try {
+			const req = await axiosApi.put(`/trainer/${user.id}/battle-team`, { team_id });
+			const data = req.data;
+
+			// console.log(data);
+			getTeamDetails();
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	useEffect(() => {
 		getTeamDetails();
 	}, []);
@@ -35,10 +51,16 @@ function TeamPage() {
 
 	return (
 		<>
-			<h1 className="text-h1">
-				{teamDetails.team_id} : {teamDetails.team_name}
-			</h1>
+			<h1 className="text-h1">{teamDetails.team_name}</h1>
 			<h3 className="text-h3">Trainer : {teamDetails.name}</h3>
+			{teamDetails.trainer_id === user.id &&
+				(teamDetails.is_battle_team ? (
+					<div className="my-4">This is your battle team</div>
+				) : (
+					<button className="btn my-4" onClick={handleSetBattleTeam}>
+						Set Battle Team
+					</button>
+				))}
 			<div className="flex flex-wrap justify-center gap-4 my-10">
 				{!!pokemons &&
 					pokemons.map((myPokemon) => {

@@ -8,7 +8,7 @@ function AllPokemons() {
 	const [pokemons, setPokemons] = useState([]);
 	const [limit, setLimit] = useState(20);
 	const [offset, setOffset] = useState(0);
-	const [sortField, setSortField] = useState("id");
+	const [sortField, setSortField] = useState("pokemon_id");
 	const [sortOrder, setSortOrder] = useState("asc");
 	const [filterText, setFilterText] = useState("");
 	const [totalPages, setTotalPages] = useState(0);
@@ -70,10 +70,6 @@ function AllPokemons() {
 	useEffect(() => {
 		getAllPokemons();
 	}, []);
-
-	const handlePokemonSearch = (e) => {
-		setFilterText(e.target.value);
-	};
 
 	const PrevPageBtn = () => {
 		return (

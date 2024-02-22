@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import "dotenv/config";
@@ -12,6 +13,7 @@ const saltRounds = 10;
 
 // Middleware
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -152,7 +154,7 @@ app.post("/api/login", async (req, res) => {
 	try {
 		const formData = req.body;
 
-		console.log(formData);
+		// console.log(formData);
 
 		const { rows } = await pool.query(
 			`
@@ -174,7 +176,7 @@ app.post("/api/login", async (req, res) => {
 			throw new Error(errMsg);
 		}
 
-		console.log(rows[0]);
+		// console.log(rows[0]);
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
@@ -274,8 +276,8 @@ app.delete("/api/owned-pokemons/:trainerId", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 
-		if (err?.code == "23503") {
-			res.status(400).send({ message: "Pokemon is in a team. Remove from team first." });
+		if (err?.code == "P0001") {
+			res.status(400).send({ message: err.detail });
 			return;
 		}
 
@@ -327,10 +329,11 @@ app.get("/api/teams/:trainerId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-            SELECT *
-                FROM TEAMS
-                WHERE TRAINER_ID = $1
-				ORDER BY TEAM_ID;
+            SELECT TM.*, TR.BATTLE_TEAM = TM.TEAM_ID AS IS_BATTLE_TEAM
+                FROM TEAMS TM
+				JOIN TRAINERS TR ON (TM.TRAINER_ID = TR.ID)
+                WHERE TM.TRAINER_ID = $1
+				ORDER BY TM.TEAM_ID;
         `,
 			[trainerId]
 		);
@@ -423,7 +426,7 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
 
 		const { rows: rowsTeam } = await pool.query(
 			`
-            SELECT TM.*, TR.NAME
+            SELECT TM.*, TR.NAME, TR.BATTLE_TEAM = TM.TEAM_ID AS IS_BATTLE_TEAM
                 FROM TEAMS TM
 				JOIN TRAINERS TR ON (TM.TRAINER_ID = TR.ID)
                 WHERE TM.TEAM_ID = $1;
@@ -553,6 +556,63 @@ app.get("/api/trainers", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);
+	}
+});
+
+// Trainer Details
+app.get("/api/trainer/:trainerId", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, R.REGION_NAME, TM.*,
+			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
+			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
+				ON (B.PARTICIPANT_1 = T.TEAM_ID OR B.PARTICIPANT_2 = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_COUNT,
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
+				ON ((CASE B.WINNER WHEN 1 THEN B.PARTICIPANT_1 WHEN 2 THEN B.PARTICIPANT_2 END) = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
+			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS TM
+				ON TIT.TEAM_ID = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_COUNT,
+			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS TM
+				ON TRNM.WINNER = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_WIN_COUNT
+				FROM TRAINERS TR
+				JOIN REGIONS R
+					ON TR.REGION_ID = R.REGION_ID
+				JOIN TEAMS TM
+					ON TR.BATTLE_TEAM = TM.TEAM_ID
+				WHERE TR.ID = $1;
+		`,
+			[trainerId]
+		);
+
+		// console.log(rows);
+		res.status(200).json(rows[0]);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.put("/api/trainer/:trainerId/battle-team", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+		const formData = req.body;
+
+		await authenticateRequest(trainerId, req);
+
+		await pool.query(
+			`
+			CALL SET_BATTLE_TEAM($1, $2);
+		`,
+			[trainerId, formData.team_id]
+		);
+
+		res.status(200).json("Successfully added as battle team");
+	} catch (err) {
+		console.error(err);
+		res.status(400).send({ message: err.detail });
 	}
 });
 

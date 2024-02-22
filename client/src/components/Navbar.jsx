@@ -16,6 +16,7 @@ function LoggedOutElements() {
 		</>
 	);
 }
+
 function LoggedInElements() {
 	const { user, userDispatch } = useAuthContext();
 	const navigate = useNavigate();
@@ -27,6 +28,9 @@ function LoggedInElements() {
 			</Link>
 			<Link to="/my-teams/" className="btn">
 				My Teams
+			</Link>
+			<Link to={`/profile/${user.id}`} className="btn">
+				Profile
 			</Link>
 			<button
 				className="btn"
@@ -47,7 +51,10 @@ function Navbar() {
 	const { user } = useAuthContext();
 
 	return (
-		<div className="flex justify-end w-full px-8 text-center gap-5 my-5">
+		<div className="sticky top-0 flex items-center justify-end w-full px-8 bg-opacity-100 bg-slate-900 z-40 text-center gap-5 py-5 shadow-md shadow-slate-900">
+			<Link to="/" className="mr-auto font-bold">
+				Pokemon Buzzinga
+			</Link>
 			<Link to="/pokemons" className="btn">
 				All Pokemons
 			</Link>

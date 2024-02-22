@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axiosApi from "../../utils/AxiosSetup";
 import { Link } from "react-router-dom";
+import useAuthContext from "../../hooks/useAuthContext";
 
-function TeamCard({ team_id, trainer_id, team_name, refreshTeams }) {
+function TeamCard({ team_id, trainer_id, team_name, is_battle_team, refreshTeams }) {
 	const [pokemons, setPokemons] = useState([]);
+
+	const { user } = useAuthContext();
+
+	const showDelete = user.id === trainer_id && !!refreshTeams;
 
 	const getTeamPokemons = async () => {
 		try {
@@ -37,7 +42,11 @@ function TeamCard({ team_id, trainer_id, team_name, refreshTeams }) {
 	}, []);
 
 	return (
-		<div className="flex flex-col gap-2 items-center w-52 min-h-80 rounded-lg bg-white text-black py-4 px-6">
+		<div
+			className={`flex flex-col gap-2 items-center w-52 min-h-80 rounded-lg bg-white text-black py-4 px-6 ${
+				!!is_battle_team && "outline outline-2 outline-amber-500 border-2 border-amber-500"
+			}`}
+		>
 			{/* <span>{id}</span> */}
 			<span className="text-h3 my-2">{team_name}</span>
 			<div className="flex flex-col w-full gap-2 mb-4 cursor-default">
@@ -56,9 +65,11 @@ function TeamCard({ team_id, trainer_id, team_name, refreshTeams }) {
 				Details
 			</Link>
 
-			<button className="btn--red" onClick={handleDeleteTeam}>
-				Delete
-			</button>
+			{showDelete && (
+				<button className="btn--red" onClick={handleDeleteTeam}>
+					Delete
+				</button>
+			)}
 		</div>
 	);
 }

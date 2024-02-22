@@ -18,20 +18,20 @@ const statToStyle = {
 };
 
 function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
-	const { user } = useAuthContext();
+	// const { user } = useAuthContext();
 
-	const handleBuy = async () => {
-		try {
-			const formData = {
-				pokemonId: pokemon_id,
-				nickname: name,
-			};
-			const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
-			const data = req.data;
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	// const handleBuy = async () => {
+	// 	try {
+	// 		const formData = {
+	// 			pokemonId: pokemon_id,
+	// 			nickname: name,
+	// 		};
+	// 		const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
+	// 		const data = req.data;
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 
 	return (
 		<div className={`flex flex-col w-64 gap-1 p-6 items-center rounded-lg bg-white text-black ${PClassName}`}>
@@ -59,11 +59,11 @@ function PokemonEntry({ pokemon_id, name, stats, buy, className: PClassName }) {
 					</>
 				))}
 			</div>
-			{buy && (
+			{/* {buy && (
 				<button className="btn--green mt-4" onClick={handleBuy}>
 					Buy
 				</button>
-			)}
+			)} */}
 		</div>
 	);
 }

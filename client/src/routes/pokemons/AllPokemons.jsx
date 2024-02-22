@@ -29,8 +29,8 @@ function AllPokemons() {
   return (
     <>
       <h1 className="text-h1">All Pokemons</h1>
-      <button className="btn--blue" onClick={dekhNature}>View Natures</button> 
-      <div className="flex flex-wrap justify-center gap-4">
+      <button className="teal-button" onClick={dekhNature}>View Natures</button>
+      <div className="flex flex-wrap justify-center gap-4 mt-10">
         {!!pokemons &&
           pokemons.map((pokemonData) => (
             <Link key={pokemonData.pokemon_id} to={`/pokemonsdets/${pokemonData.pokemon_id}`}>
@@ -38,6 +38,13 @@ function AllPokemons() {
             </Link>
           ))}
       </div>
+      <style>{`
+      .teal-button {
+        background-color: teal;
+        color: white;
+      }
+      `}
+      </style>
     </>
   );
 }

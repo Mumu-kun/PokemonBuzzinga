@@ -97,13 +97,16 @@ const PokemonDetailsPage = () => {
 
   const handleSubmitNickname = async (denam) => {
     showpop(false);
+    const res = await axios.get(`/trainer_money/${user.id}`);
+    let money= res.data;
     const final_ali = denam || pokemonDetails.name;
     try {
       const formData = {
         pokemonId: pokemonDetails.pokemon_id,
         nickname: final_ali,
       };
-      const req = await axios.post(`/owned-pokemons/${user.id}`, formData);
+      money= money - pokemonDetails.price;
+      const request = await axios.post(`/trainer_money/${user.id}`, {balance: money});
     } catch (error) {
       console.error(error);
     }

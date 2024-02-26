@@ -53,6 +53,17 @@ const Profile = () => {
 		}
 	};
 
+	const handleDeselect = async () => {
+		try {
+			const req = await axios.put(`/trainer/${user.id}/battle-team`, { team_id: null });
+			const data = req.data;
+
+			getProfileData();
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	useEffect(() => {
 		getProfileData();
 	}, []);
@@ -114,11 +125,13 @@ const Profile = () => {
 									<button className={`${profileData.in_queue ? "btn--red" : "btn--green"} rounded-sm`}>
 										{profileData.in_queue ? "Dequeue" : "Queue"}
 									</button>
-									<button className="btn">Deselect Battle Team</button>
+									<button className="btn" onClick={handleDeselect}>
+										Deselect Battle Team
+									</button>
 								</>
 							) : (
 								<>
-									<Link to="my-teams/" className="btn">
+									<Link to="/my-teams/" className="btn">
 										Select Battle Team
 									</Link>
 								</>

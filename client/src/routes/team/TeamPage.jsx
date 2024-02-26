@@ -30,9 +30,10 @@ function TeamPage() {
 		}
 	};
 
-	const handleSetBattleTeam = async () => {
+	const handleSetBattleTeam = async (clear = false) => {
+		console.log(clear, clear ? null : team_id);
 		try {
-			const req = await axiosApi.put(`/trainer/${user.id}/battle-team`, { team_id });
+			const req = await axiosApi.put(`/trainer/${user.id}/battle-team`, { team_id: clear ? null : team_id });
 			const data = req.data;
 
 			// console.log(data);
@@ -60,9 +61,11 @@ function TeamPage() {
 			<h3 className="text-h3">Trainer : {teamDetails.name}</h3>
 			{teamDetails.trainer_id === user.id &&
 				(teamDetails.is_battle_team ? (
-					<div className="my-4">This is your battle team</div>
+					<button className="btn--red my-4" onClick={handleSetBattleTeam.bind(null, true)}>
+						Deselect Battle Team
+					</button>
 				) : (
-					<button className="btn my-4" onClick={handleSetBattleTeam}>
+					<button className="btn my-4" onClick={handleSetBattleTeam.bind(null, false)}>
 						Set Battle Team
 					</button>
 				))}

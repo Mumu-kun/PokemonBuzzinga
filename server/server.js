@@ -20,23 +20,43 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.get("/api/pokemons", async (req, res) => {
 	try {
-		const { start = 1, limit = null } = req.query;
+		const {
+			limit = 20,
+			offset = 0,
+			sortField = "pokemon_id",
+			sortOrder = "asc",
+			filterText = "",
+			selectedRegion,
+		} = req.query;
+
+		const { rows: countRows } = await pool.query(
+			`
+			SELECT COUNT(*) as count FROM POKEMONS
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
+				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			};`,
+			[filterText]
+		);
 
 		const { rows } = await pool.query(
 			`
-            SELECT *
-                FROM POKEMONS
-				ORDER BY POKEMON_ID
-				LIMIT $1 OFFSET $2;
-        `,
-			[limit, start - 1]
+		SELECT *
+			FROM POKEMONS
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
+				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			}
+			ORDER BY ${sortField} ${sortOrder}
+			LIMIT $2 OFFSET $3;
+	`,
+			[filterText, limit === "all" ? null : limit, offset]
 		);
 
 		const pokemonList = rows.map((data) => {
-			const { pokemon_id, name, hp, attack, defense, speed, sp_attack, sp_defense, total } = data;
+			const { pokemon_id, name, hp, attack, defense, speed, sp_attack, sp_defense, total, price } = data;
 			return {
 				pokemon_id,
 				name,
+				price,
 				stats: {
 					hp,
 					attack,
@@ -49,7 +69,7 @@ app.get("/api/pokemons", async (req, res) => {
 			};
 		});
 
-		res.status(200).json(pokemonList);
+		res.status(200).json({ count: countRows[0].count, pokemonList });
 	} catch (err) {
 		console.error(err);
 	}
@@ -430,7 +450,7 @@ app.get("/api/team/:teamId/pokemons", async (req, res) => {
 			[teamId]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -619,6 +639,8 @@ app.put("/api/trainer/:trainerId/battle-team", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
 		const formData = req.body;
+
+		console.log(formData);
 
 		await authenticateRequest(trainerId, req);
 

@@ -261,18 +261,16 @@ app.post("/api/owned-pokemons/:trainerId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-            INSERT INTO 
-            OWNED_POKEMONS(POKEMON_ID, TRAINER_ID, NICKNAME)
-            VALUES($1, $2, $3) RETURNING *;
+            CALL BUY_POKEMON($1, $2, $3);
         `,
-			[formData.ownedPokemonId, trainerId, formData.nickname]
+			[trainerId, formData.pokemonId, formData.nickname]
 		);
 
 		// console.log(rows);
-		res.status(200).json(rows);
+		res.status(200).json("Pokemon Added.");
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.detail);
+		res.status(400).send({ message: err.detail });
 	}
 });
 
@@ -412,7 +410,7 @@ app.delete("/api/teams/:trainerId", async (req, res) => {
 	}
 });
 
-app.get("/api/teams/:teamId/pokemons", async (req, res) => {
+app.get("/api/team/:teamId/pokemons", async (req, res) => {
 	try {
 		const { teamId } = req.params;
 
@@ -427,7 +425,7 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 				JOIN POKEMONS P
                     ON OP.POKEMON_ID = P.POKEMON_ID
                 WHERE T.TEAM_ID = $1
-				ORDER BY OP.ID;
+				ORDER BY PIT.P_ORDER ASC;
         `,
 			[teamId]
 		);
@@ -441,7 +439,7 @@ app.get("/api/teams/:teamId/pokemons", async (req, res) => {
 });
 
 // Team Details
-app.get("/api/teams/:teamId/details", async (req, res) => {
+app.get("/api/team/:teamId/details", async (req, res) => {
 	try {
 		const { teamId } = req.params;
 
@@ -468,7 +466,7 @@ app.get("/api/teams/:teamId/details", async (req, res) => {
 				LEFT JOIN MOVES M
 					ON M.MOVE_ID = OP.MOVE_ID
                 WHERE T.TEAM_ID = $1
-				ORDER BY OP.ID;
+				ORDER BY PIT.P_ORDER ASC;
         `,
 			[teamId]
 		);
@@ -496,7 +494,7 @@ app.post("/api/add-pokemon-to-team/:teamId", async (req, res) => {
 		);
 
 		if (rowsTrainer.length == 0) {
-			throw Error("Team does not exist");
+			throw Error("Pokemon doesn't exist");
 		}
 
 		const { trainer_id } = rowsTrainer[0];
@@ -602,7 +600,7 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 				FROM TRAINERS TR
 				JOIN REGIONS R
 					ON TR.REGION_ID = R.REGION_ID
-				JOIN TEAMS TM
+				LEFT JOIN TEAMS TM
 					ON TR.BATTLE_TEAM = TM.TEAM_ID
 				WHERE TR.ID = $1;
 		`,
@@ -634,6 +632,12 @@ app.put("/api/trainer/:trainerId/battle-team", async (req, res) => {
 		res.status(200).json("Successfully added as battle team");
 	} catch (err) {
 		console.error(err);
+
+		if (err.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
 		res.status(400).send({ message: err.detail });
 	}
 });
@@ -673,51 +677,6 @@ app.get("/api/nature", async (req, res) => {
 		}));
 
 		res.status(200).json(natures);
-	} catch (err) {
-		console.error(err);
-		res.sendStatus(400);
-	}
-});
-
-app.get("/api/trainer_money/:id", async (req, res) => {
-	try {
-		const trainer_id = req.params.id;
-		const { rows } = await pool.query(
-			`
-			SELECT balance
-				FROM trainers
-				WHERE id = $1;
-		`,
-			[trainer_id]
-		);
-
-		//console.log(rows);
-		const balance = rows[0].balance;
-
-		res.status(200).json(balance);
-	} catch (err) {
-		console.error(err);
-		res.sendStatus(400);
-	}
-});
-app.post("/api/trainer_money/:id", async (req, res) => {
-	try {
-		const trainer_id = req.params.id;
-		const formData = req.body;
-		console.log(formData);
-		const { rows } = await pool.query(
-			`
-			UPDATE trainers
-				SET balance = $1
-				WHERE id = $2
-				RETURNING *;
-		`,
-			[formData.balance, trainer_id]
-		);
-
-		console.log(rows);
-
-		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);

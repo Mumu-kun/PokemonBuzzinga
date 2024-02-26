@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import TeamCard from "../my-teams/TeamCard";
 import MyPokemonEntry from "../pokemons/MyPokemonEntry";
 
@@ -31,7 +31,6 @@ const Profile = () => {
 			const req = await axios.get(`/trainer/${trainer_id}`);
 			const data = await req.data;
 
-			// console.log(data);
 			setProfileData(data);
 		} catch (error) {
 			console.error(error);
@@ -68,11 +67,13 @@ const Profile = () => {
 		return null;
 	}
 
-	const battle_team = {
-		team_id: profileData.team_id,
-		trainer_id: profileData.trainer_id,
-		team_name: profileData.team_name,
-	};
+	const battle_team = profileData.team_id
+		? {
+				team_id: profileData.team_id,
+				trainer_id: profileData.trainer_id,
+				team_name: profileData.team_name,
+		  }
+		: null;
 
 	return (
 		<>
@@ -106,8 +107,22 @@ const Profile = () => {
 					</div>
 					<div>
 						<h3 className="text-h3 mb-6">Battle Team</h3>
-						<div className="ml-4">
-							<TeamCard {...battle_team} />
+						<div className="ml-4 flex flex-col gap-4 items-center">
+							{!!battle_team ? <TeamCard {...battle_team} /> : <p>No Battle Team</p>}
+							{user.id === profileData.id && !!battle_team ? (
+								<>
+									<button className={`${profileData.in_queue ? "btn--red" : "btn--green"} rounded-sm`}>
+										{profileData.in_queue ? "Dequeue" : "Queue"}
+									</button>
+									<button className="btn">Deselect Battle Team</button>
+								</>
+							) : (
+								<>
+									<Link to="my-teams/" className="btn">
+										Select Battle Team
+									</Link>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

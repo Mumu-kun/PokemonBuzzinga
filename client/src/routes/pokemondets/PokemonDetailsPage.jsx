@@ -8,6 +8,7 @@ import { WiStars } from "react-icons/wi";
 import PopupBuy from "./PopupBuy";
 import { GiGlassBall } from "react-icons/gi";
 import { Link, useNavigate } from "react-router-dom";
+import MsgPopup from "../../components/MsgPopup";
 
 const statToStyle = {
 	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
@@ -67,6 +68,7 @@ export const typeToStyle = {
 const PokemonDetailsPage = () => {
 	const [pokemonDetails, setPokemonDetails] = useState(null);
 	const [showPopup, setShowPopup] = useState(false);
+	const [msg, setMsg] = useState(null);
 	const { id } = useParams();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
@@ -97,17 +99,13 @@ const PokemonDetailsPage = () => {
 
 	const handleSubmitNickname = async (denam) => {
 		try {
-			const res = await axios.get(`/trainer_money/${user.id}`);
-			let money = res.data;
-			const final_ali = denam || pokemonDetails.name;
-
 			const formData = {
 				pokemonId: pokemonDetails.pokemon_id,
-				nickname: final_ali,
+				nickname: denam,
 			};
 
-			money = money - pokemonDetails.price;
-			const request = await axios.post(`/trainer_money/${user.id}`, { balance: money });
+			const res = await axios.post(`/owned-pokemons/${user.id}`, formData);
+			setMsg("You have successfully bought the Pokémon!");
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -132,6 +130,7 @@ const PokemonDetailsPage = () => {
 
 	return (
 		<div className="pokemon-details-container bg-gray-100 p-4 text-gray-800" style={{ width: "1000px" }}>
+			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
 			<div className="pokemon-details-container bg-blue-100 p-4 rounded-lg">
 				<div className="flex justify-between mt-4">
 					<button

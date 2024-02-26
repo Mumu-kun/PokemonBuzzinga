@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PokemonEntry from "./PokemonEntry";
 import axios from "../../utils/AxiosSetup";
-import ErrorPopup from "../../components/ErrorPopup";
+import MsgPopup from "../../components/MsgPopup";
 import Popup from "../../components/Popup";
 import useAuthContext from "../../hooks/useAuthContext";
 import { TiTick } from "react-icons/ti";
@@ -10,7 +10,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 	const { user } = useAuthContext();
 
 	const [selectedTeam, setSelectedTeam] = useState(team_id);
-	const [error, setError] = useState(null);
+	const [msg, setMsg] = useState(null);
 	const [freePrompt, setFreePrompt] = useState(false);
 	const [nickname, setNickname] = useState(pNickname);
 	const [nicknameChanged, setNicknameChanged] = useState(false);
@@ -39,7 +39,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 			console.error(error);
 
 			if (error.response.data.message) {
-				setError(error.response.data.message);
+				setMsg(error.response.data.message);
 			}
 
 			setSelectedTeam(null);
@@ -60,7 +60,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 			console.error(error);
 
 			if (error.response?.data?.message) {
-				setError(error.response.data.message);
+				setMsg(error.response.data.message);
 			}
 		} finally {
 			setFreePrompt(false);
@@ -69,7 +69,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 
 	return (
 		<>
-			{!!error && <ErrorPopup message={error} setMessage={setError} />}
+			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
 
 			<div className="flex flex-col w-fit bg-slate-100 text-black rounded-lg items-center p-2" key={id}>
 				<div className="text-xs my-1">Nickname</div>

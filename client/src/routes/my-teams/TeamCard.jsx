@@ -12,7 +12,7 @@ function TeamCard({ team_id, trainer_id, team_name, is_battle_team, refreshTeams
 
 	const getTeamPokemons = async () => {
 		try {
-			const req = await axiosApi.get(`/teams/${team_id}/pokemons`);
+			const req = await axiosApi.get(`/team/${team_id}/pokemons`);
 			const data = req.data;
 
 			setPokemons(data);

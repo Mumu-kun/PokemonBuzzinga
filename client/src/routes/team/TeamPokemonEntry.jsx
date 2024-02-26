@@ -3,7 +3,7 @@ import PokemonEntry from "../pokemons/PokemonEntry";
 import axios from "../../utils/AxiosSetup";
 import Moves from "./Moves";
 import { IoMdCloseCircle } from "react-icons/io";
-import ErrorPopup from "../../components/ErrorPopup";
+import MsgPopup from "../../components/MsgPopup";
 
 function TeamPokemonEntry({ id, nickname, move, pokemonData, getTeamDetails }) {
 	const [error, setError] = useState(null);
@@ -63,7 +63,7 @@ function TeamPokemonEntry({ id, nickname, move, pokemonData, getTeamDetails }) {
 
 	return (
 		<>
-			{!!error && <ErrorPopup message={error} setMessage={setError} />}
+			{!!error && <MsgPopup message={error} setMessage={setError} />}
 			{!!moves.length && (
 				<div className="fixed top-0 left-0 flex justify-center items-center w-screen h-screen z-10 bg-opacity-50 bg-slate-900">
 					<div className="w-1/2 relative rounded-md">

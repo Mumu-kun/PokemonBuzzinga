@@ -66,7 +66,7 @@ export const typeToStyle = {
 
 const PokemonDetailsPage = () => {
 	const [pokemonDetails, setPokemonDetails] = useState(null);
-	const [showPopup, showpop] = useState(false);
+	const [showPopup, setShowPopup] = useState(false);
 	const { id } = useParams();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
@@ -92,28 +92,31 @@ const PokemonDetailsPage = () => {
 	const { stats, abilities, moves } = pokemonDetails;
 
 	const handleBuy = async () => {
-		showpop(true);
+		setShowPopup(true);
 	};
 
 	const handleSubmitNickname = async (denam) => {
-		showpop(false);
-		const res = await axios.get(`/trainer_money/${user.id}`);
-		let money = res.data;
-		const final_ali = denam || pokemonDetails.name;
 		try {
+			const res = await axios.get(`/trainer_money/${user.id}`);
+			let money = res.data;
+			const final_ali = denam || pokemonDetails.name;
+
 			const formData = {
 				pokemonId: pokemonDetails.pokemon_id,
 				nickname: final_ali,
 			};
+
 			money = money - pokemonDetails.price;
 			const request = await axios.post(`/trainer_money/${user.id}`, { balance: money });
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setShowPopup(false);
 		}
 	};
 
 	const handleCancelNickname = () => {
-		showpop(false);
+		setShowPopup(false);
 	};
 	const handleNext = () => {
 		const nextpok = parseInt(id, 10) + 1;
@@ -176,7 +179,7 @@ const PokemonDetailsPage = () => {
 				>
 					Buy
 				</button>
-				{showPopup && <Popup onSubmit={handleSubmitNickname} onCancel={handleCancelNickname}></Popup>}
+				{showPopup && <PopupBuy onSubmit={handleSubmitNickname} onCancel={handleCancelNickname} />}
 				<div className="my-4">
 					<p>Types:</p>
 					<div className="flex space-x-2">

@@ -3,6 +3,7 @@ import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
 import { useParams } from "react-router-dom";
 import TeamCard from "../my-teams/TeamCard";
+import MyPokemonEntry from "../pokemons/MyPokemonEntry";
 
 const InfoList = ({ children }) => {
 	return <div className="ml-4 grid grid-cols-[max-content_max-content_auto] gap-x-1 gap-y-0.5">{children}</div>;
@@ -23,13 +24,31 @@ const Profile = () => {
 	const { trainer_id } = useParams();
 
 	const [profileData, setProfileData] = useState();
+	const [pokemonData, setPokemonData] = useState();
 
 	const getProfileData = async () => {
 		try {
 			const req = await axios.get(`/trainer/${trainer_id}`);
 			const data = await req.data;
 
+			// console.log(data);
 			setProfileData(data);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const getStrongestPokemonData = async () => {
+		try {
+			const req = await axios.get(`/owned-pokemon/${profileData.strongest_pokemon_id}`);
+			const myPokemonData = req.data;
+
+			// console.log(myPokemonData);
+
+			const reqPokemonData = await axios.get(`/pokemons/${myPokemonData.pokemon_id}`);
+			const pokemonData = reqPokemonData.data;
+
+			setPokemonData({ ...myPokemonData, pokemonData: { ...pokemonData } });
 		} catch (error) {
 			console.error(error);
 		}
@@ -38,6 +57,12 @@ const Profile = () => {
 	useEffect(() => {
 		getProfileData();
 	}, []);
+
+	useEffect(() => {
+		if (profileData && profileData.strongest_pokemon_id) {
+			getStrongestPokemonData();
+		}
+	}, [profileData]);
 
 	if (!profileData) {
 		return null;
@@ -53,7 +78,7 @@ const Profile = () => {
 		<>
 			<div className="min-w-[800px] mt-8">
 				<h1 className="text-h1 mb-20">Profile</h1>
-				<div className="grid grid-cols-2 gap-20">
+				<div className="grid grid-cols-[auto_max-content] justify-between gap-y-20">
 					<div className="mb-10">
 						<h3 className="text-h3 mb-6">Trainer Info</h3>
 						<InfoList>
@@ -73,7 +98,13 @@ const Profile = () => {
 							<Info title="Tournaments Won" value={profileData.tournament_win_count} />
 						</InfoList>
 					</div>
-					<div className="">
+					<div>
+						<h3 className="text-h3 mb-6">Strongest Pokemon</h3>
+						<div className="ml-4 scale-[80%] origin-top-left">
+							{!!pokemonData && <MyPokemonEntry {...pokemonData} inProfile={true} />}
+						</div>
+					</div>
+					<div>
 						<h3 className="text-h3 mb-6">Battle Team</h3>
 						<div className="ml-4">
 							<TeamCard {...battle_team} />

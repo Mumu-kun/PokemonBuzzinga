@@ -208,6 +208,27 @@ app.post("/api/signup", async (req, res) => {
 });
 
 // Get and Add Owned Pokemons
+app.get("/api/owned-pokemon/:id", async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT *
+				FROM OWNED_POKEMONS
+				WHERE ID = $1;
+		`,
+			[id]
+		);
+
+		// console.log(rows);
+		res.status(200).json(rows[0]);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
 app.get("/api/owned-pokemons/:trainerId", async (req, res) => {
 	try {
 		const { trainerId } = req.params;
@@ -567,6 +588,7 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 		const { rows } = await pool.query(
 			`
 			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, R.REGION_NAME, TM.*,
+			(SELECT ID FROM OWNED_POKEMONS OP JOIN POKEMONS P ON OP.POKEMON_ID = P.POKEMON_ID WHERE TR.ID = OP.TRAINER_ID ORDER BY P.TOTAL DESC LIMIT 1) AS STRONGEST_POKEMON_ID,
 			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
 			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
 			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T

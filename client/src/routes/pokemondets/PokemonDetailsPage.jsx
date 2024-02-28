@@ -99,6 +99,7 @@ const PokemonDetailsPage = () => {
 		showpop(false);
 		const res = await axios.get(`/trainer_money/${user.id}`);
 		let money = res.data;
+		console.log(money);
 		const final_ali = denam || pokemonDetails.name;
 		try {
 			const formData = {
@@ -112,7 +113,7 @@ const PokemonDetailsPage = () => {
 		}
 	};
 
-	const handleCancelNickname = () => {
+	const handleCancelNickname = () => { 
 		showpop(false);
 	};
 	const handleNext = () => {

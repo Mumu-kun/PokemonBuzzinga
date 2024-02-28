@@ -1,7 +1,8 @@
 import axios from "../../utils/AxiosSetup";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PokemonEntry from "./PokemonEntry";
 import { Link, useNavigate } from "react-router-dom";
+import Loading from "../../components/Loading";
 
 const stats = ["hp", "attack", "defense", "speed", "sp_attack", "sp_defense", "total"];
 
@@ -13,66 +14,61 @@ function AllPokemons() {
 	const [sortOrder, setSortOrder] = useState("asc");
 	const [filterText, setFilterText] = useState("");
 	const [totalPages, setTotalPages] = useState(0);
-
-	const filteredPokemons = useMemo(() => {
-		if (!pokemons) return [];
-
-		let filtered = pokemons;
-
-		if (sortField) {
-			filtered = filtered.toSorted((a, b) => {
-				if (sortOrder === "asc") {
-					if (sortField === "pokemon_id") {
-						return a[sortField] - b[sortField];
-					}
-					return a.stats[sortField] - b.stats[sortField];
-				} else {
-					if (sortField === "pokemon_id") {
-						return b[sortField] - a[sortField];
-					}
-					return b.stats[sortField] - a.stats[sortField];
-				}
-			});
-		}
-
-		if (filterText) {
-			filtered = filtered.filter((pokemon) => {
-				return (
-					pokemon.name.toLowerCase().includes(filterText.toLowerCase()) ||
-					pokemon.pokemon_id.toString().startsWith(filterText)
-				);
-			});
-		}
-
-		setTotalPages(limit ? Math.ceil(filtered.length / limit) : 1);
-
-		if (offset > 0) {
-			filtered = filtered.slice(offset);
-		}
-
-		if (limit) {
-			filtered = filtered.slice(0, limit);
-		}
-
-		return filtered;
-	}, [pokemons, limit, offset, filterText, sortField, sortOrder]);
+	const [selectedRegion, setSelectedRegion] = useState(0);
+	const [regions, setRegions] = useState([]);
 
 	const navigate = useNavigate();
 
 	const getAllPokemons = async () => {
 		try {
-			const req = await axios.get("/pokemons");
+			const req = await axios.get("/pokemons", {
+				params: { limit: limit === 0 ? "all" : limit, offset, sortField, sortOrder, filterText, selectedRegion },
+			});
 			const data = req.data;
 
-			setPokemons(data);
+			setTotalPages(Math.ceil(data.count / limit));
+
+			setPokemons(data.pokemonList);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const getRegions = async () => {
+		try {
+			const req = await axios.get("/regions");
+			const data = req.data;
+
+			setRegions(
+				data.map((region) => {
+					const { region_id, region_name } = region;
+					return {
+						region_id,
+						region_name,
+					};
+				})
+			);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		getAllPokemons();
+		getRegions();
 	}, []);
+
+	useEffect(() => {
+		getAllPokemons();
+	}, [limit, offset, sortField, sortOrder, selectedRegion]);
+
+	useDebounce(
+		() => {
+			getAllPokemons();
+		},
+		[filterText],
+		200
+	);
+
 	const PrevPageBtn = () => {
 		return (
 			<button
@@ -121,6 +117,50 @@ function AllPokemons() {
 					}}
 					className="text-black py-2 px-4 rounded-md w-60 active:outline-none focus:outline-none"
 				/>
+
+				<div className="bg-slate-700 p-1 rounded-md">
+					<label className="mx-1">Region :</label>
+					<select
+						value={selectedRegion}
+						onChange={(e) => {
+							setOffset(0);
+							setSelectedRegion(parseInt(e.target.value));
+						}}
+						className="text-black py-1 px-2 w-fit rounded-md active:outline-none focus:outline-none"
+					>
+						<option value="0">All</option>
+						{!!regions && regions.map((region) => <option value={region.region_id}>{region.region_name}</option>)}
+					</select>
+				</div>
+
+				<div className="bg-slate-700 p-1 rounded-md">
+					<label className="mx-1">Sort :</label>
+					<select
+						value={sortField}
+						onChange={(e) => {
+							setOffset(0);
+							setSortField(e.target.value);
+						}}
+						className="text-black py-1 px-2 mr-1 w-fit rounded-md capitalize active:outline-none focus:outline-none"
+					>
+						<option value="pokemon_id">ID</option>
+						{stats.map((stat) => (
+							<option value={stat}>{stat.replace("_", " ")}</option>
+						))}
+						<option value="price">Price</option>
+					</select>
+					<select
+						value={sortOrder}
+						onChange={(e) => {
+							setOffset(0);
+							setSortOrder(e.target.value);
+						}}
+						className="text-black py-1 px-2 w-fit rounded-md capitalize active:outline-none focus:outline-none"
+					>
+						<option value="asc">Asc</option>
+						<option value="desc">Desc</option>
+					</select>
+				</div>
 				<div className="bg-slate-700 p-1 rounded-md">
 					<label className="mx-1">Limit :</label>
 					<select
@@ -139,53 +179,40 @@ function AllPokemons() {
 						<option value="0">All</option>
 					</select>
 				</div>
-				<div className="bg-slate-700 p-1 rounded-md">
-					<label className="mx-1">Sort :</label>
-					<select
-						value={sortField}
-						onChange={(e) => {
-							setOffset(0);
-							setSortField(e.target.value);
-						}}
-						className="text-black py-1 px-2 mr-1 w-fit rounded-md capitalize active:outline-none focus:outline-none"
-					>
-						<option value="pokemon_id">ID</option>
-						{stats.map((stat) => (
-							<option value={stat}>{stat.replace("_", " ")}</option>
-						))}
-					</select>
-					<select
-						value={sortOrder}
-						onChange={(e) => {
-							setOffset(0);
-							setSortOrder(e.target.value);
-						}}
-						className="text-black py-1 px-2 w-fit rounded-md capitalize active:outline-none focus:outline-none"
-					>
-						<option value="asc">Asc</option>
-						<option value="desc">Desc</option>
-					</select>
-				</div>
 				<NextPageBtn />
 			</div>
 			<div className="mb-4">
-				Page {offset / (limit ? limit : 1) + 1} of {totalPages}
+				Page {!(pokemons && pokemons.length > 0) ? "0" : offset / (limit ? limit : 1) + 1} of {totalPages}
 			</div>
 			<div className="flex flex-wrap justify-center gap-4 mb-8">
-				{!!filteredPokemons &&
-					filteredPokemons.map((pokemonData) => (
-						<PokemonEntry {...pokemonData} key={pokemonData.pokemon_id} className="transition-all hover:scale-105" />
+				{!!pokemons &&
+					pokemons.map((pokemonData) => (
+						<PokemonEntry
+							{...pokemonData}
+							key={pokemonData.pokemon_id}
+							showPrice={true}
+							className="transition-all hover:scale-105"
+						/>
 					))}
 			</div>
 			<div className="flex w-full justify-between">
 				<PrevPageBtn />
 				<div>
-					Page {offset / (limit ? limit : 1) + 1} of {totalPages}
+					Page {!(pokemons && pokemons.length > 0) ? "0" : offset / (limit ? limit : 1) + 1} of {totalPages}
 				</div>
 				<NextPageBtn />
-			</div>
+			</div>{" "}
 		</>
 	);
 }
 
 export default AllPokemons;
+
+function useDebounce(effect, dependencies, delay) {
+	const callback = useCallback(effect, dependencies);
+
+	useEffect(() => {
+		const timeout = setTimeout(callback, delay);
+		return () => clearTimeout(timeout);
+	}, [callback, delay]);
+}

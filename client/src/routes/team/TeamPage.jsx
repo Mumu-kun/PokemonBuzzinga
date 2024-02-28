@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import TeamPokemonEntry from "./TeamPokemonEntry";
 import axiosApi from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
-import ErrorPopup from "../../components/ErrorPopup";
+import MsgPopup from "../../components/MsgPopup";
 
 function TeamPage() {
 	const { user } = useAuthContext();
@@ -11,6 +11,7 @@ function TeamPage() {
 	const { team_id } = useParams();
 
 	const [teamDetails, setTeamDetails] = useState();
+	const [msg, setMsg] = useState(null);
 
 	const pokemons = useMemo(() => {
 		return teamDetails?.pokemons ?? null;
@@ -18,7 +19,7 @@ function TeamPage() {
 
 	const getTeamDetails = async () => {
 		try {
-			const req = await axiosApi.get(`/teams/${team_id}/details`);
+			const req = await axiosApi.get(`/team/${team_id}/details`);
 			const data = req.data;
 
 			setTeamDetails(data);
@@ -29,15 +30,19 @@ function TeamPage() {
 		}
 	};
 
-	const handleSetBattleTeam = async () => {
+	const handleSetBattleTeam = async (clear = false) => {
+		console.log(clear, clear ? null : team_id);
 		try {
-			const req = await axiosApi.put(`/trainer/${user.id}/battle-team`, { team_id });
+			const req = await axiosApi.put(`/trainer/${user.id}/battle-team`, { team_id: clear ? null : team_id });
 			const data = req.data;
 
 			// console.log(data);
 			getTeamDetails();
 		} catch (error) {
 			console.error(error);
+			if (error.response.status === 409) {
+				setMsg(error.response.data.message);
+			}
 		}
 	};
 
@@ -51,13 +56,16 @@ function TeamPage() {
 
 	return (
 		<>
+			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
 			<h1 className="text-h1">{teamDetails.team_name}</h1>
 			<h3 className="text-h3">Trainer : {teamDetails.name}</h3>
 			{teamDetails.trainer_id === user.id &&
 				(teamDetails.is_battle_team ? (
-					<div className="my-4">This is your battle team</div>
+					<button className="btn--red my-4" onClick={handleSetBattleTeam.bind(null, true)}>
+						Deselect Battle Team
+					</button>
 				) : (
-					<button className="btn my-4" onClick={handleSetBattleTeam}>
+					<button className="btn my-4" onClick={handleSetBattleTeam.bind(null, false)}>
 						Set Battle Team
 					</button>
 				))}

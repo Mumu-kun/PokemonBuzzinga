@@ -219,7 +219,7 @@ app.post("/api/signup", async (req, res) => {
 			[formData.name, hashedPass, formData.region_id]
 		);
 
-		console.log(rows[0]);
+		//console.log(rows[0]);
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
@@ -640,8 +640,6 @@ app.put("/api/trainer/:trainerId/battle-team", async (req, res) => {
 		const { trainerId } = req.params;
 		const formData = req.body;
 
-		console.log(formData);
-
 		await authenticateRequest(trainerId, req);
 
 		await pool.query(
@@ -922,6 +920,197 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(400).send(err.message);
+	}
+});
+app.get("/api/trainers_line", async (req, res) => {
+	try {
+		const { rows } = await pool.query(
+			`
+            SELECT id
+            FROM trainers
+            WHERE in_queue = true;
+            `
+		);
+
+		const wannabattle = rows.map((row) => row.id);
+		res.status(200).json(wannabattle);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to retrieve trainer IDs from the queue.");
+	}
+});
+
+app.get("/api/state/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		const { rows } = await pool.query(
+			`
+            SELECT in_queue
+            FROM trainers
+            where id = $1;
+            `,
+			[id]
+		);
+
+		const state = rows[0].in_queue;
+		res.status(200).json(state);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to retrieve state.");
+	}
+});
+
+app.put("/api/battle_yes/:id", async (req, res) => {
+	try {
+		const trainer_id = req.params.id;
+		const { rows } = await pool.query(
+			`
+			UPDATE trainers
+			SET in_queue = true
+			WHERE id = $1
+			RETURNING *;
+			`,
+			[trainer_id]
+		);
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to add trainer to the queue.");
+	}
+});
+app.put("/api/battle_no/:id", async (req, res) => {
+	try {
+		const trainer_id = req.params.id;
+		const { rows } = await pool.query(
+			`
+			UPDATE trainers
+			SET in_queue = false
+			WHERE id = $1
+			RETURNING *;
+			`,
+			[trainer_id]
+		);
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to remove trainer from the queue.");
+	}
+});
+
+app.post("/api/send_battle", async (req, res) => {
+	try {
+		const { challenger_id, trainer_id } = req.body;
+		console.log(challenger_id);
+		const { rows: cbt } = await pool.query(
+			`
+		SELECT battle_team
+		FROM trainers
+		WHERE id = $1;
+		`,
+			[challenger_id]
+		);
+
+		const challange_team = cbt[0].battle_team;
+
+		const { rows: tbt } = await pool.query(
+			`
+		SELECT battle_team
+		FROM trainers
+		WHERE id = $1;
+		`,
+			[trainer_id]
+		);
+		// console.log(trainer_id);
+		const defend_team = tbt[0].battle_team;
+
+		const { rows } = await pool.query(
+			`
+		INSERT INTO battle_requests (challanger, defender ,is_accepted)
+		VALUES ($1, $2, false)
+		`,
+			[challange_team, defend_team]
+		);
+
+		res.status(200).send(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to send battle request.");
+	}
+});
+
+app.get("/api/challengers/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		console.log(id);
+		const { rows } = await pool.query(
+			`
+			SELECT t.trainer_id
+			FROM teams t 
+			WHERE t.team_id IN (
+				SELECT br.challanger
+				FROM battle_requests br 
+				WHERE br.id IN ( 
+					SELECT id 
+					FROM battle_requests
+					WHERE defender IN (
+						SELECT team_id
+						FROM teams
+						WHERE trainer_id = $1
+					)
+				)
+			);
+			`,
+			[id]
+		);
+		console.log(rows);
+		const challengers = rows.map((row) => row.trainer_id);
+
+		res.status(200).json(challengers);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to fetch challenger IDs.");
+	}
+});
+
+app.put("/api/accept_battle", async (req, res) => {
+	try {
+		const { challenger_id, defender_id } = req.body;
+
+		const { rows: cbt } = await pool.query(
+			`
+      SELECT battle_team
+      FROM trainers
+      WHERE id = $1;
+      `,
+			[challenger_id]
+		);
+
+		const challange_team = cbt[0].battle_team;
+
+		const { rows: tbt } = await pool.query(
+			`
+      SELECT battle_team
+      FROM trainers
+      WHERE id = $1;
+      `,
+			[defender_id]
+		);
+		// console.log(trainer_id);
+		const defend_team = tbt[0].battle_team;
+
+		const { rows } = await pool.query(
+			`
+			UPDATE battle_requests
+			SET is_accepted = true
+			WHERE challanger = $1 AND defender = $2
+			`,
+			[challange_team, defend_team]
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to accept battle request.");
 	}
 });
 

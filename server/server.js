@@ -268,6 +268,7 @@ app.get("/api/owned-pokemons/:trainerId", async (req, res) => {
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
+
 		res.sendStatus(400);
 	}
 });
@@ -290,6 +291,12 @@ app.post("/api/owned-pokemons/:trainerId", async (req, res) => {
 		res.status(200).json("Pokemon Added.");
 	} catch (err) {
 		console.error(err);
+
+		if (err.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
 		res.status(400).send({ message: err.detail });
 	}
 });
@@ -886,6 +893,15 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			[pokemon_id]
 		);
 
+		const { rows: ev_chain } = await pool.query(
+			`
+				SELECT * FROM get_evolution_chain($1) order by ev_order, evolve_from;
+			`,
+			[pokemon_id]
+		);
+
+		console.log(ev_chain);
+
 		const moves = moveRows.map((move) => ({
 			move_id: move.move_id,
 			name: move.move_name,
@@ -913,7 +929,7 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			},
 			moves,
 			abilities,
-			img: `data:image/${ext};base64,${img}`,
+			ev_chain,
 		};
 
 		res.status(200).json(pokemonInfo);
@@ -975,6 +991,12 @@ app.put("/api/battle_yes/:id", async (req, res) => {
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
+
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
 		res.status(400).send("Failed to add trainer to the queue.");
 	}
 });
@@ -993,6 +1015,7 @@ app.put("/api/battle_no/:id", async (req, res) => {
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
+
 		res.status(400).send("Failed to remove trainer from the queue.");
 	}
 });

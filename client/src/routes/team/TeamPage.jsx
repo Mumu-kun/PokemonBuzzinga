@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import TeamPokemonEntry from "./TeamPokemonEntry";
 import axiosApi from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
-import MsgPopup from "../../components/MsgPopup";
+import MessagePopup from "../../components/MessagePopup";
 
 function TeamPage() {
 	const { user } = useAuthContext();
@@ -56,7 +56,7 @@ function TeamPage() {
 
 	return (
 		<>
-			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
+			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<h1 className="text-h1">{teamDetails.team_name}</h1>
 			<h3 className="text-h3">Trainer : {teamDetails.name}</h3>
 			{teamDetails.trainer_id === user.id &&

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PokemonEntry from "./PokemonEntry";
 import axios from "../../utils/AxiosSetup";
-import MsgPopup from "../../components/MsgPopup";
+import MessagePopup from "../../components/MessagePopup";
 import Popup from "../../components/Popup";
 import useAuthContext from "../../hooks/useAuthContext";
 import { TiTick } from "react-icons/ti";
@@ -69,7 +69,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 
 	return (
 		<>
-			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
+			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 
 			<div className="flex flex-col w-fit bg-slate-100 text-black rounded-lg items-center p-2" key={id}>
 				<div className="text-xs my-1">Nickname</div>

@@ -13,6 +13,8 @@ import PokemonDetailsPage from "./routes/pokemondets/PokemonDetailsPage";
 import NaturePage from "./routes/pokemons/NaturePage";
 import Profile from "./routes/profile/Profile";
 import BattlePage from "./routes/battle/BattlePage";
+import Tournaments from "./routes/tournaments/Tournaments";
+import CreateTournament from "./routes/tournaments/CreateTournament";
 
 function App() {
 	return (
@@ -32,6 +34,8 @@ function App() {
 						<Route path="my-teams/" element={<MyTeams />} />
 						<Route path="my-pokemons/" element={<MyPokemons />} />
 						<Route path="team/:team_id" element={<TeamPage />} />
+						<Route path="tournaments/" element={<Tournaments />} />
+						<Route path="tournaments/create" element={<CreateTournament />} />
 					</Route>
 
 					<Route path="*" element={<ErrorPage />} />

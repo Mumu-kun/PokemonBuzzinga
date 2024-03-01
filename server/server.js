@@ -1137,6 +1137,120 @@ app.put("/api/accept_battle", async (req, res) => {
 	}
 });
 
+// Tournaments
+app.get("/api/tournaments", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT *
+				FROM tournaments order by start_at desc;
+		`);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/trainer/:trainerId/tournaments", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT distinct trnm.*
+			FROM tournaments trnm join teams_in_tournament using (tournament_id) titrnm join teams_snapshot tms using (team_id) where tms.trainer_id = $1  order by start_at desc;
+			`,
+			[trainerId]
+		);
+
+		res.sendStatus(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT *
+			FROM tournaments where organizer = $1 order by start_at desc;
+			`,
+			[trainerId]
+		);
+
+		res.sendStatus(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/tournaments", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		authenticateRequest(formData.trainer_id, req);
+
+		const { rows } = await pool.query(
+			`
+			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward, start_time)
+			VALUES ($1, $2, $3, $4, $5) RETURNING *;
+			`,
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/tournaments/:tournamentId/teams", async (req, res) => {
+	try {
+		const { tournamentId } = req.params;
+		const formData = req.body;
+
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM TEAMS
+				WHERE TEAM_ID = $1;
+		`,
+			[formData.teamId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Team does not exist");
+		}
+
+		authenticateRequest(rowsTrainer[0].trainer_id, req);
+
+		await pool.query(
+			`
+				call add_team_to_tournament($1, $2)
+			`,
+			[tournamentId, formData.teamId]
+		);
+
+		res.status(200).json("Successfully added team to tournament");
+	} catch (err) {
+		console.error(err);
+
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
+		res.sendStatus(400);
+	}
+});
+
 // Server Start
 app.listen(PORT, () => {
 	console.log(`Server Started on ${PORT}`);

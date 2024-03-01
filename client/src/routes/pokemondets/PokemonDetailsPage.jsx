@@ -127,10 +127,14 @@ const PokemonDetailsPage = () => {
 			navigate(`/pokemonsdets/${prevpok}`);
 		}
 	};
+	const dekhNature = () => {
+		navigate("/naturing");
+	};
 
 	return (
 		<div className="pokemon-details-container bg-gray-100 p-4 text-gray-800" style={{ width: "1000px" }}>
 			{!!msg && <MsgPopup message={msg} setMessage={setMsg} />}
+			
 			<div className="pokemon-details-container bg-blue-100 p-4 rounded-lg">
 				<div className="flex justify-between mt-4">
 					<button
@@ -261,6 +265,9 @@ const PokemonDetailsPage = () => {
 					</tbody>
 				</table>
 			</div>
+			<button className="teal-button" onClick={dekhNature}>
+				View Natures
+			</button>
 		</div>
 	);
 };

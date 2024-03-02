@@ -938,6 +938,8 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 		res.status(400).send(err.message);
 	}
 });
+
+// Battles
 app.get("/api/trainers_line", async (req, res) => {
 	try {
 		const { rows } = await pool.query(
@@ -1134,6 +1136,109 @@ app.put("/api/accept_battle", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
+	}
+});
+
+app.get("/api/battle/:battleId", async (req, res) => {
+	try {
+		const { battleId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr1.name as trainer_2_name, ts2.team_name as team_2_name
+				FROM battles b
+				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
+				join trainers tr1 on ts1.trainer_id = tr1.id
+				join teams_snapshot as ts2 on b.participant_2 = ts2.team_id
+				join trainers tr2 on ts2.trainer_id = tr2.id
+				WHERE battle_id = $1;
+		`,
+			[battleId]
+		);
+
+		const getPokemonsData = async (teamId) => {
+			const { rows } = await pool.query(
+				`
+				SELECT ops.id, ops.nickname, m.*, p.*
+					FROM teams_snapshot t
+					join pokemon_in_team_snapshot pit on t.team_id = pit.team_id
+					join owned_pokemons_snapshot ops on pit.owned_pokemon_id = ops.id
+					join pokemons p on ops.pokemon_id = p.pokemon_id
+					join moves m on ops.move_id = m.move_id
+					where t.team_id = $1
+					order by pit.p_order;`,
+				[teamId]
+			);
+
+			const pokemons = rows.map((data) => {
+				const {
+					id,
+					nickname,
+					move_id,
+					move_name,
+					type_id,
+					power,
+					accuracy,
+					category,
+					pokemon_id,
+					name,
+					hp,
+					attack,
+					defense,
+					speed,
+					sp_attack,
+					sp_defense,
+					total,
+					price,
+				} = data;
+				return {
+					id,
+					nickname,
+					move: {
+						move_id,
+						name: move_name,
+						type_id,
+						power,
+						accuracy,
+						category,
+					},
+					pokemonData: {
+						pokemon_id,
+						name,
+						price,
+						stats: {
+							hp,
+							attack,
+							defense,
+							speed,
+							sp_attack,
+							sp_defense,
+							total,
+						},
+					},
+				};
+			});
+
+			return pokemons;
+		};
+
+		const pokemons_1 = await getPokemonsData(rows[0].participant_1);
+		const pokemons_2 = await getPokemonsData(rows[0].participant_2);
+
+		const { rows: rowsLogs } = await pool.query(
+			`
+			SELECT *
+				FROM battle_logs
+				WHERE battle_id = $1
+				order by turn;
+		`,
+			[battleId]
+		);
+
+		res.status(200).json({ ...rows[0], pokemons_1, pokemons_2, logs: rowsLogs });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
 	}
 });
 

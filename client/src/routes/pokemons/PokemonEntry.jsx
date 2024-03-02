@@ -17,11 +17,21 @@ const statToStyle = {
 	total: { icon: <FaListAlt />, color: "bg-slate-700", textCol: "text-slate-700" },
 };
 
-function PokemonEntry({ pokemon_id, name, stats, price, showPrice = false, className: PClassName }) {
+function PokemonEntry({
+	pokemon_id,
+	name,
+	stats,
+	price,
+	showPrice = false,
+	className: PClassName,
+	linkDisable = false,
+}) {
 	return (
 		<Link
 			to={`/pokemonsdets/${pokemon_id}`}
-			className={`flex flex-col w-64 gap-2 p-6 pb-4 items-center rounded-lg bg-white text-black ${PClassName}`}
+			className={`flex flex-col w-64 gap-2 p-6 pb-4 items-center rounded-lg bg-white text-black ${PClassName} ${
+				linkDisable && `pointer-events-none`
+			}`}
 		>
 			<div className="flex pl-3 w-full text-center">
 				<span>{pokemon_id}</span>

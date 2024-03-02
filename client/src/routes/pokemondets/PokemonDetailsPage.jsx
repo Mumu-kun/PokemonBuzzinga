@@ -10,6 +10,7 @@ import { GiGlassBall } from "react-icons/gi";
 import { Link, useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 import EvolutionChain from "./EvolutionChain";
+import Loading from "../../components/Loading";
 
 const statToStyle = {
 	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
@@ -74,22 +75,23 @@ const PokemonDetailsPage = () => {
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		const fetchPokemonDetails = async () => {
-			try {
-				const response = await axios.get(`/pokemons-dets/${id}`);
-				const data = response.data;
-				setPokemonDetails(data);
-			} catch (error) {
-				console.error("Failed to fetch Pokémon details", error);
-			}
-		};
+	const fetchPokemonDetails = async () => {
+		try {
+			const response = await axios.get(`/pokemons-dets/${id}`);
+			const data = response.data;
+			setPokemonDetails(data);
+		} catch (error) {
+			console.error("Failed to fetch Pokémon details", error);
+		}
+	};
 
+	useEffect(() => {
+		setPokemonDetails(null);
 		fetchPokemonDetails();
 	}, [id]);
 
 	if (!pokemonDetails) {
-		return <div>Loading...</div>;
+		return <Loading />;
 	}
 
 	const { stats, abilities, moves } = pokemonDetails;
@@ -237,6 +239,8 @@ const PokemonDetailsPage = () => {
 					))}
 				</div>
 
+				<EvolutionChain ev_chain={pokemonDetails.ev_chain} />
+
 				<div className="mb-8">
 					<p className="text-lg font-bold mb-2">Moves:</p>
 					<table className="border-collapse border border-gray-400 w-full">
@@ -270,7 +274,6 @@ const PokemonDetailsPage = () => {
 						</tbody>
 					</table>
 				</div>
-				<EvolutionChain ev_chain={pokemonDetails.ev_chain} />
 			</div>
 		</div>
 	);

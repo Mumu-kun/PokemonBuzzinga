@@ -15,6 +15,7 @@ import Profile from "./routes/profile/Profile";
 import BattlePage from "./routes/battle/BattlePage";
 import Tournaments from "./routes/tournaments/Tournaments";
 import CreateTournament from "./routes/tournaments/CreateTournament";
+import BattleSpecific from "./routes/battle/BattleSpecific";
 
 function App() {
 	return (
@@ -31,6 +32,7 @@ function App() {
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="battle/" element={<BattlePage />} />
+						<Route path="battle/:battleId" element={<BattleSpecific />} />
 						<Route path="my-teams/" element={<MyTeams />} />
 						<Route path="my-pokemons/" element={<MyPokemons />} />
 						<Route path="team/:team_id" element={<TeamPage />} />

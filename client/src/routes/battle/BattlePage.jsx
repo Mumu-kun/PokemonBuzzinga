@@ -95,8 +95,7 @@ function BattlePage() {
 			<ul>
 				{trainersInQueue.map((trainerId) => (
 					<li key={trainerId}>
-						{trainerId}
-						<button onClick={() => handleSendBattle(trainerId)}>Send Battle Request</button>
+						{trainerId} : <button onClick={() => handleSendBattle(trainerId)}>Send Battle Request</button>
 					</li>
 				))}
 			</ul>

@@ -19,7 +19,7 @@ const EvolutionPokemonCard = ({ ev_chain, pokemon_id }) => {
 
 	useEffect(() => {
 		getPokemonData();
-	}, []);
+	}, [pokemon_id]);
 
 	const next_pokemons = ev_chain
 		.filter((ev) => ev.evolve_from === pokemon_id && ev.evolve_to !== null)

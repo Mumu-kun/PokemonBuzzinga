@@ -8,7 +8,9 @@ import { WiStars } from "react-icons/wi";
 import PopupBuy from "./PopupBuy";
 import { GiGlassBall } from "react-icons/gi";
 import { Link, useNavigate } from "react-router-dom";
-import MsgPopup from "../../components/MsgPopup";
+import MessagePopup from "../../components/MessagePopup";
+import EvolutionChain from "./EvolutionChain";
+import Loading from "../../components/Loading";
 
 const statToStyle = {
 	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
@@ -73,22 +75,23 @@ const PokemonDetailsPage = () => {
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		const fetchPokemonDetails = async () => {
-			try {
-				const response = await axios.get(`/pokemons-dets/${id}`);
-				const data = response.data;
-				setPokemonDetails(data);
-			} catch (error) {
-				console.error("Failed to fetch Pokémon details", error);
-			}
-		};
+	const fetchPokemonDetails = async () => {
+		try {
+			const response = await axios.get(`/pokemons-dets/${id}`);
+			const data = response.data;
+			setPokemonDetails(data);
+		} catch (error) {
+			console.error("Failed to fetch Pokémon details", error);
+		}
+	};
 
+	useEffect(() => {
+		setPokemonDetails(null);
 		fetchPokemonDetails();
 	}, [id]);
 
 	if (!pokemonDetails) {
-		return <div>Loading...</div>;
+		return <Loading />;
 	}
 
 	const { stats, abilities, moves } = pokemonDetails;
@@ -108,6 +111,10 @@ const PokemonDetailsPage = () => {
 			setMsg("You have successfully bought the Pokémon!");
 		} catch (error) {
 			console.error(error);
+
+			if (error.response.status === 409) {
+				setMsg(error.response.data.message);
+			}
 		} finally {
 			setShowPopup(false);
 		}
@@ -183,9 +190,10 @@ const PokemonDetailsPage = () => {
 					Buy
 				</button>
 				{showPopup && <PopupBuy onSubmit={handleSubmitNickname} onCancel={handleCancelNickname} />}
-				<div className="my-4">
-					<p>Types:</p>
-					<div className="flex space-x-2">
+				<div className="text-lg font-bold my-4 mb-1">Stats :</div>
+				<div className="mb-3">
+					<div className="flex gap-2 items-center text-sm">
+						<p className="font-semibold ml-2">Types:</p>
 						{pokemonDetails.type1 && (
 							<button
 								className={`py-1 px-3 rounded ${typeToStyle[pokemonDetails.type1].bgColor} ${
@@ -206,7 +214,7 @@ const PokemonDetailsPage = () => {
 						)}
 					</div>
 				</div>
-				<div className="w-full text-xs">
+				<div className="w-full text-xs mb-8 pl-2">
 					{Object.entries(stats).map(([key, value]) => (
 						<div key={key} className="flex items-center mb-2">
 							<div className="w-20">{key.toUpperCase()}:</div>
@@ -224,46 +232,52 @@ const PokemonDetailsPage = () => {
 					))}
 				</div>
 
-				<p className="text-lg font-bold mb-2">Abilities:</p>
-				{pokemonDetails.abilities.map((ability, index) => (
-					<div key={index} className="mb-4">
-						<p className="text-purple-700">{index === 0 ? "First" : "Second"} Ability:</p>
-						<p className="text-lg font-semibold">{ability.ability}</p>
-						<p className="italic text-gray-700">What it does: {ability.description}</p>
-					</div>
-				))}
+				<div className="mb-8">
+					<p className="text-lg font-bold mb-1">Abilities:</p>
+					{pokemonDetails.abilities.map((ability, index) => (
+						<div key={index} className="mb-2 ml-1">
+							<p className="text-purple-700">{index === 0 ? "First" : "Second"} Ability:</p>
+							<p className="ml-1 text-sm font-semibold">{ability.ability}</p>
+							<p className="ml-1 text-sm italic text-gray-700">What it does: {ability.description}</p>
+						</div>
+					))}
+				</div>
 
-				<p>Moves:</p>
-				<table className="border-collapse border border-gray-400 w-full">
-					<thead>
-						<tr>
-							<th className="border border-gray-400 px-4 py-2">Move</th>
-							<th className="border border-gray-400 px-4 py-2">Type</th>
-							<th className="border border-gray-400 px-4 py-2">Category</th>
-							<th className="border border-gray-400 px-4 py-2">Power</th>
-							<th className="border border-gray-400 px-4 py-2">Accuracy</th>
-							<th className="border border-gray-400 px-4 py-2">PP</th>
-						</tr>
-					</thead>
-					<tbody>
-						{moves.map((move) => (
-							<tr key={move.move_id}>
-								<td className="border border-gray-400 px-4 py-2">{move.name}</td>
-								<td
-									className={`border border-gray-400 px-4 py-2 ${typeToStyle[move.type].bgColor} ${
-										typeToStyle[move.type].textColor
-									}`}
-								>
-									{move.type}
-								</td>
-								<td className="border border-gray-400 px-4 py-2">{move.category}</td>
-								<td className="border border-gray-400 px-4 py-2">{move.power}</td>
-								<td className="border border-gray-400 px-4 py-2">{move.accuracy}</td>
-								<td className="border border-gray-400 px-4 py-2">{move.pp}</td>
+				<EvolutionChain ev_chain={pokemonDetails.ev_chain} />
+
+				<div className="mb-8">
+					<p className="text-lg font-bold mb-2">Moves:</p>
+					<table className="border-collapse border border-gray-400 w-full">
+						<thead>
+							<tr>
+								<th className="border border-gray-400 px-4 py-2">Move</th>
+								<th className="border border-gray-400 px-4 py-2">Type</th>
+								<th className="border border-gray-400 px-4 py-2">Category</th>
+								<th className="border border-gray-400 px-4 py-2">Power</th>
+								<th className="border border-gray-400 px-4 py-2">Accuracy</th>
+								{/* <th className="border border-gray-400 px-4 py-2">PP</th> */}
 							</tr>
-						))}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{moves.map((move) => (
+								<tr key={move.move_id}>
+									<td className="border border-gray-400 px-4 py-2">{move.name}</td>
+									<td
+										className={`border border-gray-400 px-4 py-2 ${typeToStyle[move.type].bgColor} ${
+											typeToStyle[move.type].textColor
+										}`}
+									>
+										{move.type}
+									</td>
+									<td className="border border-gray-400 px-4 py-2">{move.category}</td>
+									<td className="border border-gray-400 px-4 py-2">{move.power}</td>
+									<td className="border border-gray-400 px-4 py-2">{move.accuracy}</td>
+									{/* <td className="border border-gray-400 px-4 py-2">{move.pp}</td> */}
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</div>
 			<button className="teal-button" onClick={dekhNature}>
 				View Natures

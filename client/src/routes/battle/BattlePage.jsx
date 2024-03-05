@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
+import { useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 
 function BattlePage() {
@@ -9,6 +10,7 @@ function BattlePage() {
 	const [isInQueue, setIsInQueue] = useState(false); // Track the in_queue status
 	const [msg, setMsg] = useState(null);
 	const { user } = useAuthContext();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		fetchChallengers();
@@ -72,7 +74,10 @@ function BattlePage() {
 	const handleAcceptBattle = async (challengerId) => {
 		try {
 			const response = await axios.put(`/accept_battle`, { challenger_id: challengerId, defender_id: user.id });
-			console.log(response.data);
+			const bat_id = response.data;
+			console.log(bat_id);
+			navigate(`/battle/${bat_id}`);
+			//console.log(response.data);
 		} catch (error) {
 			console.error("Failed to accept battle request", error);
 		}

@@ -1127,17 +1127,39 @@ app.put("/api/accept_battle", async (req, res) => {
 			`
 			UPDATE battle_requests
 			SET is_accepted = true
-			WHERE challanger = $1 AND defender = $2
+			WHERE challanger = $1 AND defender = $2;
 			`,
 			[challange_team, defend_team]
 		);
 
-		res.status(200).json(rows);
+		// const { rows: b_id } = await pool.query(
+		// 	`
+		// 	SELECT battle_id
+		// 	FROM battles
+		// 	WHERE participant_1 IN (
+		// 			SELECT team_id
+		// 			FROM teams_snapshot
+		// 			WHERE trainer_id = $1
+		// 		)
+		// 		AND participant_2 IN (
+		// 			SELECT team_id
+		// 			FROM teams_snapshot
+		// 			WHERE trainer_id = $2
+		// 		);
+			
+		// 	`,
+		// 	[challenger_id,defender_id]
+		// );
+		// console.log(b_id);
+		// const bat_id= b_id[0].battle_id;
+
+		res.status(200).json(bat_id);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
 	}
 });
+ 
 
 app.get("/api/battle/:battleId", async (req, res) => {
 	try {
@@ -1247,7 +1269,7 @@ app.get("/api/tournaments", async (req, res) => {
 	try {
 		const { rows } = await pool.query(`
 			SELECT *
-				FROM tournaments order by start_at desc;
+				FROM tournaments order by start_time desc;
 		`);
 
 		res.status(200).json(rows);
@@ -1291,9 +1313,29 @@ app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
 		res.sendStatus(200).json(rows);
 	} catch (err) {
 		console.error(err);
-		res.sendStatus(400);
+		res.sendStatus(400);res.sendStatus(400);
 	}
 });
+
+app.post("/api/join_tournament/", async (req, res) => {
+	try {
+	  const { tournament_id, trainer_id } = req.body;
+
+  
+	  const { rows } = await pool.query(
+		`
+		call add_team_to_tournament($1, $2);
+		`,
+		[tournament_id, trainer_id]
+	  );
+  
+	  res.status(200).json(rows);
+	} catch (err) {
+	  console.error(err);
+	  res.sendStatus(400);
+	}
+  });
+
 
 app.post("/api/tournaments", async (req, res) => {
 	try {
@@ -1303,10 +1345,10 @@ app.post("/api/tournaments", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward, start_time)
-			VALUES ($1, $2, $3, $4, $5) RETURNING *;
+			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
+			VALUES ($1, $2, $3, $4) RETURNING *;
 			`,
-			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward]
 		);
 
 		res.status(200).json(rows);

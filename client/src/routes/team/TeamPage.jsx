@@ -79,14 +79,14 @@ function TeamPage() {
 							myPokemon;
 						const stats = { hp, attack, defense, speed, sp_attack, sp_defense, total };
 
-						const { move_id, move_name, power, category } = myPokemon;
+						const { move_id, move_name, power, accuracy } = myPokemon;
 
 						return (
 							<TeamPokemonEntry
 								key={id}
 								id={id}
 								nickname={nickname}
-								move={!!move_id && { name: move_name, power, category }}
+								move={!!move_id && { name: move_name, power, accuracy }}
 								pokemonData={{ pokemon_id, name, stats, buy: false }}
 								getTeamDetails={getTeamDetails}
 								hideDetails={!isMyTeam}

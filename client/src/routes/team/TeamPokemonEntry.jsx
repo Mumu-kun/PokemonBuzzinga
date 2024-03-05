@@ -75,9 +75,9 @@ function TeamPokemonEntry({
 			{!!error && <MessagePopup message={error} setMessage={setError} />}
 			{!!moves.length && (
 				<div
-					className={`fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-slate-900 bg-opacity-50`}
+					className={`fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-slate-700 bg-opacity-25`}
 				>
-					<div className="relative w-1/2 rounded-md">
+					<div className="min-w-1/2 relative rounded-md">
 						<button
 							className=" absolute -right-5 -top-5 z-50"
 							onClick={() => {
@@ -110,8 +110,9 @@ function TeamPokemonEntry({
 						>
 							{!!move ? (
 								<>
-									<span>{move.name}</span>
-									<span>{move.power}</span>
+									<span className="flex-1">{move.name}</span>
+									<span className="w-10 text-right">{move.power}</span>
+									<span className="w-10 text-right">{move.accuracy}</span>
 								</>
 							) : (
 								<span className="mx-auto">None</span>

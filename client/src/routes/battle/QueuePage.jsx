@@ -3,7 +3,7 @@ import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
 import MessagePopup from "../../components/MessagePopup";
 
-function BattlePage() {
+function QueuePage() {
 	const [challengers, setChallengers] = useState([]);
 	const [trainersInQueue, setTrainersInQueue] = useState([]);
 	const [isInQueue, setIsInQueue] = useState(false); // Track the in_queue status
@@ -104,4 +104,4 @@ function BattlePage() {
 	);
 }
 
-export default BattlePage;
+export default QueuePage;

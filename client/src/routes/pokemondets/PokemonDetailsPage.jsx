@@ -46,7 +46,7 @@ const statToStyle = {
 	},
 };
 
-export const typeToStyle = {
+const typeToStyle = {
 	Normal: { bgColor: "bg-gray-400", textColor: "text-gray-900" },
 	Fire: { bgColor: "bg-red-500", textColor: "text-white" },
 	Water: { bgColor: "bg-blue-500", textColor: "text-white" },
@@ -138,19 +138,19 @@ const PokemonDetailsPage = () => {
 	return (
 		<div className="pokemon-details-container bg-gray-100 p-4 text-gray-800" style={{ width: "1000px" }}>
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
-			<div className="pokemon-details-container bg-blue-100 p-6 rounded-lg">
-				<div className="flex justify-between mt-4">
+			<div className="pokemon-details-container rounded-lg bg-blue-100 p-6">
+				<div className="mt-4 flex justify-between">
 					<button
 						onClick={handlePrev}
 						disabled={pokemonDetails?.pokemon_id === 1}
-						className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+						className="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-700"
 					>
 						Previous
 					</button>
 					<button
 						onClick={handleNext}
 						disabled={!pokemonDetails}
-						className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+						className="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-700"
 					>
 						Next
 					</button>
@@ -180,19 +180,19 @@ const PokemonDetailsPage = () => {
 					</p>
 				</div>
 				<button
-					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+					className="w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
 					onClick={handleBuy}
 				>
 					Buy
 				</button>
 				{showPopup && <PopupBuy onSubmit={handleSubmitNickname} onCancel={handleCancelNickname} />}
-				<div className="text-lg font-bold my-4 mb-1">Stats :</div>
+				<div className="my-4 mb-1 text-lg font-bold">Stats :</div>
 				<div className="mb-3">
-					<div className="flex gap-2 items-center text-sm">
-						<p className="font-semibold ml-2">Types:</p>
+					<div className="flex items-center gap-2 text-sm">
+						<p className="ml-2 font-semibold">Types:</p>
 						{pokemonDetails.type1 && (
 							<button
-								className={`py-1 px-3 rounded ${typeToStyle[pokemonDetails.type1].bgColor} ${
+								className={`rounded px-3 py-1 ${typeToStyle[pokemonDetails.type1].bgColor} ${
 									typeToStyle[pokemonDetails.type1].textColor
 								}`}
 							>
@@ -201,7 +201,7 @@ const PokemonDetailsPage = () => {
 						)}
 						{pokemonDetails.type2 && (
 							<button
-								className={`py-1 px-3 rounded ${typeToStyle[pokemonDetails.type2].bgColor} ${
+								className={`rounded px-3 py-1 ${typeToStyle[pokemonDetails.type2].bgColor} ${
 									typeToStyle[pokemonDetails.type2].textColor
 								}`}
 							>
@@ -210,12 +210,12 @@ const PokemonDetailsPage = () => {
 						)}
 					</div>
 				</div>
-				<div className="w-full text-xs mb-8 pl-2">
+				<div className="mb-8 w-full pl-2 text-xs">
 					{Object.entries(stats).map(([key, value]) => (
-						<div key={key} className="flex items-center mb-2">
+						<div key={key} className="mb-2 flex items-center">
 							<div className="w-20">{key.toUpperCase()}:</div>
 							<span className={`${statToStyle[key].textCol} mr-2`}>{statToStyle[key].icon}</span>
-							<div className={`h-3 w-32 bg-opacity-20 ${statToStyle[key].color} rounded-full flex-1`}>
+							<div className={`h-3 w-32 bg-opacity-20 ${statToStyle[key].color} flex-1 rounded-full`}>
 								<div
 									className={`h-full ${statToStyle[key].color}`}
 									style={{
@@ -229,7 +229,7 @@ const PokemonDetailsPage = () => {
 				</div>
 
 				<div className="mb-8">
-					<p className="text-lg font-bold mb-1">Abilities:</p>
+					<p className="mb-1 text-lg font-bold">Abilities:</p>
 					{pokemonDetails.abilities.map((ability, index) => (
 						<div key={index} className="mb-2 ml-1">
 							<p className="text-purple-700">{index === 0 ? "First" : "Second"} Ability:</p>
@@ -242,8 +242,8 @@ const PokemonDetailsPage = () => {
 				<EvolutionChain ev_chain={pokemonDetails.ev_chain} />
 
 				<div className="mb-8">
-					<p className="text-lg font-bold mb-2">Moves:</p>
-					<table className="border-collapse border border-gray-400 w-full">
+					<p className="mb-2 text-lg font-bold">Moves:</p>
+					<table className="w-full border-collapse border border-gray-400">
 						<thead>
 							<tr>
 								<th className="border border-gray-400 px-4 py-2">Move</th>
@@ -273,6 +273,31 @@ const PokemonDetailsPage = () => {
 							))}
 						</tbody>
 					</table>
+				</div>
+
+				{/* Locations */}
+				<div>
+					<h3 className="mb-2 text-lg font-bold">Locations:</h3>
+					{pokemonDetails.locations.length === 0 ? (
+						<p>This Pokémon is not found in the wild.</p>
+					) : (
+						<div className="grid grid-cols-5">
+							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Region</span>
+							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Location</span>
+							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Catch Rate</span>
+							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Min Level</span>
+							<span className=" bg-slate-400 p-2 text-center font-semibold">Max Level</span>
+							{pokemonDetails.locations.map((location) => (
+								<>
+									<span className="border-r-2 border-slate-500 p-2 text-center">{location.region_name}</span>
+									<span className="border-r-2 border-slate-500 p-2 px-4">{location.location_name}</span>
+									<span className="border-r-2 border-slate-500 p-2 px-4">{location.catchrate}</span>
+									<span className="border-r-2 border-slate-500 p-2 px-4">{location.level_min}</span>
+									<span className="p-2 px-4">{location.level_max}</span>
+								</>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

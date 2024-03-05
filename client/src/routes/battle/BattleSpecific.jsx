@@ -5,7 +5,8 @@ import TeamPokemonEntry from "../team/TeamPokemonEntry";
 import Popup from "../../components/Popup";
 import { IoMdCloseCircle } from "react-icons/io";
 import { FaAngleLeft, FaAngleDoubleLeft, FaAngleRight, FaAngleDoubleRight, FaPlay, FaPause } from "react-icons/fa";
-import Stage from "../../assets/stage.webp";
+import Stage from "../../assets/stage2.jpeg";
+import VictoryImg from "../../assets/VictoryImg.jpg";
 import Explosion from "./Corregidor";
 import Loading from "../../components/Loading";
 import ConfettiExplosion from "react-confetti-explosion";
@@ -40,7 +41,7 @@ const TeamSidebar = ({ trainer_id, trainer_name, team_name, pokemons }) => {
 			<h3>
 				Team <span className="rounded-md bg-slate-600 px-2 py-0.5">{team_name}</span>
 			</h3>
-			<div className="flex flex-col gap-2">
+			<div className="mt-3 flex flex-col gap-2">
 				{pokemons.map((pokemon) => (
 					<div
 						className={`flex w-20 flex-col gap-1 rounded-lg bg-white p-2 text-xs font-semibold text-black shadow-md`}
@@ -128,7 +129,7 @@ const BattlePokemon = ({
 
 	return (
 		<div className="flex flex-col items-center gap-2">
-			<div className="relative h-32 w-32">
+			<div className="relative h-40 w-40">
 				<img
 					src={`${axios.getUri()}pokemons/${pokemonData.pokemon_id}/image`}
 					className={`${pokemonAnimation()} transition-all ${faint && "grayscale"} ${death && "scale-0"}`}
@@ -153,7 +154,7 @@ const BattlePokemon = ({
 					/>
 				)}
 			</div>
-			<div className="mt-14 w-60 rounded-md border-2 border-black bg-white p-2 px-3 text-black outline outline-[3px] outline-offset-1 outline-black ring-2 ring-white">
+			<div className="mt-8 w-60 rounded-md border-2 border-black bg-white p-2 px-3 text-black outline outline-[3px] outline-offset-1 outline-black ring-2 ring-white">
 				<div className="text-base font-bold">{nickname}</div>
 				<div className="flex items-center">
 					<div className={`my-2 h-2 flex-1 overflow-hidden rounded-full  bg-green-500 bg-opacity-20`}>
@@ -290,6 +291,7 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 			>
 				<div>{winner} Won</div>
 				<div className="text-lg">Received {battleInfo.reward}$</div>
+				<img src={VictoryImg} alt="" className="w-96" />
 				{winCelebration && <ConfettiExplosion className="-mt-4" />}
 			</div>
 			<div

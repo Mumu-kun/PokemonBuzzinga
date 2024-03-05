@@ -111,6 +111,8 @@ app.get("/api/pokemons/:id/moves", async (req, res) => {
                 FROM POKEMON_MOVESETS PM
 				JOIN MOVES M
 					ON PM.MOVE_ID = M.MOVE_ID
+				join type T
+					ON M.TYPE_ID = T.TYPE_ID
                 WHERE PM.POKEMON_ID = $1;
         `,
 			[pokemon_id]
@@ -900,7 +902,7 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			[pokemon_id]
 		);
 
-		console.log(ev_chain);
+		// console.log(ev_chain);
 
 		const moves = moveRows.map((move) => ({
 			move_id: move.move_id,
@@ -911,12 +913,24 @@ app.get("/api/pokemons-dets/:id", async (req, res) => {
 			accuracy: move.accuracy,
 		}));
 
+		const { rows: locationRows } = await pool.query(
+			`
+				select * from rarity r
+					join locations l on r.location_id = l.location_id
+					join regions re on l.region_id = re.region_id
+					where pokemon_id = $1
+					order by re.region_id;
+			`,
+			[pokemon_id]
+		);
+
 		const pokemonInfo = {
 			pokemon_id,
 			name,
 			type1,
 			type2,
 			region,
+			locations: locationRows,
 			price,
 			stats: {
 				hp,
@@ -1136,6 +1150,33 @@ app.put("/api/accept_battle", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
+	}
+});
+
+app.get("/api/battles", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT b.*, t1.id as trainer_1, t1.name as trainer_1_name, ts1.team_name as team_1, t2.id as trainer_2, t2.name as trainer_2_name, ts2.team_name as team_2,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_1) as team_1_total,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_2) as team_2_total
+				FROM casual_battles cb join battles b using (battle_id)
+				join teams_snapshot ts1 on (b.participant_1 = ts1.team_id)
+				join trainers t1 on (ts1.trainer_id = t1.id)
+				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
+				join trainers t2 on (ts2.trainer_id = t2.id)
+				order by b.created_at desc;
+		`);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
 	}
 });
 

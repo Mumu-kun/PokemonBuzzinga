@@ -64,6 +64,23 @@ const Profile = () => {
 		}
 	};
 
+	const toggibattle = async () => {
+		try {
+			if (profileData.in_queue) {
+				await axios.put(`/battle_no/${user.id}`);
+			} else {
+				await axios.put(`/battle_yes/${user.id}`);
+			}
+			getProfileData();
+		} catch (error) {
+			console.error("Failed to toggle queue status", error);
+
+			if (error?.response?.status === 409) {
+				setMsg(error.response.data.message);
+			}
+		}
+	};
+
 	useEffect(() => {
 		getProfileData();
 	}, []);
@@ -78,17 +95,19 @@ const Profile = () => {
 		return null;
 	}
 
+	const isMyProfile = user.id === profileData.id;
+
 	const battle_team = profileData.team_id
 		? {
 				team_id: profileData.team_id,
 				trainer_id: profileData.trainer_id,
 				team_name: profileData.team_name,
-		  }
+			}
 		: null;
 
 	return (
 		<>
-			<div className="min-w-[800px] mt-8">
+			<div className="mt-8 min-w-[800px]">
 				<h1 className="text-h1 mb-20">Profile</h1>
 				<div className="grid grid-cols-[auto_max-content] justify-between gap-y-20">
 					<div className="mb-10">
@@ -112,28 +131,35 @@ const Profile = () => {
 					</div>
 					<div>
 						<h3 className="text-h3 mb-6">Strongest Pokemon</h3>
-						<div className="ml-4 scale-[80%] origin-top-left">
+						<div className="ml-4 origin-top-left scale-[80%]">
 							{!!pokemonData && <MyPokemonEntry {...pokemonData} inProfile={true} />}
 						</div>
 					</div>
 					<div>
 						<h3 className="text-h3 mb-6">Battle Team</h3>
-						<div className="ml-4 flex flex-col gap-4 items-center">
+						<div className="ml-4 flex flex-col items-center gap-4">
 							{!!battle_team ? <TeamCard {...battle_team} /> : <p>No Battle Team</p>}
-							{user.id === profileData.id && !!battle_team ? (
+							{!!isMyProfile && (
 								<>
-									<button className={`${profileData.in_queue ? "btn--red" : "btn--green"} rounded-sm`}>
-										{profileData.in_queue ? "Dequeue" : "Queue"}
-									</button>
-									<button className="btn" onClick={handleDeselect}>
-										Deselect Battle Team
-									</button>
-								</>
-							) : (
-								<>
-									<Link to="/my-teams/" className="btn">
-										Select Battle Team
-									</Link>
+									{!!battle_team ? (
+										<>
+											<button
+												className={`${profileData.in_queue ? "btn--red" : "btn--green"} rounded-sm`}
+												onClick={toggibattle}
+											>
+												{profileData.in_queue ? "Dequeue" : "Queue"}
+											</button>
+											<button className="btn" onClick={handleDeselect}>
+												Deselect Battle Team
+											</button>
+										</>
+									) : (
+										<>
+											<Link to="/my-teams/" className="btn">
+												Select Battle Team
+											</Link>
+										</>
+									)}
 								</>
 							)}
 						</div>

@@ -612,7 +612,7 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, R.REGION_NAME, TM.*,
+			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, TR.IN_QUEUE, R.REGION_NAME, TM.*,
 			(SELECT ID FROM OWNED_POKEMONS OP JOIN POKEMONS P ON OP.POKEMON_ID = P.POKEMON_ID WHERE TR.ID = OP.TRAINER_ID ORDER BY P.TOTAL DESC LIMIT 1) AS STRONGEST_POKEMON_ID,
 			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
 			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
@@ -1155,6 +1155,12 @@ app.get("/api/battle/:battleId", async (req, res) => {
 		`,
 			[battleId]
 		);
+
+		if (rows.length === 0) {
+			console.log("Battle Doesn't Exist");
+			res.status(409).json({ message: "Battle Doesn't Exist" });
+			return;
+		}
 
 		const getPokemonsData = async (teamId) => {
 			const { rows } = await pool.query(

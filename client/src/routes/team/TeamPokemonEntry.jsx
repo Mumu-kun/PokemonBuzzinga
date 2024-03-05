@@ -11,7 +11,8 @@ function TeamPokemonEntry({
 	move,
 	pokemonData,
 	getTeamDetails,
-	inBattle = false,
+	hideDetails = false,
+	hideMove = false,
 	className: PClassName,
 }) {
 	const [error, setError] = useState(null);
@@ -74,11 +75,11 @@ function TeamPokemonEntry({
 			{!!error && <MessagePopup message={error} setMessage={setError} />}
 			{!!moves.length && (
 				<div
-					className={`fixed top-0 left-0 flex justify-center items-center w-screen h-screen z-10 bg-opacity-50 bg-slate-900`}
+					className={`fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-slate-900 bg-opacity-50`}
 				>
-					<div className="w-1/2 relative rounded-md">
+					<div className="relative w-1/2 rounded-md">
 						<button
-							className=" absolute -top-5 -right-5 z-50"
+							className=" absolute -right-5 -top-5 z-50"
 							onClick={() => {
 								setMoves([]);
 							}}
@@ -90,30 +91,36 @@ function TeamPokemonEntry({
 				</div>
 			)}
 
-			<div className={`flex flex-col w-72 items-center bg-slate-100 text-black rounded-lg p-2 ${PClassName}`}>
-				<div className="text-center p-2 w-3/4" style={{ wordSpacing: `0.5rem` }}>
+			<div className={`flex w-72 flex-col items-center rounded-lg bg-slate-100 p-2 text-black ${PClassName}`}>
+				<div className="w-3/4 p-2 text-center" style={{ wordSpacing: `0.5rem` }}>
 					Nickname : {nickname}
 				</div>
 				<PokemonEntry
 					{...pokemonData}
-					linkDisable={inBattle}
+					linkDisable={hideDetails}
 					className="border-t-2 border-slate-400 shadow-sm shadow-slate-300"
 				/>
-				{!inBattle && <div className="self-start ml-2 mt-2">Select Move :</div>}
-				<div
-					className="flex justify-between self-stretch m-2 px-4 py-1 rounded-md transition-all bg-white hover:bg-green-400 cursor-pointer text-sm"
-					onClick={!inBattle ? showMoves : null}
-				>
-					{!!move ? (
-						<>
-							<span>{move.name}</span>
-							<span>{move.power}</span>
-						</>
-					) : (
-						<span className="mx-auto">None</span>
-					)}
-				</div>
-				{!inBattle && (
+
+				{!hideMove && (
+					<>
+						{!hideDetails && <div className="ml-2 mt-2 self-start">Select Move :</div>}
+						<div
+							className="m-2 flex cursor-pointer justify-between self-stretch rounded-md bg-white px-4 py-1 text-sm transition-all hover:bg-green-400"
+							onClick={!hideDetails ? showMoves : null}
+						>
+							{!!move ? (
+								<>
+									<span>{move.name}</span>
+									<span>{move.power}</span>
+								</>
+							) : (
+								<span className="mx-auto">None</span>
+							)}
+						</div>
+					</>
+				)}
+
+				{!hideDetails && (
 					<button className="btn--red my-2 mt-4" onClick={handleRemovePokemon}>
 						Delete
 					</button>

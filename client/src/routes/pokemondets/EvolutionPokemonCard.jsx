@@ -31,7 +31,7 @@ const EvolutionPokemonCard = ({ ev_chain, pokemon_id }) => {
 				{!!pokemonData && (
 					<Link
 						to={`/pokemonsdets/${pokemon_id}`}
-						className={`flex flex-col w-20 p-2 gap-1 shadow-md rounded-lg bg-white text-black font-semibold text-xs`}
+						className={`flex w-20 flex-col gap-1 rounded-lg bg-white p-2 text-xs font-semibold text-black shadow-md`}
 					>
 						<img
 							src={`${axios.getUri()}pokemons/${pokemon_id}/image`}
@@ -42,12 +42,11 @@ const EvolutionPokemonCard = ({ ev_chain, pokemon_id }) => {
 						<div className="text-center">{pokemonData.name}</div>
 					</Link>
 				)}
-				{/* {!!pokemonData && <PokemonEntry {...pokemonData} className={`origin-top-left scale-50`} />} */}
 			</div>
 
 			{next_pokemons?.length > 0 && (
 				<>
-					<div className="w-8 h-0 border-[1px] border-black ml-2"></div>
+					<div className="ml-2 h-0 w-8 border-[1px] border-black"></div>
 					<div
 						className={`w-0.5 bg-black`}
 						style={{
@@ -56,11 +55,11 @@ const EvolutionPokemonCard = ({ ev_chain, pokemon_id }) => {
 							}*1rem)`,
 						}}
 					></div>
-					<div className="flex flex-col items-center gap-4">
+					<div className="flex flex-col items-start gap-4">
 						{next_pokemons.map((pok) => (
 							<div className="flex items-center">
-								<div className="w-4 h-0 border-[1px] border-black"></div>
-								<div className="border-4 border-l-black border-transparent mr-2"></div>
+								<div className="h-0 w-4 border-[1px] border-black"></div>
+								<div className="mr-2 border-4 border-transparent border-l-black"></div>
 								<EvolutionPokemonCard key={pok} ev_chain={ev_chain} pokemon_id={pok} />
 							</div>
 						))}

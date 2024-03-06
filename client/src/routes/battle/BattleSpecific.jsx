@@ -6,7 +6,7 @@ import Popup from "../../components/Popup";
 import { IoMdCloseCircle } from "react-icons/io";
 import { FaAngleLeft, FaAngleDoubleLeft, FaAngleRight, FaAngleDoubleRight, FaPlay, FaPause } from "react-icons/fa";
 import Stage from "../../assets/stage2.jpeg";
-import VictoryImg from "../../assets/VictoryImg.jpg";
+import VictoryImg from "../../assets/victoryImg.jpg";
 import Explosion from "./Corregidor";
 import Loading from "../../components/Loading";
 import ConfettiExplosion from "react-confetti-explosion";

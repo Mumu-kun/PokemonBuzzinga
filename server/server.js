@@ -944,13 +944,13 @@ app.get("/api/trainers_line", async (req, res) => {
 	try {
 		const { rows } = await pool.query(
 			`
-            SELECT id
+            SELECT id, name
             FROM trainers
             WHERE in_queue = true;
             `
 		);
 
-		const wannabattle = rows.map((row) => row.id);
+		const wannabattle = rows;
 		res.status(200).json(wannabattle);
 	} catch (err) {
 		console.error(err);
@@ -1062,40 +1062,45 @@ app.post("/api/send_battle", async (req, res) => {
 		res.status(400).send("Failed to send battle request.");
 	}
 });
-
 app.get("/api/challengers/:id", async (req, res) => {
-	try {
-		const id = req.params.id;
-		console.log(id);
-		const { rows } = await pool.query(
-			`
-			SELECT t.trainer_id
-			FROM teams t 
-			WHERE t.team_id IN (
-				SELECT br.challanger
-				FROM battle_requests br 
-				WHERE br.id IN ( 
-					SELECT id 
-					FROM battle_requests
-					WHERE defender IN (
-						SELECT team_id
-						FROM teams
-						WHERE trainer_id = $1
-					)
-				)
-			);
-			`,
-			[id]
-		);
-		console.log(rows);
-		const challengers = rows.map((row) => row.trainer_id);
+    try {
+        const id = req.params.id;
+        console.log(id);
+        const { rows } = await pool.query(
+            `
+            SELECT t.trainer_id, tr.name
+            FROM teams t 
+            JOIN trainers tr ON t.trainer_id = tr.id
+            WHERE t.team_id IN (
+                SELECT br.challanger
+                FROM battle_requests br 
+                WHERE br.id IN ( 
+                    SELECT id 
+                    FROM battle_requests
+                    WHERE defender IN (
+                        SELECT team_id
+                        FROM teams
+                        WHERE trainer_id = $1
+                    )
+                )
+            );
+            `,
+            [id]
+        );
+        
+        const challengers = rows.map((row) => ({
+            id: row.trainer_id,
+            name: row.name
+        }));
 
-		res.status(200).json(challengers);
-	} catch (err) {
-		console.error(err);
-		res.status(400).send("Failed to fetch challenger IDs.");
-	}
+        res.status(200).json(challengers);
+    } catch (err) {
+        console.error(err);
+        res.status(400).send("Failed to fetch challenger IDs and names.");
+    }
 });
+
+
 
 app.put("/api/accept_battle", async (req, res) => {
 	try {
@@ -1153,7 +1158,7 @@ app.put("/api/accept_battle", async (req, res) => {
 		// console.log(b_id);
 		// const bat_id= b_id[0].battle_id;
 
-		res.status(200).json(bat_id);
+		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
@@ -1343,6 +1348,14 @@ app.post("/api/tournaments", async (req, res) => {
 
 		authenticateRequest(formData.trainer_id, req);
 
+		const { rows: r } = await pool.query(
+			`
+			update trainers set balance=balance-$1
+			where id=$2;
+			`,
+			[formData.reward, formData.max_participants]
+		);
+
 		const { rows } = await pool.query(
 			`
 			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
@@ -1357,6 +1370,7 @@ app.post("/api/tournaments", async (req, res) => {
 		res.sendStatus(400);
 	}
 });
+
 
 app.post("/api/tournaments/:tournamentId/teams", async (req, res) => {
 	try {

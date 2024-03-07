@@ -1,0 +1,99 @@
+.battle-page {
+    background-image: url("../../assets/battle.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 60vw; 
+    height: 45vw; 
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    font-family: 'roboto', cursive; /* Fancy font */
+    font-size: 25px;
+    color: black; /* Black color */
+  }
+  
+  .title-text {
+    background-color: rgba(215, 197, 179); /* Background color for titles */
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: inline; /* Ensure the background color only surrounds the text */
+  }
+  
+  .text-background {
+    background-color: rgba(255, 255, 255, 0.7); /* Background color for texts */
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .join-queue-button:hover,
+  .leave-queue-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .join-queue-button {
+    padding: 10px 20px;
+    background-color: green;
+    justify-content: center; /* Align items vertically in the center */
+    align-items: center; /* Align items horizontally in the center */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: auto; /* Center the button horizontally */
+    display: block; /* Ensure the button takes full width */
+  }
+  
+  .leave-queue-button {
+    padding: 10px 20px;
+    background-color: red;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .challengers-container,
+  .trainers-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px; /* Add margin to create space between containers */
+  }
+  
+  .challengers-container ul,
+  .trainers-container ul {
+    list-style: none; /* Remove default list styling */
+    padding: 0; /* Remove default padding */
+  }
+  
+  .challengers-container li,
+  .trainers-container li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Add margin between challenger/trainer items */
+  }
+  
+  .accept-button,
+  .send-button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px; /* Add margin to separate buttons */
+  }
+  
+  .accept-button:hover,
+  .send-button:hover {
+    background-color: #0056b3;
+  }
+  

@@ -46,7 +46,7 @@ const Tournaments = () => {
               (tournament) =>
                 !tournament.has_concluded && (
                   <li key={tournament.tournament_id} className="tournament-item">
-                    <span className="tournament-name">{tournament.tournament_name} </span>
+                    <span className="tournament-name">{tournament.tournament_name}, reward:{tournament.reward}$</span>
                     <button onClick={() => handleJoinTournament(tournament.tournament_id)} className="join-btn">Join</button>
                   </li>
                 )

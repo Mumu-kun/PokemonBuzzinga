@@ -19,15 +19,15 @@
 }
 
 .tournament-name {
-    font-family: 'Pacifico', cursive; 
-    color: #B19CD9;
+    font-family: 'roboto', cursive; 
+    color: #db88ff  ;
     font-size: 24px; 
     margin-bottom: 5px; 
 }
 
 .btn {
     padding: 10px 20px;
-    background-color: #007bff; 
+    background-color: #734F96; 
     color: #fff;
     text-decoration: none;
     border: none;

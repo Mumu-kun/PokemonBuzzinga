@@ -14,9 +14,9 @@ client/dist-ssr
 client/*.local
 client/.env.development
 
-
 server/node_modules
 server/.env.dev
 server/functions
 
 .env
+node_modules

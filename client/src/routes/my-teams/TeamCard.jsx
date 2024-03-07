@@ -15,6 +15,8 @@ function TeamCard({ team_id, trainer_id, team_name, is_battle_team, refreshTeams
 			const req = await axiosApi.get(`/team/${team_id}/pokemons`);
 			const data = req.data;
 
+			console.log(data);
+
 			setPokemons(data);
 		} catch (error) {
 			console.error(error);
@@ -43,19 +45,20 @@ function TeamCard({ team_id, trainer_id, team_name, is_battle_team, refreshTeams
 
 	return (
 		<div
-			className={`flex flex-col gap-2 items-center w-52 min-h-80 rounded-lg bg-white text-black py-4 px-6 ${
-				!!is_battle_team && "outline outline-2 outline-amber-500 border-2 border-amber-500"
+			className={`flex min-h-80 w-60 flex-col items-center gap-2 rounded-lg bg-white px-6 py-4 text-black ${
+				!!is_battle_team && "border-2 border-amber-500 outline outline-2 outline-amber-500"
 			}`}
 		>
 			{/* <span>{id}</span> */}
 			<span className="text-h3 my-2">{team_name}</span>
-			<div className="flex flex-col w-full gap-2 mb-4 cursor-default">
+			<div className="mb-4 flex w-full cursor-default flex-col gap-2">
 				{pokemons.map((pokemon) => (
 					<div
 						key={pokemon.id}
-						className="flex w-full px-4 py-1 justify-start gap-4 text-left text-sm bg-slate-200 rounded-md"
+						className="flex w-full items-center justify-start gap-4 rounded-md bg-slate-200 px-4 py-1 text-left text-sm"
 					>
 						{/* <span>{pokemon.id} : </span> */}
+						<img src={`${axiosApi.getUri()}pokemons/${pokemon.pokemon_id}/image`} className="h-6 w-6 p-0.5" />
 						<span className="flex-auto">{pokemon.nickname}</span>
 						<span>{pokemon.total}</span>
 					</div>

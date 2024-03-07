@@ -25,4 +25,12 @@
 	.input {
 		@apply py-2 px-4 rounded-lg text-black;
 	}
+
+	.dialogue--border {
+		@apply rounded-md border-2 border-black outline outline-[3px] outline-offset-1 outline-black ring-2 ring-white;
+	}
+
+	.pause {
+		animation-play-state: paused !important;
+	}
 }

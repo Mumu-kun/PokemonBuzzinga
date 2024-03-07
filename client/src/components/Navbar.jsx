@@ -30,12 +30,6 @@ function LoggedInElements() {
 			<Link to={`/profile/${user.id}`} className="btn">
 				Profile
 			</Link>
-			<button className="btn" onClick={() => navigate("/battle")}>
-				Battle
-			</button>
-			<Link to="/tournaments" className="btn">
-				Tournaments
-			</Link>
 			<button
 				className="btn"
 				onClick={() => {
@@ -56,13 +50,11 @@ function Navbar() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="sticky top-0 flex items-center justify-end w-full px-8 bg-opacity-100 bg-slate-900 z-40 text-center gap-5 py-5 shadow-md shadow-slate-900">
+		<div className="sticky top-0 z-40 flex w-full items-center justify-end gap-5 bg-slate-900 bg-opacity-100 px-8 py-5 text-center shadow-md shadow-slate-900">
 			<Link to="/" className="mr-auto font-bold">
 				Pokemon Buzzinga
 			</Link>
-			<Link to="/pokemons" className="btn">
-				All Pokemons
-			</Link>
+
 			{user ? <LoggedInElements /> : <LoggedOutElements />}
 		</div>
 	);

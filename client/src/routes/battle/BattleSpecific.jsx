@@ -229,10 +229,10 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 
 	const winner = useMemo(() => {
 		if (!!logs) {
-			if (logs[logs.length - 1].hp_1 <= 0) {
-				return battleInfo.trainer_2_name;
-			} else if (logs[logs.length - 1] <= 0) {
+			if (battleInfo.winner === battleInfo.participant_1) {
 				return battleInfo.trainer_1_name;
+			} else {
+				return battleInfo.trainer_2_name;
 			}
 		}
 	}, [logs, battleInfo]);
@@ -393,6 +393,8 @@ const BattleSpecific = () => {
 		try {
 			const req = await axios.get(`/battle/${battleId}`);
 			const data = req.data;
+
+			console.log(data);
 
 			setBattleInfo(data);
 		} catch (error) {

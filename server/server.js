@@ -1106,13 +1106,14 @@ app.get("/api/challengers/:id", async (req, res) => {
             id: row.trainer_id,
             name: row.name
         }));
-
+		console.log(challengers);
         res.status(200).json(challengers);
     } catch (err) {
         console.error(err);
         res.status(400).send("Failed to fetch challenger IDs and names.");
     }
 });
+
 
 
 
@@ -1320,7 +1321,7 @@ app.get("/api/tournaments", async (req, res) => {
 	try {
 		const { rows } = await pool.query(`
 			SELECT *
-				FROM tournaments order by start_at desc;
+				FROM tournaments order by start_time desc;
 		`);
 
 		res.status(200).json(rows);
@@ -1368,18 +1369,45 @@ app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
 	}
 });
 
+app.post("/api/join_tournament/", async (req, res) => {
+	try {
+	  const { tournament_id, trainer_id } = req.body;
+
+  
+	  const { rows } = await pool.query(
+		`
+		call add_team_to_tournament($1, $2);
+		`,
+		[tournament_id, trainer_id]
+	  );
+  
+	  res.status(200).json(rows);
+	} catch (err) {
+	  console.error(err);
+	  res.sendStatus(400);
+	}
+  });
+
 app.post("/api/tournaments", async (req, res) => {
 	try {
 		const formData = req.body;
 
 		authenticateRequest(formData.trainer_id, req);
 
+		const { rows: r } = await pool.query(
+			`
+			update trainers set balance=balance-$1
+			where id=$2;
+			`,
+			[formData.reward, formData.max_participants]
+		);
+
 		const { rows } = await pool.query(
 			`
-			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward, start_time)
-			VALUES ($1, $2, $3, $4, $5) RETURNING *;
+			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
+			VALUES ($1, $2, $3, $4) RETURNING *;
 			`,
-			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward]
 		);
 
 		res.status(200).json(rows);

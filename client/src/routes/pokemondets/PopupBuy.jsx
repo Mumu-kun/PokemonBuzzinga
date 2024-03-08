@@ -22,7 +22,7 @@ const PopupBuy = ({ onSubmit, onCancel, children }) => {
 					value={nickname}
 					onChange={(e) => setNickname(e.target.value)}
 					placeholder="Enter a nickname"
-					className="mt-4 rounded-md  px-4 py-2 text-white outline-none"
+					className="mt-4 rounded-md  px-4 py-2 text-black outline-none"
 				/>
 				<div className="mt-4 flex justify-center space-x-4">
 					<button onClick={handleSubmit} className="btn--green ">

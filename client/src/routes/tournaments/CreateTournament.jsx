@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
+import MessagePopup from "../../components/MessagePopup";
 import "./CreateTournament.css";
 
 const CreateTournament = () => {
 	const { user } = useAuthContext();
+	const [msg, setMsg] = useState(null);
 	const [formData, setFormData] = useState({
 		tournament_name: "",
 		max_participants: 2,
@@ -19,6 +21,9 @@ const CreateTournament = () => {
 			console.log("Tournament created:", response.data);
 		} catch (error) {
 			console.error("Failed to create tournament:", error);
+			if (error.response?.data?.message) {
+				setMsg(error.response.data.message);
+			}
 		}
 	};
 
@@ -27,7 +32,8 @@ const CreateTournament = () => {
 	};
 
 	return (
-		<div className="create-tournament-container rounded-md bg-slate-700">
+		<div className="create-tournament-container">
+			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<h1 className="create-tournament-heading">Create Tournament</h1>
 			<form onSubmit={handleSubmit} className="create-tournament-form">
 				<label htmlFor="name" className="create-tournament-label">

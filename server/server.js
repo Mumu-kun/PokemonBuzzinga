@@ -176,8 +176,6 @@ app.post("/api/login", async (req, res) => {
 	try {
 		const formData = req.body;
 
-		// console.log(formData);
-
 		const { rows } = await pool.query(
 			`
             SELECT ID, NAME, PASSWORD
@@ -187,7 +185,7 @@ app.post("/api/login", async (req, res) => {
 			[formData.name]
 		);
 
-		if (rows.length == 0) {
+		if (rows.length === 0) {
 			const errMsg = `Trainer does not exist.`;
 			throw new Error(errMsg);
 		}
@@ -198,11 +196,14 @@ app.post("/api/login", async (req, res) => {
 			throw new Error(errMsg);
 		}
 
-		// console.log(rows[0]);
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.message);
+		if (err?.message.includes("Password does not match.")) {
+			res.status(409).send({ message: "Password does not match." });
+			return;
+		}
+		res.sendStatus(400);
 	}
 });
 
@@ -225,7 +226,10 @@ app.post("/api/signup", async (req, res) => {
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.message);
+		if (err?.code === "23505") {
+			res.status(409).send({ message: "user name already exists" });
+			return;
+		}
 	}
 });
 
@@ -616,16 +620,15 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 			`
 			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, TR.IN_QUEUE, R.REGION_NAME, TM.*,
 			(SELECT ID FROM OWNED_POKEMONS OP JOIN POKEMONS P ON OP.POKEMON_ID = P.POKEMON_ID WHERE TR.ID = OP.TRAINER_ID ORDER BY P.TOTAL DESC LIMIT 1) AS STRONGEST_POKEMON_ID,
-			(select count(distinct pokemon_id) from owned_pokemons where trainer_id = tr.id) as pokedex_filled,
 			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
 			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
-			(SELECT COUNT(distinct BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
 				ON (B.PARTICIPANT_1 = T.TEAM_ID OR B.PARTICIPANT_2 = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_COUNT,
-			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
-				ON (B.WINNER = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS_SNAPSHOT TM
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
+				ON ((CASE B.WINNER WHEN 1 THEN B.PARTICIPANT_1 WHEN 2 THEN B.PARTICIPANT_2 END) = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
+			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS TM
 				ON TIT.TEAM_ID = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS_SNAPSHOT TM
+			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS TM
 				ON TRNM.WINNER = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_WIN_COUNT
 				FROM TRAINERS TR
 				JOIN REGIONS R
@@ -1063,8 +1066,6 @@ app.post("/api/send_battle", async (req, res) => {
 		// console.log(trainer_id);
 		const defend_team = tbt[0].battle_team;
 
-		console.log(challange_team, defend_team);
-
 		const { rows } = await pool.query(
 			`
 		INSERT INTO battle_requests (challanger, defender ,is_accepted)
@@ -1140,7 +1141,7 @@ app.put("/api/accept_battle", async (req, res) => {
       `,
 			[defender_id]
 		);
-		// console.log(trainer_id);
+
 		const defend_team = tbt[0].battle_team;
 
 		const { rows } = await pool.query(
@@ -1151,29 +1152,16 @@ app.put("/api/accept_battle", async (req, res) => {
 			`,
 			[challange_team, defend_team]
 		);
-
-		// const { rows: b_id } = await pool.query(
-		// 	`
-		// 	SELECT battle_id
-		// 	FROM battles
-		// 	WHERE participant_1 IN (
-		// 			SELECT team_id
-		// 			FROM teams_snapshot
-		// 			WHERE trainer_id = $1
-		// 		)
-		// 		AND participant_2 IN (
-		// 			SELECT team_id
-		// 			FROM teams_snapshot
-		// 			WHERE trainer_id = $2
-		// 		);
-
-		// 	`,
-		// 	[challenger_id,defender_id]
-		// );
-		// console.log(b_id);
-		// const bat_id= b_id[0].battle_id;
-
-		res.status(200).json(rows);
+		const { rows: bid } = await pool.query(
+			`
+			SELECT battle_id 
+			FROM battles 
+			WHERE created_at = (SELECT MAX(created_at) FROM battles);
+			`
+		);
+		const bat_id = bid[0].battle_id;
+		// console.log(bat_id);
+		res.status(200).json(bat_id);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
@@ -1197,34 +1185,6 @@ app.get("/api/battles", async (req, res) => {
 				join trainers t1 on (ts1.trainer_id = t1.id)
 				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
 				join trainers t2 on (ts2.trainer_id = t2.id)
-				order by b.created_at desc;
-		`);
-
-		res.status(200).json(rows);
-	} catch (err) {
-		console.error(err);
-		res.sendStatus(400);
-	}
-});
-
-app.get("/api/my-battles", async (req, res) => {
-	try {
-		const { rows } = await pool.query(`
-			SELECT b.*, t1.id as trainer_1, t1.name as trainer_1_name, ts1.team_name as team_1, t2.id as trainer_2, t2.name as trainer_2_name, ts2.team_name as team_2,
-			(select sum(p.total) from pokemon_in_team_snapshot pits
-				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
-				join pokemons p on ops.pokemon_id = p.pokemon_id
-				where pits.team_id = b.participant_1) as team_1_total,
-			(select sum(p.total) from pokemon_in_team_snapshot pits
-				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
-				join pokemons p on ops.pokemon_id = p.pokemon_id
-				where pits.team_id = b.participant_2) as team_2_total
-				FROM casual_battles cb join battles b using (battle_id)
-				join teams_snapshot ts1 on (b.participant_1 = ts1.team_id)
-				join trainers t1 on (ts1.trainer_id = t1.id)
-				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
-				join trainers t2 on (ts2.trainer_id = t2.id)
-			where t1.id = 
 				order by b.created_at desc;
 		`);
 
@@ -1351,7 +1311,6 @@ app.get("/api/tournaments", async (req, res) => {
 			SELECT *
 				FROM tournaments order by start_time desc;
 		`);
-
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -1359,55 +1318,26 @@ app.get("/api/tournaments", async (req, res) => {
 	}
 });
 
-app.get("/api/trainer/:trainerId/tournaments", async (req, res) => {
+app.get("/api/joined_tournaments/:id", async (req, res) => {
 	try {
-		const { trainerId } = req.params;
-
+		const id = req.params.id;
 		const { rows } = await pool.query(
 			`
-			SELECT distinct trnm.*
-			FROM tournaments trnm join teams_in_tournament using (tournament_id) titrnm join teams_snapshot tms using (team_id) where tms.trainer_id = $1  order by start_at desc;
-			`,
-			[trainerId]
+            SELECT *
+            FROM tournaments
+            WHERE tournament_id IN (
+                SELECT tournament_id
+                FROM teams_in_tournament
+                WHERE team_id IN (
+                    SELECT team_id
+                    FROM teams_snapshot
+                    WHERE trainer_id = $1
+                )
+            );
+        `,
+			[id]
 		);
-
-		res.sendStatus(200).json(rows);
-	} catch (err) {
-		console.error(err);
-		res.sendStatus(400);
-	}
-});
-
-app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
-	try {
-		const { trainerId } = req.params;
-
-		const { rows } = await pool.query(
-			`
-			SELECT *
-			FROM tournaments where organizer = $1 order by start_at desc;
-			`,
-			[trainerId]
-		);
-
-		res.sendStatus(200).json(rows);
-	} catch (err) {
-		console.error(err);
-		res.sendStatus(400);
-	}
-});
-
-app.post("/api/join_tournament/", async (req, res) => {
-	try {
-		const { tournament_id, trainer_id } = req.body;
-
-		const { rows } = await pool.query(
-			`
-		call add_team_to_tournament($1, $2);
-		`,
-			[tournament_id, trainer_id]
-		);
-
+		console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -1700,7 +1630,6 @@ app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);
-		res.sendStatus(400);
 	}
 });
 
@@ -1739,6 +1668,10 @@ app.post("/api/tournaments", async (req, res) => {
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
 		res.sendStatus(400);
 	}
 });

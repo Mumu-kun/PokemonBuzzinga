@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
 import { Navigate, useNavigate } from "react-router-dom";
+import MessagePopup from "../../components/MessagePopup";
 
 function SignUp() {
 	const { user, userDispatch } = useAuthContext();
+	const [msg, setMsg] = useState(null);
 	const navigate = useNavigate();
 
 	const [regions, setRegions] = useState([]);
@@ -53,6 +55,9 @@ function SignUp() {
 			navigate("/");
 		} catch (error) {
 			console.error(error);
+			if (error.response?.data?.message) {
+				setMsg(error.response.data.message);
+			}
 		}
 	};
 
@@ -62,6 +67,7 @@ function SignUp() {
 
 	return (
 		<div className="flex w-fit flex-1 flex-col items-center">
+			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<form
 				method="get"
 				onSubmit={signupSubmit}

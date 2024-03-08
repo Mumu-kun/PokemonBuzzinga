@@ -71,6 +71,15 @@
     margin-left: 10px;
 }
 
+.joined {
+    padding: 5px 15px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 .join-btn:hover {
     background-color: #218838; 
 }

@@ -1,15 +1,11 @@
 .battle-page {
-  /* background-image: url("../../assets/battle.jpg"); */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   width: 50vw; 
   height: 75vh; 
   padding: 20px;
-  /* background-color: #f5f5f5; */
   border-radius: 10px;
-  /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); */
-  /* margin: 20px; */
   margin-top: 6rem;
   font-family: 'roboto', cursive; 
   font-size: 17px;
@@ -141,7 +137,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
-  margin-top: 10px; /* Adjust margin as needed */
+  margin-top: 10px;
 }
 
 .select-button {

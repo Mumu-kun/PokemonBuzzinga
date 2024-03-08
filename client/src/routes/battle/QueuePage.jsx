@@ -4,7 +4,6 @@ import axios from "../../utils/AxiosSetup";
 import { Link, useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 import TeamCard from "../my-teams/TeamCard";
-
 import "./QueuePage.css";
 
 function BattlePage() {

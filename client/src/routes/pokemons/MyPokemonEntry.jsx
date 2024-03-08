@@ -71,11 +71,14 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 		<>
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 
-			<div className="flex flex-col w-fit bg-slate-100 text-black rounded-lg items-center p-2" key={id}>
-				<div className="text-xs my-1">Nickname</div>
-				<div className="p-1 mb-2 mx-4 min-w-3/4 relative">
+			<div
+				className="flex w-fit flex-col items-center rounded-lg bg-slate-200 p-3 text-black transition-all hover:bg-slate-300"
+				key={id}
+			>
+				<div className="my-1 text-xs">Nickname</div>
+				<div className="min-w-3/4 relative mx-4 mb-2 p-1">
 					<input
-						className="text-center py-1  rounded-md outline outline-slate-200 outline-1 focus:outline-2 focus:outline-slate-400"
+						className="rounded-md py-1  text-center outline outline-1 outline-slate-200 focus:outline-2 focus:outline-slate-400"
 						value={nickname}
 						onChange={(e) => {
 							setNickname(e.target.value);
@@ -84,22 +87,22 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 						disabled={inProfile}
 					/>
 					{nicknameChanged && (
-						<div className="absolute -right-4 top-1/2 -translate-y-1/2 bg-green-700 rounded-md text-white cursor-pointer">
+						<div className="absolute -right-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-md bg-green-700 text-white">
 							<TiTick />
 						</div>
 					)}
 				</div>
 
-				<PokemonEntry {...pokemonData} className="border-t-2 border-slate-500 shadow-sm shadow-slate-300" />
+				<PokemonEntry {...pokemonData} className="border-t-2 border-slate-300 shadow-sm shadow-slate-300" />
 				{!inProfile && (
 					<>
-						<div className="w-full flex justify-center items-center">
-							<span className="font-semibold pr-2">Team :</span>
+						<div className="flex w-full items-center justify-center">
+							<span className="pr-2 font-semibold">Team :</span>
 							<select
 								name="teams"
 								value={selectedTeam ?? "none"}
 								onChange={handleChangeTeam}
-								className="inline-block text-black max-w-48 w-full my-2 p-1 rounded-md bg-white cursor-pointer"
+								className="my-2 inline-block w-full max-w-48 cursor-pointer rounded-md bg-white p-1 text-black"
 							>
 								<option value={"none"}>None</option>
 								<option value={"loading"} hidden>
@@ -123,7 +126,7 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 			{!!freePrompt && (
 				<Popup>
 					<>
-						<div className="text-lg font-semibold mx-6">Are you sure?</div>
+						<div className="mx-6 text-lg font-semibold">Are you sure?</div>
 						<div className="mb-4">Freeing a pokemon is irreversible.</div>
 						<div className="flex gap-4">
 							<button

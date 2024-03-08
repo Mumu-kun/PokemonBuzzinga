@@ -29,11 +29,11 @@ function PokemonEntry({
 	return (
 		<Link
 			to={`/pokemonsdets/${pokemon_id}`}
-			className={`flex flex-col w-64 gap-2 p-6 pb-4 items-center rounded-lg bg-white text-black ${PClassName} ${
+			className={`flex w-64 flex-col items-center gap-2 rounded-lg bg-white p-6 pb-4 text-black shadow-md shadow-slate-200 ${PClassName} ${
 				linkDisable && `pointer-events-none`
 			}`}
 		>
-			<div className="flex pl-3 w-full text-center">
+			<div className="flex w-full pl-3 text-center">
 				<span>{pokemon_id}</span>
 				<span className="mx-auto">{name}</span>
 			</div>
@@ -41,16 +41,16 @@ function PokemonEntry({
 				src={`${axios.getUri()}pokemons/${pokemon_id}/image`}
 				loading="lazy"
 				alt=""
-				className="w-2/3 my-2 aspect-square mx-auto"
+				className="mx-auto my-2 aspect-square w-2/3"
 			/>
 
-			<div className="w-full grid grid-cols-[fit-content(10%)_auto_fit-content(10%)] items-center gap-2 gap-y-1 text-xs">
+			<div className="grid w-full grid-cols-[fit-content(10%)_auto_fit-content(10%)] items-center gap-2 gap-y-1 text-xs">
 				{Object.keys(stats).map((key) => (
 					<>
 						<span className={`${statToStyle[key].textCol}`}>{statToStyle[key].icon}</span>
-						<div className={`mx-1 h-1 bg-opacity-20 ${statToStyle[key].color} rounded-full overflow-hidden`}>
+						<div className={`mx-1 h-1 bg-opacity-20 ${statToStyle[key].color} overflow-hidden rounded-full`}>
 							<div
-								className={`w-full h-full ${statToStyle[key].color}`}
+								className={`h-full w-full ${statToStyle[key].color}`}
 								style={{
 									transformOrigin: "left",
 									transform: `scaleX(${key === "total" ? stats[key] / 800 : stats[key] / 255})`,

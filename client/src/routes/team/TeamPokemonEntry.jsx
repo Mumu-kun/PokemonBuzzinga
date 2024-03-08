@@ -4,7 +4,6 @@ import axios from "../../utils/AxiosSetup";
 import Moves from "./Moves";
 import { IoMdCloseCircle } from "react-icons/io";
 import MessagePopup from "../../components/MessagePopup";
-import MessagePopup from "../../components/MessagePopup";
 
 function TeamPokemonEntry({
 	id,

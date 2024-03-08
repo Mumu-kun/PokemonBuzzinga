@@ -44,7 +44,7 @@ function TeamPage() {
 
 	useEffect(() => {
 		getTeamDetails();
-	}, []);
+	}, [team_id]);
 
 	if (!teamDetails) {
 		return null;

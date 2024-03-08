@@ -616,15 +616,16 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 			`
 			SELECT TR.ID, TR.NAME, TR.BALANCE, TR.REGION_ID, TR.IN_QUEUE, R.REGION_NAME, TM.*,
 			(SELECT ID FROM OWNED_POKEMONS OP JOIN POKEMONS P ON OP.POKEMON_ID = P.POKEMON_ID WHERE TR.ID = OP.TRAINER_ID ORDER BY P.TOTAL DESC LIMIT 1) AS STRONGEST_POKEMON_ID,
+			(select count(distinct pokemon_id) from owned_pokemons where trainer_id = tr.id) as pokedex_filled,
 			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
 			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
-			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
+			(SELECT COUNT(distinct BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
 				ON (B.PARTICIPANT_1 = T.TEAM_ID OR B.PARTICIPANT_2 = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_COUNT,
-			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
-				ON ((CASE B.WINNER WHEN 1 THEN B.PARTICIPANT_1 WHEN 2 THEN B.PARTICIPANT_2 END) = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS TM
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
+				ON (B.WINNER = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
+			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS_SNAPSHOT TM
 				ON TIT.TEAM_ID = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS TM
+			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS_SNAPSHOT TM
 				ON TRNM.WINNER = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_WIN_COUNT
 				FROM TRAINERS TR
 				JOIN REGIONS R
@@ -1062,6 +1063,8 @@ app.post("/api/send_battle", async (req, res) => {
 		// console.log(trainer_id);
 		const defend_team = tbt[0].battle_team;
 
+		console.log(challange_team, defend_team);
+
 		const { rows } = await pool.query(
 			`
 		INSERT INTO battle_requests (challanger, defender ,is_accepted)
@@ -1315,7 +1318,7 @@ app.get("/api/tournaments", async (req, res) => {
 	try {
 		const { rows } = await pool.query(`
 			SELECT *
-				FROM tournaments order by start_at desc;
+				FROM tournaments order by start_time desc;
 		`);
 
 		res.status(200).json(rows);

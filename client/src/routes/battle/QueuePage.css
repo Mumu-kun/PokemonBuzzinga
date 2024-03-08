@@ -1,0 +1,160 @@
+.battle-page {
+  background-image: url("../../assets/battle.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 50vw; 
+  height: 35vw; 
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  font-family: 'roboto', cursive; 
+  font-size: 17px;
+  color: black; 
+}
+
+.title-text {
+  background-color: #0072bb; 
+  padding: 5px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: inline; 
+}
+
+.text-background {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.join-queue-button:hover,
+.leave-queue-button:hover {
+  background-color: #0056b3;
+}
+
+.join-queue-button {
+  padding: 10px 20px;
+  background-color: green;
+  justify-content: center; 
+  align-items: center; 
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: auto; 
+  display: block;
+}
+
+.leave-queue-button {
+  padding: 10px 20px;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center; 
+}
+
+.challengers-container,
+.trainers-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  margin-top: 20px;
+}
+
+.challengers-container ul,
+.trainers-container ul {
+  list-style: none;
+  padding: 0;
+  text-align: right; 
+}
+
+.challengers-container li,
+.trainers-container li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: flex-end; 
+}
+
+.accept-button{
+  padding: 5px 10px;
+  background-color: #0abab5;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+  margin-right: 0; 
+}
+.send-button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+  margin-right: 0; 
+}
+
+.accept-button:hover {
+  background-color: #81D8D0;
+}
+.send-button:hover {
+  background-color: #0056b3;
+}
+
+.battle-team-container {
+  position: absolute;
+  bottom: 20px; 
+  right: 20px; 
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  z-index: 1; 
+}
+
+.battle-team-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.select-button,
+.deselect-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  margin-top: 10px; /* Adjust margin as needed */
+}
+
+.select-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.select-button:hover {
+  background-color: #45a049;
+}
+
+.deselect-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.deselect-button:hover {
+  background-color: #d32f2f;
+}

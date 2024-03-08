@@ -11,23 +11,23 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center; 
-    width: 57vw; 
-    height: 47vw; 
+    width: 50vw; 
+    height: 40vw; 
     margin: auto; 
     border: 6px solid rgba(255, 255, 255, 0.5);
     border-radius: 10px;
 }
 
 .tournament-name {
-    font-family: 'Pacifico', cursive; 
-    color: #B19CD9;
+    font-family: 'roboto', cursive; 
+    color: #db88ff  ;
     font-size: 24px; 
     margin-bottom: 5px; 
 }
 
 .btn {
     padding: 10px 20px;
-    background-color: #007bff; 
+    background-color: #734F96; 
     color: #fff;
     text-decoration: none;
     border: none;

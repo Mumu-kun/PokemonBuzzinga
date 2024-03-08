@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import axios from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
 import "./Tournaments.css";
-import tourpic from "../../assets/tournament.jpg";
 
 const Tournaments = () => {
   const [allTournaments, setAllTournaments] = useState([]);

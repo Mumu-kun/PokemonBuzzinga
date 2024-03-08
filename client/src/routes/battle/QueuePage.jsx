@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
+import { useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
+import TeamCard from "../my-teams/TeamCard";
+
+import "./QueuePage.css";
 
 function QueuePage() {
 	const [challengers, setChallengers] = useState([]);
 	const [trainersInQueue, setTrainersInQueue] = useState([]);
-	const [isInQueue, setIsInQueue] = useState(false); // Track the in_queue status
+	const [isInQueue, setIsInQueue] = useState(false);
 	const [msg, setMsg] = useState(null);
+	const [battleTeam, setBattleTeam] = useState(null);
 	const { user } = useAuthContext();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		fetchChallengers();
-		fetchTrainersInQueue();
 		fetchQueueState();
+		fetchBattleTeam();
 	}, []);
 
 	const fetchChallengers = async () => {
@@ -25,38 +31,79 @@ function QueuePage() {
 		}
 	};
 
-	const fetchTrainersInQueue = async () => {
-		try {
-			const response = await axios.get(`/trainers_line`);
-			setTrainersInQueue(response.data);
-		} catch (error) {
-			console.error("Failed to fetch trainers in queue", error);
-		}
-	};
-
 	const fetchQueueState = async () => {
 		try {
 			const response = await axios.get(`/state/${user.id}`);
 			setIsInQueue(response.data);
+			if (response.data) {
+				fetchTrainersInQueue();
+			}
 		} catch (error) {
 			console.error("Failed to fetch queue state", error);
 		}
 	};
 
+	const fetchTrainersInQueue = async () => {
+		try {
+			const response = await axios.get(`/trainers_line`);
+			setTrainersInQueue(response.data.filter((trainerId) => trainerId !== user.id));
+		} catch (error) {
+			console.error("Failed to fetch trainers in queue", error);
+		}
+	};
+
 	const toggibattle = async () => {
 		try {
-			if (isInQueue) {
-				await axios.put(`/battle_no/${user.id}`);
+			const updatedQueueState = !isInQueue;
+			await axios.put(updatedQueueState ? `/battle_yes/${user.id}` : `/battle_no/${user.id}`);
+			setIsInQueue(updatedQueueState);
+			if (updatedQueueState) {
+				fetchTrainersInQueue();
 			} else {
-				await axios.put(`/battle_yes/${user.id}`);
+				setTrainersInQueue([]);
 			}
-			setIsInQueue(!isInQueue);
 		} catch (error) {
 			console.error("Failed to toggle queue status", error);
-
 			if (error?.response?.status === 409) {
 				setMsg(error.response.data.message);
 			}
+		}
+	};
+
+	const fetchBattleTeam = async () => {
+		try {
+			const response = await axios.get(`/trainer/${user.id}`);
+			const data = response.data;
+
+			if (data.team_id) {
+				setBattleTeam({
+					team_id: data.team_id,
+					trainer_id: data.trainer_id,
+					team_name: data.team_name,
+				});
+			} else {
+				setBattleTeam(null);
+			}
+		} catch (error) {
+			console.error("Failed to fetch battle team", error);
+		}
+	};
+
+	const handleSelectBattleTeam = async (teamId) => {
+		try {
+			await axios.put(`/trainer/${user.id}/battle-team`, { team_id: teamId });
+			fetchBattleTeam();
+		} catch (error) {
+			console.error("Failed to select battle team", error);
+		}
+	};
+
+	const handleDeselectBattleTeam = async () => {
+		try {
+			await axios.put(`/trainer/${user.id}/battle-team`, { team_id: null });
+			fetchBattleTeam();
+		} catch (error) {
+			console.error("Failed to deselect battle team", error);
 		}
 	};
 
@@ -72,34 +119,79 @@ function QueuePage() {
 	const handleAcceptBattle = async (challengerId) => {
 		try {
 			const response = await axios.put(`/accept_battle`, { challenger_id: challengerId, defender_id: user.id });
-			console.log(response.data);
+			const bat_id = response.data;
+			console.log(bat_id);
+			///navigate(`/battle/${bat_id}`);
+			//console.log(response.data);
 		} catch (error) {
 			console.error("Failed to accept battle request", error);
 		}
 	};
 
 	return (
-		<div>
+		<div className="battle-page">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
-			<h1>Battle Page</h1>
-			<h2>Challengers:</h2>
-			<ul>
-				{challengers.map((challengerId) => (
-					<li key={challengerId}>
-						{challengerId}
-						<button onClick={() => handleAcceptBattle(challengerId)}>Accept Battle Request</button>
-					</li>
-				))}
-			</ul>
-			<h2>Trainers in Queue:</h2>
-			<ul>
-				{trainersInQueue.map((trainerId) => (
-					<li key={trainerId}>
-						{trainerId} : <button onClick={() => handleSendBattle(trainerId)}>Send Battle Request</button>
-					</li>
-				))}
-			</ul>
-			<button onClick={toggibattle}>{isInQueue ? "Leave Queue" : "Join Queue"}</button>
+			<div className="title-background">
+				<h1 className="title-text">Battle Page</h1>
+			</div>
+			<div className="challengers-container">
+				{isInQueue && (
+					<>
+						<h2>Challengers</h2>
+						<ul>
+							{challengers.map((challenger) => (
+								<li key={challenger.id}>
+									{challenger.name}
+									<button className="accept-button" onClick={() => handleAcceptBattle(challenger.id)}>
+										Accept Battle Request
+									</button>
+								</li>
+							))}
+						</ul>
+					</>
+				)}
+			</div>
+
+			<div className="trainers-container">
+				{isInQueue && (
+					<>
+						<h2>Trainers in Queue</h2>
+						<ul>
+							{trainersInQueue.map(
+								(trainer) =>
+									trainer.id !== user.id && (
+										<li key={trainer.id}>
+											{trainer.name} :{" "}
+											<button className="send-button" onClick={() => handleSendBattle(trainer.id)}>
+												Send Battle Request
+											</button>
+										</li>
+									)
+							)}
+						</ul>
+					</>
+				)}
+			</div>
+			<button className={isInQueue ? "leave-queue-button" : "join-queue-button"} onClick={toggibattle}>
+				{isInQueue ? "Leave Queue" : "Join Queue"}
+			</button>
+			<div className="battle-team-container">
+				{battleTeam ? (
+					<>
+						<TeamCard {...battleTeam} />
+						<button className="deselect-button" onClick={handleDeselectBattleTeam}>
+							Deselect Battle Team
+						</button>
+					</>
+				) : (
+					<>
+						<p>No Battle Team</p>
+						<button className="select-button" onClick={() => navigate("/my-teams")}>
+							Select Battle Team
+						</button>
+					</>
+				)}
+			</div>
 		</div>
 	);
 }

@@ -191,7 +191,7 @@ function BattlePage() {
 					</p>
 				</div>
 			</div>
-			<button className={`${isInQueue ? "leave-queue-button" : "join-queue-button"} mt-64`} onClick={toggibattle}>
+			<button className={`${isInQueue ? "leave-queue-button" : "join-queue-button"} mt-52`} onClick={toggibattle}>
 				{isInQueue ? "Leave Queue" : "Join Queue"}
 			</button>
 			<div className="battle-team-container">

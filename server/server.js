@@ -766,7 +766,7 @@ app.post("/api/trainer_money/:id", async (req, res) => {
 	try {
 		const trainer_id = req.params.id;
 		const formData = req.body;
-		console.log(formData);
+		// console.log(formData);
 		const { rows } = await pool.query(
 			`
 			UPDATE trainers
@@ -777,7 +777,7 @@ app.post("/api/trainer_money/:id", async (req, res) => {
 			[formData.balance, trainer_id]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 
 		res.status(200).json(rows);
 	} catch (err) {
@@ -1043,7 +1043,7 @@ app.put("/api/battle_no/:id", async (req, res) => {
 app.post("/api/send_battle", async (req, res) => {
 	try {
 		const { challenger_id, trainer_id } = req.body;
-		console.log(challenger_id);
+		// console.log(challenger_id);
 		const { rows: cbt } = await pool.query(
 			`
 		SELECT battle_team
@@ -1083,7 +1083,7 @@ app.post("/api/send_battle", async (req, res) => {
 app.get("/api/challengers/:id", async (req, res) => {
 	try {
 		const id = req.params.id;
-		console.log(id);
+		// console.log(id);
 		const { rows } = await pool.query(
 			`
             SELECT t.trainer_id, tr.name
@@ -1110,7 +1110,7 @@ app.get("/api/challengers/:id", async (req, res) => {
 			id: row.trainer_id,
 			name: row.name,
 		}));
-		console.log(challengers);
+		// console.log(challengers);
 		res.status(200).json(challengers);
 	} catch (err) {
 		console.error(err);
@@ -1337,7 +1337,7 @@ app.get("/api/joined_tournaments/:id", async (req, res) => {
         `,
 			[id]
 		);
-		console.log(rows);
+		// console.log(rows);
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -1540,7 +1540,7 @@ app.get("/api/tournament/:tournamentId", async (req, res) => {
 			`
 			SELECT tm.*, tr.name as organizer_name, tr2.name as winner_name
 				FROM tournaments tm join trainers tr on tm.organizer = tr.id
-				join trainers tr2 on tm.winner = tr2.id
+				left join trainers tr2 on tm.winner = tr2.id
 				where tm.tournament_id = $1;
 		`,
 			[tournamentId]

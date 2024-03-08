@@ -10,21 +10,21 @@
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     margin: 20px;
-    font-family: 'roboto', cursive; /* Fancy font */
+    font-family: 'roboto', cursive; 
     font-size: 25px;
-    color: black; /* Black color */
+    color: black; 
   }
   
   .title-text {
-    background-color: rgba(215, 197, 179); /* Background color for titles */
+    background-color: #000692; 
     padding: 5px;
     border-radius: 10px;
     margin-bottom: 20px;
-    display: inline; /* Ensure the background color only surrounds the text */
+    display: inline; 
   }
   
   .text-background {
-    background-color: rgba(255, 255, 255, 0.7); /* Background color for texts */
+    background-color: rgba(255, 255, 255, 0.7);
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -38,15 +38,15 @@
   .join-queue-button {
     padding: 10px 20px;
     background-color: green;
-    justify-content: center; /* Align items vertically in the center */
-    align-items: center; /* Align items horizontally in the center */
+    justify-content: center; 
+    align-items: center; 
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin: auto; /* Center the button horizontally */
-    display: block; /* Ensure the button takes full width */
+    margin: auto; 
+    display: block;
   }
   
   .leave-queue-button {
@@ -64,20 +64,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px; /* Add margin to create space between containers */
+    margin-top: 20px;
   }
   
   .challengers-container ul,
   .trainers-container ul {
-    list-style: none; /* Remove default list styling */
-    padding: 0; /* Remove default padding */
+    list-style: none;
+    padding: 0; 
   }
   
   .challengers-container li,
   .trainers-container li {
     display: flex;
     align-items: center;
-    margin-bottom: 10px; /* Add margin between challenger/trainer items */
+    margin-bottom: 10px; 
   }
   
   .accept-button,
@@ -89,7 +89,7 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-left: 10px; /* Add margin to separate buttons */
+    margin-left: 10px; 
   }
   
   .accept-button:hover,

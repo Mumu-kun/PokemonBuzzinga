@@ -134,6 +134,9 @@ const PokemonDetailsPage = () => {
 			navigate(`/pokemonsdets/${prevpok}`);
 		}
 	};
+	const dekhNature = () => {
+		navigate("/naturing");
+	};
 
 	return (
 		<div className="pokemon-details-container bg-gray-100 p-4 text-gray-800" style={{ width: "1000px" }}>

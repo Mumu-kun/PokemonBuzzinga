@@ -7,7 +7,7 @@ import { LuWind } from "react-icons/lu";
 import { WiStars } from "react-icons/wi";
 import PopupBuy from "./PopupBuy";
 import { GiGlassBall } from "react-icons/gi";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 import EvolutionChain from "./EvolutionChain";
 import Loading from "../../components/Loading";
@@ -73,7 +73,6 @@ const PokemonDetailsPage = () => {
 	const [msg, setMsg] = useState(null);
 	const { id } = useParams();
 	const { user } = useAuthContext();
-	const navigate = useNavigate();
 
 	const fetchPokemonDetails = async () => {
 		try {
@@ -115,6 +114,10 @@ const PokemonDetailsPage = () => {
 			if (error.response.status === 409) {
 				setMsg(error.response.data.message);
 			}
+
+			if (error.response.status === 409) {
+				setMsg(error.response.data.message);
+			}
 		} finally {
 			setShowPopup(false);
 		}
@@ -123,40 +126,28 @@ const PokemonDetailsPage = () => {
 	const handleCancelNickname = () => {
 		setShowPopup(false);
 	};
-	const handleNext = () => {
-		const nextpok = parseInt(id, 10) + 1;
-		navigate(`/pokemonsdets/${nextpok}`);
-	};
-
-	const handlePrev = () => {
-		const prevpok = parseInt(id, 10) - 1;
-		if (prevpok >= 0) {
-			navigate(`/pokemonsdets/${prevpok}`);
-		}
-	};
-	const dekhNature = () => {
-		navigate("/naturing");
-	};
+	const nextpok = parseInt(id, 10) + 1;
+	const prevpok = parseInt(id, 10) - 1;
 
 	return (
-		<div className="pokemon-details-container bg-gray-100 p-4 text-gray-800" style={{ width: "1000px" }}>
+		<div className="pokemon-details-container -mx-4 w-[105%] bg-gray-100 p-4 text-gray-800">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
-			<div className="pokemon-details-container rounded-lg bg-blue-100 p-6">
-				<div className="mt-4 flex justify-between">
-					<button
-						onClick={handlePrev}
+			<div className="pokemon-details-container rounded-lg bg-blue-100 p-10 px-14">
+				<div className="my-4 flex justify-between">
+					<Link
+						to={`/pokemonsdets/${prevpok}`}
 						disabled={pokemonDetails?.pokemon_id === 1}
 						className="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-700"
 					>
 						Previous
-					</button>
-					<button
-						onClick={handleNext}
+					</Link>
+					<Link
+						to={`/pokemonsdets/${nextpok}`}
 						disabled={!pokemonDetails}
 						className="rounded bg-purple-500 px-4 py-2 font-bold text-white hover:bg-purple-700"
 					>
 						Next
-					</button>
+					</Link>
 				</div>
 				<div>
 					<p>Pokémon ID: {pokemonDetails.pokemon_id}</p>
@@ -164,7 +155,7 @@ const PokemonDetailsPage = () => {
 						Name: <span className="italic">{pokemonDetails.name}</span>
 					</p>
 				</div>
-				<div className="flex justify-center">
+				<div className="mb-4 flex justify-center">
 					<img
 						src={`${axios.getUri()}pokemons/${pokemonDetails.pokemon_id}/image`}
 						alt={pokemonDetails.name}
@@ -174,20 +165,22 @@ const PokemonDetailsPage = () => {
 				</div>
 
 				{/* <p>Region: {pokemonDetails.region}</p> */}
-				<div className="text-lg font-semibold text-purple-700">
-					<p>
-						Region: <span className="italic">{pokemonDetails.region}</span>
-					</p>
-					<p className="text-lg font-semibold text-green-600">
-						Price: <span className="italic">{pokemonDetails.price}$</span>
-					</p>
+				<div className="flex w-full items-center justify-between">
+					<div className="flex flex-col text-lg font-semibold text-purple-700">
+						<span>
+							Region: <span className="italic">{pokemonDetails.region}</span>
+						</span>
+						<span className="text-lg font-semibold text-green-600">
+							Price: <span className="italic">{pokemonDetails.price}$</span>
+						</span>
+					</div>
+					<button
+						className="btn--green ml-auto rounded-xl px-16 py-4 text-xl font-semibold tracking-wide text-white"
+						onClick={handleBuy}
+					>
+						Buy
+					</button>
 				</div>
-				<button
-					className="w-full rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-					onClick={handleBuy}
-				>
-					Buy
-				</button>
 				{showPopup && <PopupBuy onSubmit={handleSubmitNickname} onCancel={handleCancelNickname} />}
 				<div className="my-4 mb-1 text-lg font-bold">Stats :</div>
 				<div className="mb-3">
@@ -246,32 +239,34 @@ const PokemonDetailsPage = () => {
 
 				<div className="mb-8">
 					<p className="mb-2 text-lg font-bold">Moves:</p>
-					<table className="w-full border-collapse border border-gray-400">
+					<table className="w-full">
 						<thead>
 							<tr>
-								<th className="border border-gray-400 px-4 py-2">Move</th>
-								<th className="border border-gray-400 px-4 py-2">Type</th>
-								<th className="border border-gray-400 px-4 py-2">Category</th>
-								<th className="border border-gray-400 px-4 py-2">Power</th>
-								<th className="border border-gray-400 px-4 py-2">Accuracy</th>
-								{/* <th className="border border-gray-400 px-4 py-2">PP</th> */}
+								<th className="border-r-[2px] border-blue-100 bg-slate-500 px-4 py-2 text-white">Move</th>
+								<th className="border-r-[2px] border-blue-100 bg-slate-500 px-4 py-2 text-white">Type</th>
+								<th className="border-r-[2px] border-blue-100 bg-slate-500 px-4 py-2 text-white">Category</th>
+								<th className="border-r-[2px] border-blue-100 bg-slate-500 px-4 py-2 text-white">Power</th>
+								<th className="border-r-[2px] border-blue-100 bg-slate-500 px-4 py-2 text-white">Accuracy</th>
+								{/* <th className=" px-4 py-2">PP</th> */}
 							</tr>
 						</thead>
-						<tbody>
+						<tbody className="[&>*:nth-child(odd)]:border-blue-200 [&>*:nth-child(odd)]:bg-blue-200">
 							{moves.map((move) => (
 								<tr key={move.move_id}>
-									<td className="border border-gray-400 px-4 py-2">{move.name}</td>
+									<td className="border-r-[2px] border-blue-100 px-4 py-2">{move.name}</td>
 									<td
-										className={`border border-gray-400 px-4 py-2 ${typeToStyle[move.type].bgColor} ${
-											typeToStyle[move.type].textColor
-										}`}
+										className={`w-32 border-x-[2px] border-t-0 border-blue-100 px-6 py-2 text-center ${typeToStyle[move.type].bgColor} ${typeToStyle[move.type].textColor}`}
 									>
 										{move.type}
 									</td>
-									<td className="border border-gray-400 px-4 py-2">{move.category}</td>
-									<td className="border border-gray-400 px-4 py-2">{move.power}</td>
-									<td className="border border-gray-400 px-4 py-2">{move.accuracy}</td>
-									{/* <td className="border border-gray-400 px-4 py-2">{move.pp}</td> */}
+									<td className=" px-4 py-2">{move.category}</td>
+									<td className="px-4 py-2 pr-14 text-right">
+										{move.power ?? <hr className="float-right h-0.5 w-2 bg-slate-900" />}
+									</td>
+									<td className="px-4 py-2 pr-14 text-right">
+										{move.accuracy ?? <hr className="float-right h-0.5 w-2 bg-slate-900" />}
+									</td>
+									{/* <td className=" px-4 py-2">{move.pp}</td> */}
 								</tr>
 							))}
 						</tbody>
@@ -284,19 +279,27 @@ const PokemonDetailsPage = () => {
 					{pokemonDetails.locations.length === 0 ? (
 						<p>This Pokémon is not found in the wild.</p>
 					) : (
-						<div className="grid grid-cols-5">
-							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Region</span>
-							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Location</span>
-							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Catch Rate</span>
-							<span className="border-r-2 border-slate-500 bg-slate-400 p-2 text-center font-semibold">Min Level</span>
-							<span className=" bg-slate-400 p-2 text-center font-semibold">Max Level</span>
-							{pokemonDetails.locations.map((location) => (
+						<div className="grid grid-cols-[2fr_4fr_2fr_2fr_2fr] gap-x-0.5">
+							<span className="border-r-2 border-slate-500 bg-slate-500 p-2 text-center font-semibold text-white">
+								Region
+							</span>
+							<span className="border-r-2 border-slate-500 bg-slate-500 p-2 text-center font-semibold text-white">
+								Location
+							</span>
+							<span className="border-r-2 border-slate-500 bg-slate-500 p-2 text-center font-semibold text-white">
+								Catch Rate
+							</span>
+							<span className="border-r-2 border-slate-500 bg-slate-500 p-2 text-center font-semibold text-white">
+								Min Level
+							</span>
+							<span className=" bg-slate-500 p-2 text-center font-semibold text-white">Max Level</span>
+							{pokemonDetails.locations.map((location, i) => (
 								<>
-									<span className="border-r-2 border-slate-500 p-2 text-center">{location.region_name}</span>
-									<span className="border-r-2 border-slate-500 p-2 px-4">{location.location_name}</span>
-									<span className="border-r-2 border-slate-500 p-2 px-4">{location.catchrate}</span>
-									<span className="border-r-2 border-slate-500 p-2 px-4">{location.level_min}</span>
-									<span className="p-2 px-4">{location.level_max}</span>
+									<span className={`${i % 2 ? "" : "bg-blue-200"}  p-2 pl-[20%]`}>{location.region_name}</span>
+									<span className={`${i % 2 ? "" : "bg-blue-200"}  p-2 pl-[20%] `}>{location.location_name}</span>
+									<span className={`${i % 2 ? "" : "bg-blue-200"}  p-2 pr-[30%] text-right`}>{location.catchrate}</span>
+									<span className={`${i % 2 ? "" : "bg-blue-200"}  p-2 pr-[30%] text-right`}>{location.level_min}</span>
+									<span className={`${i % 2 ? "" : "bg-blue-200"} p-2 pr-[30%] text-right`}>{location.level_max}</span>
 								</>
 							))}
 						</div>

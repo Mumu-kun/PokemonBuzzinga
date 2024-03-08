@@ -1,6 +1,6 @@
 .create-tournament-container {
-    background-color: #fff3cd; 
-    padding: 40px; 
+    /* background-color: #fff3cd;  */
+    padding: 40px 16rem; 
     margin-top: 100px; 
     text-align: center; 
 }
@@ -31,7 +31,7 @@
     color: #000; 
 }
 
-.create-tournament-submit-btn {
+.create-tournament-form > .create-tournament-submit-btn {
     margin-top: 30px; 
     padding: 15px 30px; 
     background-color: #ADD8E6; 

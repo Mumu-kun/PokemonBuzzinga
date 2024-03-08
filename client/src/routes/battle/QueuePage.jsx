@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import useAuthContext from "../../hooks/useAuthContext";
 import axios from "../../utils/AxiosSetup";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 import TeamCard from "../my-teams/TeamCard";
 
 import "./QueuePage.css";
 
-function QueuePage() {
+function BattlePage() {
 	const [challengers, setChallengers] = useState([]);
 	const [trainersInQueue, setTrainersInQueue] = useState([]);
 	const [isInQueue, setIsInQueue] = useState(false);
@@ -132,16 +132,21 @@ function QueuePage() {
 		<div className="battle-page">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<div className="title-background">
-				<h1 className="title-text">Battle Page</h1>
+				<h1 className="title-text">Queue</h1>
 			</div>
 			<div className="challengers-container">
 				{isInQueue && (
 					<>
-						<h2>Challengers</h2>
+						<h2 className="text-h3 mb-4">Challengers</h2>
 						<ul>
 							{challengers.map((challenger) => (
 								<li key={challenger.id}>
-									{challenger.name}
+									<Link
+										to={`/profile/${challenger.id}`}
+										className="mr-2 rounded-md bg-slate-700 p-1 px-4 text-white transition-all hover:bg-slate-800"
+									>
+										{challenger.name}
+									</Link>
 									<button className="accept-button" onClick={() => handleAcceptBattle(challenger.id)}>
 										Accept Battle Request
 									</button>
@@ -155,13 +160,19 @@ function QueuePage() {
 			<div className="trainers-container">
 				{isInQueue && (
 					<>
-						<h2>Trainers in Queue</h2>
+						<h2 className="text-h3 mb-4">Trainers in Queue</h2>
 						<ul>
 							{trainersInQueue.map(
 								(trainer) =>
 									trainer.id !== user.id && (
 										<li key={trainer.id}>
-											{trainer.name} :{" "}
+											<Link
+												to={`/profile/${trainer.id}`}
+												className="mr-2 rounded-md bg-slate-700 p-1 px-4 text-white transition-all hover:bg-slate-800"
+											>
+												{trainer.name}
+											</Link>{" "}
+											:{" "}
 											<button className="send-button" onClick={() => handleSendBattle(trainer.id)}>
 												Send Battle Request
 											</button>
@@ -172,7 +183,7 @@ function QueuePage() {
 					</>
 				)}
 			</div>
-			<button className={isInQueue ? "leave-queue-button" : "join-queue-button"} onClick={toggibattle}>
+			<button className={`${isInQueue ? "leave-queue-button" : "join-queue-button"} mt-64`} onClick={toggibattle}>
 				{isInQueue ? "Leave Queue" : "Join Queue"}
 			</button>
 			<div className="battle-team-container">
@@ -196,4 +207,4 @@ function QueuePage() {
 	);
 }
 
-export default QueuePage;
+export default BattlePage;

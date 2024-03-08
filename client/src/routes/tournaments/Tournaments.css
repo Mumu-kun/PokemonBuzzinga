@@ -1,7 +1,7 @@
 
 
 .tournaments-container {
-    background-image: url("../../assets/tournament.jpg");
+    /* background-image: url("../../assets/tournament.jpg"); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -14,8 +14,8 @@
     width: 50vw; 
     height: 40vw; 
     margin: auto; 
-    border: 6px solid rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
+    /* border: 6px solid rgba(255, 255, 255, 0.5); */
+    /* border-radius: 10px; */
 }
 
 .tournament-name {

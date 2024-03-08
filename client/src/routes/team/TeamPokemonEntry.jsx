@@ -73,9 +73,10 @@ function TeamPokemonEntry({
 	return (
 		<>
 			{!!error && <MessagePopup message={error} setMessage={setError} />}
+			{!!error && <MessagePopup message={error} setMessage={setError} />}
 			{!!moves.length && (
 				<div
-					className={`fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-slate-700 bg-opacity-25`}
+					className={`fixed left-0 top-0 z-10 flex h-screen w-screen items-center justify-center bg-slate-400 bg-opacity-25`}
 				>
 					<div className="min-w-1/2 relative rounded-md">
 						<button
@@ -91,7 +92,7 @@ function TeamPokemonEntry({
 				</div>
 			)}
 
-			<div className={`flex w-72 flex-col items-center rounded-lg bg-slate-100 p-2 text-black ${PClassName}`}>
+			<div className={`flex w-72 flex-col items-center rounded-lg bg-slate-300 p-2 text-black ${PClassName}`}>
 				<div className="w-3/4 p-2 text-center" style={{ wordSpacing: `0.5rem` }}>
 					Nickname : {nickname}
 				</div>

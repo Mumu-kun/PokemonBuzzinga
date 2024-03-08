@@ -44,7 +44,7 @@ function TeamPage() {
 
 	useEffect(() => {
 		getTeamDetails();
-	}, []);
+	}, [team_id]);
 
 	if (!teamDetails) {
 		return null;
@@ -58,7 +58,7 @@ function TeamPage() {
 			<h1 className="text-h1">{teamDetails.team_name}</h1>
 			<h3 className="text-h3">
 				Trainer :{" "}
-				<Link to={`/profile/${teamDetails.trainer_id}`} className="rounded-md bg-slate-600 px-2 py-0.5">
+				<Link to={`/profile/${teamDetails.trainer_id}`} className="rounded-md bg-slate-600 px-4 py-1 text-white">
 					{teamDetails.name}
 				</Link>
 			</h3>

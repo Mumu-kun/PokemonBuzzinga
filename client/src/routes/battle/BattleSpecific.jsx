@@ -16,7 +16,7 @@ const battleContext = createContext(null);
 const TeamSidebar = ({ trainer_id, trainer_name, team_name, pokemons }) => {
 	const [popupPokemon, setPopupPokemon] = useState(null);
 	return (
-		<div className="flex flex-col items-center gap-2 self-stretch rounded-md bg-slate-800 p-3">
+		<div className="flex flex-col items-center gap-3 self-stretch rounded-md bg-slate-300 p-3">
 			{!!popupPokemon && (
 				<Popup>
 					<div className="min-w-1/2 relative w-fit rounded-md">
@@ -32,14 +32,14 @@ const TeamSidebar = ({ trainer_id, trainer_name, team_name, pokemons }) => {
 					</div>
 				</Popup>
 			)}
-			<p>
+			<p className="text-sm font-semibold">
 				Trainer{" "}
-				<Link to={`/profile/${trainer_id}`} className="rounded-md bg-slate-600 px-2 py-0.5">
+				<Link to={`/profile/${trainer_id}`} className="rounded-md bg-slate-600 px-2 py-1 text-white">
 					{trainer_name}
 				</Link>
 			</p>
-			<h3>
-				Team <span className="rounded-md bg-slate-600 px-2 py-0.5">{team_name}</span>
+			<h3 className="text-xs font-semibold">
+				Team <span className="rounded-md bg-slate-600 px-2 py-1 text-white">{team_name}</span>
 			</h3>
 			<div className="mt-3 flex flex-col gap-2">
 				{pokemons.map((pokemon) => (
@@ -85,12 +85,13 @@ const typeToColor = {
 };
 
 const effectivity = {
-	0: "It's had no effective",
+	0: "It had no effect",
 	0.25: "It's not very effective",
 	0.5: "It's not effective",
 	1: null,
 	2: "It's very effective",
 	4: "It's super effective",
+	10000: "Arceus's blessing is with you",
 };
 
 const BattlePokemon = ({
@@ -185,6 +186,7 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 
 	const log = useMemo(() => {
 		if (logs) {
+			// console.log(logs[currentTurn]);
 			return logs[currentTurn];
 		}
 		return null;
@@ -285,7 +287,7 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 	}, [currentTurn]);
 
 	return (
-		<div className="relative flex flex-1 flex-col items-center gap-3">
+		<div className="relative flex flex-1 flex-col items-center gap-2">
 			<div
 				className={`text-bold dialogue--border absolute top-10 z-20 flex flex-col items-center gap-4 bg-white p-4 px-6 text-3xl text-black transition-all ${winCelebration ? "" : "opacity-0"}`}
 			>
@@ -327,15 +329,15 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 			</div>
 
 			{/* Timer */}
-			<div className="h-2 w-full self-stretch bg-white">
+			<div className="-mt-3 h-2 w-full self-stretch bg-white">
 				<div
-					className={`animate-progressBar h-full w-full bg-red-900 ${currentTurn !== logs.length - 1 && playing ? "" : "pause"}`}
+					className={`animate-progressBar h-full w-full bg-slate-400 ${currentTurn !== logs.length - 1 && playing ? "" : "pause"}`}
 					onAnimationIteration={nextTurn}
 				></div>
 			</div>
 
 			{/* Battle Messages */}
-			<div className="dialogue--border relative flex h-24 w-full flex-col items-center justify-center bg-white text-black">
+			<div className="dialogue--border relative mb-2 flex h-24 w-full flex-col items-center justify-center bg-white text-black">
 				{!!attacker && (
 					<>
 						<p>

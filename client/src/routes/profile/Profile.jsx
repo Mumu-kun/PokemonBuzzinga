@@ -83,7 +83,7 @@ const Profile = () => {
 
 	useEffect(() => {
 		getProfileData();
-	}, []);
+	}, [trainer_id]);
 
 	useEffect(() => {
 		if (profileData && profileData.strongest_pokemon_id) {
@@ -109,8 +109,8 @@ const Profile = () => {
 		<>
 			<div className="mt-8 min-w-[800px]">
 				<h1 className="text-h1 mb-20">Profile</h1>
-				<div className="grid grid-cols-[auto_max-content] justify-between gap-y-20">
-					<div className="mb-10">
+				<div className="grid grid-cols-2 justify-between gap-x-40 gap-y-20">
+					<div className="rounded-md bg-slate-600 p-8 pl-10 pr-20 text-white shadow-md shadow-slate-400">
 						<h3 className="text-h3 mb-6">Trainer Info</h3>
 						<InfoList>
 							<Info title="Name" value={profileData.name} />
@@ -120,7 +120,7 @@ const Profile = () => {
 							<Info title="Teams Created" value={profileData.team_count} />
 						</InfoList>
 					</div>
-					<div>
+					<div className="rounded-md bg-slate-600 p-8 pl-10 pr-20 text-white shadow-md shadow-slate-400">
 						<h3 className="text-h3 mb-6">Statistics</h3>
 						<InfoList>
 							<Info title="Battles Fought" value={profileData.battle_count} />
@@ -129,13 +129,13 @@ const Profile = () => {
 							<Info title="Tournaments Won" value={profileData.tournament_win_count} />
 						</InfoList>
 					</div>
-					<div>
+					<div className="rounded-md bg-slate-600 p-8 pl-10 pr-20 text-white shadow-md shadow-slate-400">
 						<h3 className="text-h3 mb-6">Strongest Pokemon</h3>
-						<div className="ml-4 origin-top-left scale-[80%]">
+						<div className="ml-4 origin-top-left ">
 							{!!pokemonData && <MyPokemonEntry {...pokemonData} inProfile={true} />}
 						</div>
 					</div>
-					<div>
+					<div className="rounded-md bg-slate-600 p-8 pl-10 pr-20 text-white shadow-md shadow-slate-400">
 						<h3 className="text-h3 mb-6">Battle Team</h3>
 						<div className="ml-4 flex flex-col items-center gap-4">
 							{!!battle_team ? <TeamCard {...battle_team} /> : <p>No Battle Team</p>}

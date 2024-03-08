@@ -6,10 +6,12 @@ import "./Tournaments.css";
 
 const Tournaments = () => {
   const [allTournaments, setAllTournaments] = useState([]);
+  const [joinedTournaments, setJoinedTournaments] = useState([]);
   const { user } = useAuthContext();
 
   useEffect(() => {
     getAllTournaments();
+    getJoinedTournaments();
   }, []);
 
   const getAllTournaments = async () => {
@@ -22,6 +24,17 @@ const Tournaments = () => {
     }
   };
 
+  const getJoinedTournaments = async () => {
+    try {
+      const req = await axios.get(`/joined_tournaments/${user.id}`);
+      const data = req.data;
+      console.log(data);
+      setJoinedTournaments(data);
+    } catch (error) {
+      console.error("Failed to fetch joined tournaments:", error);
+    }
+  };
+
   const handleJoinTournament = async (tournamentId) => {
     try {
       const formData = {
@@ -30,9 +43,14 @@ const Tournaments = () => {
       };
       const response = await axios.post("/join_tournament", formData);
       console.log("Join tournament with ID:", tournamentId);
+      getJoinedTournaments(); 
     } catch (error) {
       console.error("Failed to join tournament:", error);
     }
+  };
+
+  const isTournamentJoined = (tournamentId) => {
+    return joinedTournaments.some((tournament) => tournament.tournament_id === tournamentId);
   };
 
   return (
@@ -45,8 +63,12 @@ const Tournaments = () => {
               (tournament) =>
                 !tournament.has_concluded && (
                   <li key={tournament.tournament_id} className="tournament-item">
-                    <span className="tournament-name">{tournament.tournament_name}, reward:{tournament.reward}$</span>
-                    <button onClick={() => handleJoinTournament(tournament.tournament_id)} className="join-btn">Join</button>
+                    <span className="tournament-name">{tournament.tournament_name}, reward: {tournament.reward}$</span>
+                    {isTournamentJoined(tournament.tournament_id) ? (
+                      <span className="joined">Joined</span>
+                    ) : (
+                      <button onClick={() => handleJoinTournament(tournament.tournament_id)} className="join-btn">Join</button>
+                    )}
                   </li>
                 )
             )}

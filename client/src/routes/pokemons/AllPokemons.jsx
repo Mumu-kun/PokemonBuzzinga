@@ -26,7 +26,7 @@ function AllPokemons() {
 			});
 			const data = req.data;
 
-			setTotalPages(Math.ceil(data.count / limit));
+			setTotalPages(Math.ceil(data.count / (limit ? limit : data.count)));
 
 			setPokemons(data.pokemonList);
 		} catch (error) {
@@ -105,7 +105,7 @@ function AllPokemons() {
 			<button className="teal-button" onClick={dekhNature}>
 				View Natures
 			</button>
-			<div className="flex w-full justify-between items-center mb-4 gap-4">
+			<div className="mb-4 flex w-full items-center justify-between gap-4 text-white">
 				<PrevPageBtn />
 				<input
 					type="text"
@@ -115,10 +115,10 @@ function AllPokemons() {
 						setOffset(0);
 						setFilterText(e.target.value);
 					}}
-					className="text-black py-2 px-4 rounded-md w-60 active:outline-none focus:outline-none"
+					className="w-60 rounded-md px-4 py-2 text-black focus:outline-none active:outline-none"
 				/>
 
-				<div className="bg-slate-700 p-1 rounded-md">
+				<div className="rounded-md bg-slate-700 p-1">
 					<label className="mx-1">Region :</label>
 					<select
 						value={selectedRegion}
@@ -126,14 +126,14 @@ function AllPokemons() {
 							setOffset(0);
 							setSelectedRegion(parseInt(e.target.value));
 						}}
-						className="text-black py-1 px-2 w-fit rounded-md active:outline-none focus:outline-none"
+						className="w-fit rounded-md px-2 py-1 text-black focus:outline-none active:outline-none"
 					>
 						<option value="0">All</option>
 						{!!regions && regions.map((region) => <option value={region.region_id}>{region.region_name}</option>)}
 					</select>
 				</div>
 
-				<div className="bg-slate-700 p-1 rounded-md">
+				<div className="rounded-md bg-slate-700 p-1">
 					<label className="mx-1">Sort :</label>
 					<select
 						value={sortField}
@@ -141,7 +141,7 @@ function AllPokemons() {
 							setOffset(0);
 							setSortField(e.target.value);
 						}}
-						className="text-black py-1 px-2 mr-1 w-fit rounded-md capitalize active:outline-none focus:outline-none"
+						className="mr-1 w-fit rounded-md px-2 py-1 capitalize text-black focus:outline-none active:outline-none"
 					>
 						<option value="pokemon_id">ID</option>
 						{stats.map((stat) => (
@@ -155,13 +155,13 @@ function AllPokemons() {
 							setOffset(0);
 							setSortOrder(e.target.value);
 						}}
-						className="text-black py-1 px-2 w-fit rounded-md capitalize active:outline-none focus:outline-none"
+						className="w-fit rounded-md px-2 py-1 capitalize text-black focus:outline-none active:outline-none"
 					>
 						<option value="asc">Asc</option>
 						<option value="desc">Desc</option>
 					</select>
 				</div>
-				<div className="bg-slate-700 p-1 rounded-md">
+				<div className="rounded-md bg-slate-700 p-1">
 					<label className="mx-1">Limit :</label>
 					<select
 						value={limit}
@@ -169,7 +169,7 @@ function AllPokemons() {
 							setOffset(0);
 							setLimit(parseInt(e.target.value));
 						}}
-						className="text-black py-1 px-2 w-fit rounded-md active:outline-none focus:outline-none"
+						className="w-fit rounded-md px-2 py-1 text-black focus:outline-none active:outline-none"
 					>
 						<option value="20">20</option>
 						<option value="50">50</option>
@@ -184,7 +184,7 @@ function AllPokemons() {
 			<div className="mb-4">
 				Page {!(pokemons && pokemons.length > 0) ? "0" : offset / (limit ? limit : 1) + 1} of {totalPages}
 			</div>
-			<div className="flex flex-wrap justify-center gap-4 mb-8">
+			<div className="mb-8 flex flex-wrap justify-center gap-4">
 				{!!pokemons &&
 					pokemons.map((pokemonData) => (
 						<PokemonEntry

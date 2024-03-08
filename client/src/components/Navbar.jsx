@@ -50,8 +50,8 @@ function Navbar() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="sticky top-0 z-40 flex w-full items-center justify-end gap-5 bg-slate-300 bg-opacity-100 px-8 py-5 text-center shadow-md shadow-slate-200">
-			<Link to="/" className="mr-auto font-bold">
+		<div className="sticky top-0 z-40 flex w-full items-center justify-end gap-5 bg-slate-800 bg-opacity-100 px-8 py-5 text-center shadow-md shadow-slate-900">
+			<Link to="/" className="mr-auto font-bold text-white">
 				Pokemon Buzzinga
 			</Link>
 

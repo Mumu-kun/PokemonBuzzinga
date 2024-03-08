@@ -186,7 +186,7 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 
 	const log = useMemo(() => {
 		if (logs) {
-			console.log(logs[currentTurn]);
+			// console.log(logs[currentTurn]);
 			return logs[currentTurn];
 		}
 		return null;

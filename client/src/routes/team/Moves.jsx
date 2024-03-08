@@ -26,18 +26,18 @@ const Moves = ({ moves, setMove }) => {
 		return null;
 	}
 
-	console.log(moves);
+	// console.log(moves);
 
 	return (
 		<div div className="overflow-hidden rounded-md">
-			<div className="flex items-center justify-between gap-2 bg-slate-800 p-2 px-4 pr-3">
+			<div className="flex items-center justify-between gap-2 bg-slate-400 p-2 px-4 pr-3">
 				<span className="w-44 px-4 py-2 text-center">Name</span>
 				<span className={`w-28 px-4 py-2 text-center`}>Type</span>
 				<span className="w-28 px-4 py-2 text-center">Category</span>
 				<span className="w-16 px-4 py-2 text-center">Power</span>
 				<span className="w-24 px-4 py-2 text-center">Accuracy</span>
 			</div>
-			<div className="scrollbar-thin scrollbar-track-slate-800 scrollbar-thumb-slate-700 max-h-96 w-full overflow-y-scroll bg-slate-600">
+			<div className="scrollbar-thin scrollbar-track-slate-200 scrollbar-thumb-slate-400 max-h-96 w-full overflow-y-scroll bg-slate-50">
 				{moves.map((move) => (
 					<div
 						key={move.move_id}
@@ -54,11 +54,11 @@ const Moves = ({ moves, setMove }) => {
 								{move.type_name}
 							</div>
 						</span>
-						<span className="w-28 border-r-2 border-slate-800 px-4 py-4 text-center">{move.category}</span>
-						<span className="w-16 border-r-2 border-slate-800 px-4 py-4 text-right">
+						<span className="w-28 border-r-2 border-slate-300 px-4 py-4 text-center">{move.category}</span>
+						<span className="w-16 border-r-2 border-slate-300 px-4 py-4 text-right">
 							{move.power ? move.power : "-"}
 						</span>
-						<span className="w-16 border-slate-800 px-4 py-4 text-right">{move.accuracy}</span>
+						<span className="w-16 border-slate-300 px-4 py-4 text-right">{move.accuracy}</span>
 					</div>
 				))}
 			</div>

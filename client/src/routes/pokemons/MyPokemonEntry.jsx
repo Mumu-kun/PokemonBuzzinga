@@ -13,7 +13,6 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 	const [msg, setMsg] = useState(null);
 	const [freePrompt, setFreePrompt] = useState(false);
 	const [nickname, setNickname] = useState(pNickname);
-	const [nicknameChanged, setNicknameChanged] = useState(false);
 
 	const handleChangeTeam = async (e) => {
 		const formData = {
@@ -72,25 +71,14 @@ function MyPokemonEntry({ id, nickname: pNickname, team_id, pokemonData, teams, 
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 
 			<div
-				className="flex w-fit flex-col items-center rounded-lg bg-slate-200 p-3 text-black transition-all hover:bg-slate-300"
+				className="flex w-fit flex-col items-center rounded-lg bg-slate-300 p-3 text-black transition-all hover:bg-slate-400"
 				key={id}
 			>
 				<div className="my-1 text-xs">Nickname</div>
 				<div className="min-w-3/4 relative mx-4 mb-2 p-1">
-					<input
-						className="rounded-md py-1  text-center outline outline-1 outline-slate-200 focus:outline-2 focus:outline-slate-400"
-						value={nickname}
-						onChange={(e) => {
-							setNickname(e.target.value);
-							setNicknameChanged(true);
-						}}
-						disabled={inProfile}
-					/>
-					{nicknameChanged && (
-						<div className="absolute -right-4 top-1/2 -translate-y-1/2 cursor-pointer rounded-md bg-green-700 text-white">
-							<TiTick />
-						</div>
-					)}
+					<div className="min-w-40 rounded-md bg-white py-1 text-center outline outline-1 outline-slate-200 focus:outline-2 focus:outline-slate-400">
+						{nickname}
+					</div>
 				</div>
 
 				<PokemonEntry {...pokemonData} className="border-t-2 border-slate-300 shadow-sm shadow-slate-300" />

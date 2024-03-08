@@ -1207,6 +1207,34 @@ app.get("/api/battles", async (req, res) => {
 	}
 });
 
+app.get("/api/my-battles", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT b.*, t1.id as trainer_1, t1.name as trainer_1_name, ts1.team_name as team_1, t2.id as trainer_2, t2.name as trainer_2_name, ts2.team_name as team_2,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_1) as team_1_total,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_2) as team_2_total
+				FROM casual_battles cb join battles b using (battle_id)
+				join teams_snapshot ts1 on (b.participant_1 = ts1.team_id)
+				join trainers t1 on (ts1.trainer_id = t1.id)
+				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
+				join trainers t2 on (ts2.trainer_id = t2.id)
+			where t1.id = 
+				order by b.created_at desc;
+		`);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
 app.get("/api/battle/:battleId", async (req, res) => {
 	try {
 		const { battleId } = req.params;
@@ -1462,7 +1490,7 @@ app.get("/api/battle/:battleId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr1.name as trainer_2_name, ts2.team_name as team_2_name
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr2.name as trainer_2_name, ts2.team_name as team_2_name
 				FROM battles b
 				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
 				join trainers tr1 on ts1.trainer_id = tr1.id

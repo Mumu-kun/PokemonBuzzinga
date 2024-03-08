@@ -61,19 +61,20 @@ function SignUp() {
 	}, []);
 
 	return (
-		<div className="min-h-dvh flex flex-col items-center bg-slate-900">
+		<div className="flex w-fit flex-1 flex-col items-center">
 			<form
 				method="get"
 				onSubmit={signupSubmit}
-				className="flex flex-col m-auto justify-center items-center gap-5 min-w-52"
+				className="m-auto flex min-w-52 flex-col items-center justify-center gap-5"
 			>
+				<h1 className="text-h1 -mt-20">Sign Up</h1>
 				<input type="text" name="name" placeholder="Name" className="input" />
 				<input type="password" name="password" placeholder="Password" className="input" />
-				<div className="flex justify-center items-center w-full">
-					<label htmlFor="region" className="text-white mr-2">
+				<div className="flex w-full items-center justify-center">
+					<label htmlFor="region" className="mr-2">
 						Region :
 					</label>
-					<select name="region" className="text-black flex-1 p-1 rounded-md">
+					<select name="region" className="flex-1 rounded-md p-1 text-black">
 						{regions.map((region) => (
 							<option value={region.region_id}>{region.region_name}</option>
 						))}

@@ -35,8 +35,9 @@ function Login() {
 	};
 
 	return (
-		<div className="min-h-dvh flex flex-col items-center bg-slate-900 ">
-			<form method="get" onSubmit={loginSubmit} className="flex flex-col m-auto justify-center items-center gap-5 w-40">
+		<div className="flex w-fit flex-1 flex-col items-center">
+			<form method="get" onSubmit={loginSubmit} className="m-auto flex flex-col items-center justify-center gap-5">
+				<h1 className="text-h1 -mt-20">Login</h1>
 				<input type="text" name="name" placeholder="Name" className="input" />
 				<input type="password" name="password" placeholder="Password" className="input" />
 				<button className="btn">Login</button>

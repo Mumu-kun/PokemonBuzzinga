@@ -12,6 +12,7 @@ function BattlePage() {
 	const [trainersInQueue, setTrainersInQueue] = useState([]);
 	const [isInQueue, setIsInQueue] = useState(false);
 	const [msg, setMsg] = useState(null);
+	const [bmsg, setbMsg] = useState(null);
 	const [battleTeam, setBattleTeam] = useState(null);
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
@@ -111,6 +112,7 @@ function BattlePage() {
 		try {
 			await axios.post(`/send_battle`, { challenger_id: user.id, trainer_id: trainerId });
 			fetchTrainersInQueue();
+			setbMsg("Battle Requested");
 		} catch (error) {
 			console.error("Failed to send battle request", error);
 		}
@@ -119,10 +121,10 @@ function BattlePage() {
 	const handleAcceptBattle = async (challengerId) => {
 		try {
 			const response = await axios.put(`/accept_battle`, { challenger_id: challengerId, defender_id: user.id });
-			const bat_id = response.data;
-			console.log(bat_id);
-			///navigate(`/battle/${bat_id}`);
-			//console.log(response.data);
+			const data = response.data;
+			// console.log(data);
+			navigate(`/battle/${data}`);
+			
 		} catch (error) {
 			console.error("Failed to accept battle request", error);
 		}
@@ -131,6 +133,7 @@ function BattlePage() {
 	return (
 		<div className="battle-page">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
+			{!!bmsg && <MessagePopup message={bmsg} setMessage={setbMsg} />}
 			<div className="title-background">
 				<h1 className="title-text">Queue</h1>
 			</div>

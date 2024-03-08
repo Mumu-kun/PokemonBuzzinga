@@ -174,8 +174,6 @@ app.post("/api/login", async (req, res) => {
 	try {
 		const formData = req.body;
 
-		// console.log(formData);
-
 		const { rows } = await pool.query(
 			`
             SELECT ID, NAME, PASSWORD
@@ -185,7 +183,7 @@ app.post("/api/login", async (req, res) => {
 			[formData.name]
 		);
 
-		if (rows.length == 0) {
+		if (rows.length === 0) {
 			const errMsg = `Trainer does not exist.`;
 			throw new Error(errMsg);
 		}
@@ -196,13 +194,17 @@ app.post("/api/login", async (req, res) => {
 			throw new Error(errMsg);
 		}
 
-		// console.log(rows[0]);
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.message);
+		if (err?.message.includes("Password does not match.")) {
+			res.status(409).send({ message: "Password does not match."});
+			return;
+		}
+		res.sendStatus(400);
 	}
 });
+
 
 app.post("/api/signup", async (req, res) => {
 	try {
@@ -223,7 +225,10 @@ app.post("/api/signup", async (req, res) => {
 		res.status(200).json(rows[0]);
 	} catch (err) {
 		console.error(err);
-		res.status(400).send(err.message);
+		if (err?.code === "23505") {
+			res.status(409).send({ message: "user name already exists"});
+			return;
+		}
 	}
 });
 
@@ -1149,8 +1154,16 @@ app.put("/api/accept_battle", async (req, res) => {
 			`,
 			[challange_team, defend_team]
 		);
-
-		res.status(200).json(rows);
+		const { rows: bid } = await pool.query(
+			`
+			SELECT battle_id 
+			FROM battles 
+			WHERE created_at = (SELECT MAX(created_at) FROM battles);
+			`,
+		);
+		const bat_id= bid[0].battle_id;
+		// console.log(bat_id);
+		res.status(200).json(bat_id);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
@@ -1300,9 +1313,6 @@ app.get("/api/tournaments", async (req, res) => {
 			SELECT *
 				FROM tournaments order by start_time desc;
 		`);
-
-
-
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
@@ -1399,14 +1409,6 @@ app.post("/api/tournaments", async (req, res) => {
 
 		authenticateRequest(formData.trainer_id, req);
 
-		const { rows: r } = await pool.query(
-			`
-			update trainers set balance=balance-$1
-			where id=$2;
-			`,
-			[formData.reward, formData.trainerId]
-		);
-
 		const { rows } = await pool.query(
 			`
 			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
@@ -1418,6 +1420,10 @@ app.post("/api/tournaments", async (req, res) => {
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
 		res.sendStatus(400);
 	}
 });

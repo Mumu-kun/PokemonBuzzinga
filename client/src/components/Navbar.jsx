@@ -13,9 +13,21 @@ function LoggedOutElements() {
 			</Link>
 		</>
 	);
+	return (
+		<>
+			<Link to="/login" className="btn">
+				Login
+			</Link>
+			<Link to="/signup" className="btn">
+				Sign Up
+			</Link>
+		</>
+	);
 }
 
 function LoggedInElements() {
+	const { user, userDispatch } = useAuthContext();
+	const navigate = useNavigate();
 	const { user, userDispatch } = useAuthContext();
 	const navigate = useNavigate();
 
@@ -46,6 +58,8 @@ function LoggedInElements() {
 }
 
 function Navbar() {
+	const { user } = useAuthContext();
+	const navigate = useNavigate();
 	const { user } = useAuthContext();
 	const navigate = useNavigate();
 

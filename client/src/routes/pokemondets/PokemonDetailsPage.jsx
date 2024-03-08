@@ -11,6 +11,9 @@ import { Link, useNavigate } from "react-router-dom";
 import MessagePopup from "../../components/MessagePopup";
 import EvolutionChain from "./EvolutionChain";
 import Loading from "../../components/Loading";
+import MessagePopup from "../../components/MessagePopup";
+import EvolutionChain from "./EvolutionChain";
+import Loading from "../../components/Loading";
 
 const statToStyle = {
 	hp: { icon: <FaHeart />, color: "bg-green-500", textCol: "text-green-500" },
@@ -84,13 +87,25 @@ const PokemonDetailsPage = () => {
 			console.error("Failed to fetch Pokémon details", error);
 		}
 	};
+	const fetchPokemonDetails = async () => {
+		try {
+			const response = await axios.get(`/pokemons-dets/${id}`);
+			const data = response.data;
+			setPokemonDetails(data);
+		} catch (error) {
+			console.error("Failed to fetch Pokémon details", error);
+		}
+	};
 
+	useEffect(() => {
+		setPokemonDetails(null);
 	useEffect(() => {
 		setPokemonDetails(null);
 		fetchPokemonDetails();
 	}, [id]);
 
 	if (!pokemonDetails) {
+		return <Loading />;
 		return <Loading />;
 	}
 
@@ -115,6 +130,10 @@ const PokemonDetailsPage = () => {
 			if (error.response.status === 409) {
 				setMsg(error.response.data.message);
 			}
+
+			if (error.response.status === 409) {
+				setMsg(error.response.data.message);
+			}
 		} finally {
 			setShowPopup(false);
 		}
@@ -133,6 +152,9 @@ const PokemonDetailsPage = () => {
 		if (prevpok >= 0) {
 			navigate(`/pokemonsdets/${prevpok}`);
 		}
+	};
+	const dekhNature = () => {
+		navigate("/naturing");
 	};
 
 	return (

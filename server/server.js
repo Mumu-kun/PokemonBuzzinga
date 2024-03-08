@@ -1141,12 +1141,33 @@ app.put("/api/accept_battle", async (req, res) => {
 			`
 			UPDATE battle_requests
 			SET is_accepted = true
-			WHERE challanger = $1 AND defender = $2
+			WHERE challanger = $1 AND defender = $2;
 			`,
 			[challange_team, defend_team]
 		);
 
-		res.status(200).json(rows);
+		// const { rows: b_id } = await pool.query(
+		// 	`
+		// 	SELECT battle_id
+		// 	FROM battles
+		// 	WHERE participant_1 IN (
+		// 			SELECT team_id
+		// 			FROM teams_snapshot
+		// 			WHERE trainer_id = $1
+		// 		)
+		// 		AND participant_2 IN (
+		// 			SELECT team_id
+		// 			FROM teams_snapshot
+		// 			WHERE trainer_id = $2
+		// 		);
+
+		// 	`,
+		// 	[challenger_id,defender_id]
+		// );
+		// console.log(b_id);
+		// const bat_id= b_id[0].battle_id;
+
+		res.status(200).json(bat_id);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to accept battle request.");
@@ -1354,6 +1375,242 @@ app.post("/api/tournaments", async (req, res) => {
 			VALUES ($1, $2, $3, $4, $5) RETURNING *;
 			`,
 			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/tournaments/:tournamentId/teams", async (req, res) => {
+	try {
+		const { tournamentId } = req.params;
+		const formData = req.body;
+
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM TEAMS
+				WHERE TEAM_ID = $1;
+		`,
+			[formData.teamId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Team does not exist");
+		}
+
+		authenticateRequest(rowsTrainer[0].trainer_id, req);
+
+		await pool.query(
+			`
+				call add_team_to_tournament($1, $2)
+			`,
+			[tournamentId, formData.teamId]
+		);
+
+		res.status(200).json("Successfully added team to tournament");
+	} catch (err) {
+		console.error(err);
+
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/battle/:battleId", async (req, res) => {
+	try {
+		const { battleId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr1.name as trainer_2_name, ts2.team_name as team_2_name
+				FROM battles b
+				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
+				join trainers tr1 on ts1.trainer_id = tr1.id
+				join teams_snapshot as ts2 on b.participant_2 = ts2.team_id
+				join trainers tr2 on ts2.trainer_id = tr2.id
+				WHERE battle_id = $1;
+		`,
+			[battleId]
+		);
+
+		const getPokemonsData = async (teamId) => {
+			const { rows } = await pool.query(
+				`
+				SELECT ops.id, ops.nickname, m.*, p.*
+					FROM teams_snapshot t
+					join pokemon_in_team_snapshot pit on t.team_id = pit.team_id
+					join owned_pokemons_snapshot ops on pit.owned_pokemon_id = ops.id
+					join pokemons p on ops.pokemon_id = p.pokemon_id
+					join moves m on ops.move_id = m.move_id
+					where t.team_id = $1
+					order by pit.p_order;`,
+				[teamId]
+			);
+
+			const pokemons = rows.map((data) => {
+				const {
+					id,
+					nickname,
+					move_id,
+					move_name,
+					type_id,
+					power,
+					accuracy,
+					category,
+					pokemon_id,
+					name,
+					hp,
+					attack,
+					defense,
+					speed,
+					sp_attack,
+					sp_defense,
+					total,
+					price,
+				} = data;
+				return {
+					id,
+					nickname,
+					move: {
+						move_id,
+						name: move_name,
+						type_id,
+						power,
+						accuracy,
+						category,
+					},
+					pokemonData: {
+						pokemon_id,
+						name,
+						price,
+						stats: {
+							hp,
+							attack,
+							defense,
+							speed,
+							sp_attack,
+							sp_defense,
+							total,
+						},
+					},
+				};
+			});
+
+			return pokemons;
+		};
+
+		const pokemons_1 = await getPokemonsData(rows[0].participant_1);
+		const pokemons_2 = await getPokemonsData(rows[0].participant_2);
+
+		const { rows: rowsLogs } = await pool.query(
+			`
+			SELECT *
+				FROM battle_logs
+				WHERE battle_id = $1
+				order by turn;
+		`,
+			[battleId]
+		);
+
+		res.status(200).json({ ...rows[0], pokemons_1, pokemons_2, logs: rowsLogs });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+// Tournaments
+app.get("/api/tournaments", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT *
+				FROM tournaments order by start_time desc;
+		`);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/trainer/:trainerId/tournaments", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT distinct trnm.*
+			FROM tournaments trnm join teams_in_tournament using (tournament_id) titrnm join teams_snapshot tms using (team_id) where tms.trainer_id = $1  order by start_at desc;
+			`,
+			[trainerId]
+		);
+
+		res.sendStatus(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
+	try {
+		const { trainerId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT *
+			FROM tournaments where organizer = $1 order by start_at desc;
+			`,
+			[trainerId]
+		);
+
+		res.sendStatus(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/join_tournament/", async (req, res) => {
+	try {
+		const { tournament_id, trainer_id } = req.body;
+
+		const { rows } = await pool.query(
+			`
+		call add_team_to_tournament($1, $2);
+		`,
+			[tournament_id, trainer_id]
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/tournaments", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		authenticateRequest(formData.trainer_id, req);
+
+		const { rows } = await pool.query(
+			`
+			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
+			VALUES ($1, $2, $3, $4) RETURNING *;
+			`,
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward]
 		);
 
 		res.status(200).json(rows);

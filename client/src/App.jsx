@@ -40,6 +40,8 @@ function App() {
 						<Route path="team/:team_id" element={<TeamPage />} />
 						<Route path="tournaments/" element={<Tournaments />} />
 						<Route path="tournaments/create" element={<CreateTournament />} />
+						<Route path="tournaments/" element={<Tournaments />} />
+						<Route path="tournaments/create" element={<CreateTournament />} />
 					</Route>
 
 					<Route path="*" element={<ErrorPage />} />

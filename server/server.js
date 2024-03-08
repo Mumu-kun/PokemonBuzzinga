@@ -32,8 +32,7 @@ app.get("/api/pokemons", async (req, res) => {
 		const { rows: countRows } = await pool.query(
 			`
 			SELECT COUNT(*) as count FROM POKEMONS
-			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
-				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
 			};`,
 			[filterText]
 		);
@@ -42,8 +41,7 @@ app.get("/api/pokemons", async (req, res) => {
 			`
 		SELECT *
 			FROM POKEMONS
-			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
-				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
 			}
 			ORDER BY ${sortField} ${sortOrder}
 			LIMIT $2 OFFSET $3;
@@ -1077,11 +1075,11 @@ app.post("/api/send_battle", async (req, res) => {
 	}
 });
 app.get("/api/challengers/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        console.log(id);
-        const { rows } = await pool.query(
-            `
+	try {
+		const id = req.params.id;
+		console.log(id);
+		const { rows } = await pool.query(
+			`
             SELECT t.trainer_id, tr.name
             FROM teams t 
             JOIN trainers tr ON t.trainer_id = tr.id
@@ -1099,19 +1097,19 @@ app.get("/api/challengers/:id", async (req, res) => {
                 )
             );
             `,
-            [id]
-        );
-        
-        const challengers = rows.map((row) => ({
-            id: row.trainer_id,
-            name: row.name
-        }));
+			[id]
+		);
+
+		const challengers = rows.map((row) => ({
+			id: row.trainer_id,
+			name: row.name
+		}));
 		console.log(challengers);
-        res.status(200).json(challengers);
-    } catch (err) {
-        console.error(err);
-        res.status(400).send("Failed to fetch challenger IDs and names.");
-    }
+		res.status(200).json(challengers);
+	} catch (err) {
+		console.error(err);
+		res.status(400).send("Failed to fetch challenger IDs and names.");
+	}
 });
 
 
@@ -1140,7 +1138,7 @@ app.put("/api/accept_battle", async (req, res) => {
       `,
 			[defender_id]
 		);
-		// console.log(trainer_id);
+
 		const defend_team = tbt[0].battle_team;
 
 		const { rows } = await pool.query(
@@ -1151,27 +1149,6 @@ app.put("/api/accept_battle", async (req, res) => {
 			`,
 			[challange_team, defend_team]
 		);
-
-		// const { rows: b_id } = await pool.query(
-		// 	`
-		// 	SELECT battle_id
-		// 	FROM battles
-		// 	WHERE participant_1 IN (
-		// 			SELECT team_id
-		// 			FROM teams_snapshot
-		// 			WHERE trainer_id = $1
-		// 		)
-		// 		AND participant_2 IN (
-		// 			SELECT team_id
-		// 			FROM teams_snapshot
-		// 			WHERE trainer_id = $2
-		// 		);
-			
-		// 	`,
-		// 	[challenger_id,defender_id]
-		// );
-		// console.log(b_id);
-		// const bat_id= b_id[0].battle_id;
 
 		res.status(200).json(rows);
 	} catch (err) {
@@ -1324,12 +1301,40 @@ app.get("/api/tournaments", async (req, res) => {
 				FROM tournaments order by start_time desc;
 		`);
 
+
+
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);
 	}
 });
+
+app.get("/api/joined_tournaments/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { rows } = await pool.query(`
+            SELECT *
+            FROM tournaments
+            WHERE tournament_id IN (
+                SELECT tournament_id
+                FROM teams_in_tournament
+                WHERE team_id IN (
+                    SELECT team_id
+                    FROM teams_snapshot
+                    WHERE trainer_id = $1
+                )
+            );
+        `,
+        [id]);
+		console.log(rows);
+        res.status(200).json(rows);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(400);
+    }
+});
+
 
 app.get("/api/trainer/:trainerId/tournaments", async (req, res) => {
 	try {
@@ -1371,22 +1376,22 @@ app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
 
 app.post("/api/join_tournament/", async (req, res) => {
 	try {
-	  const { tournament_id, trainer_id } = req.body;
+		const { tournament_id, trainer_id } = req.body;
 
-  
-	  const { rows } = await pool.query(
-		`
+
+		const { rows } = await pool.query(
+			`
 		call add_team_to_tournament($1, $2);
 		`,
-		[tournament_id, trainer_id]
-	  );
-  
-	  res.status(200).json(rows);
+			[tournament_id, trainer_id]
+		);
+
+		res.status(200).json(rows);
 	} catch (err) {
-	  console.error(err);
-	  res.sendStatus(400);
+		console.error(err);
+		res.sendStatus(400);
 	}
-  });
+});
 
 app.post("/api/tournaments", async (req, res) => {
 	try {
@@ -1399,7 +1404,7 @@ app.post("/api/tournaments", async (req, res) => {
 			update trainers set balance=balance-$1
 			where id=$2;
 			`,
-			[formData.reward, formData.max_participants]
+			[formData.reward, formData.trainerId]
 		);
 
 		const { rows } = await pool.query(

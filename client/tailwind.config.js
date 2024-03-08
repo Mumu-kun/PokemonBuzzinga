@@ -6,7 +6,7 @@ export default {
 			animation: {
 				attack: "attack 0.5s ease-in-out forwards",
 				defend: "defend 0.5s ease-in-out forwards",
-				progressBar: "progressBar 1.5s ease-in infinite",
+				progressBar: "progressBar 1.8s ease-in infinite",
 			},
 			keyframes: {
 				attack: {

@@ -36,9 +36,9 @@ const Tournaments = () => {
 	};
 
 	return (
-		<div className="tournaments-container">
+		<div className="tournaments-container rounded-md bg-slate-700">
 			<div className="left-section">
-				<h1 className="text-h1">Latest Tournaments</h1>
+				<h1 className="text-h1 text-white">Latest Tournaments</h1>
 				{!!allTournaments.length && (
 					<ul>
 						{allTournaments.map(
@@ -46,11 +46,44 @@ const Tournaments = () => {
 								!tournament.has_concluded && (
 									<li key={tournament.tournament_id} className="tournament-item">
 										<span className="tournament-name">
+											{tournament.tournament_name}, reward:{tournament.reward}$ | {tournament.present}/
+											{tournament.max_participants}
+										</span>
+										<button onClick={() => handleJoinTournament(tournament.tournament_id)} className="join-btn">
+											Join
+										</button>
+										<Link
+											to={`/tournaments/${tournament.tournament_id}`}
+											className="join-btn bg-blue-500 hover:bg-blue-600"
+										>
+											View
+										</Link>
+									</li>
+								)
+						)}
+					</ul>
+				)}
+			</div>
+			<div className="left-section">
+				<h1 className="text-h1 text-white">Concluded Tournaments</h1>
+				{!!allTournaments.length && (
+					<ul>
+						{allTournaments.map(
+							(tournament) =>
+								!!tournament.has_concluded && (
+									<li key={tournament.tournament_id} className="tournament-item">
+										<span className="tournament-name">
 											{tournament.tournament_name}, reward:{tournament.reward}$
 										</span>
 										<button onClick={() => handleJoinTournament(tournament.tournament_id)} className="join-btn">
 											Join
 										</button>
+										<Link
+											to={`/tournaments/${tournament.tournament_id}`}
+											className="join-btn bg-blue-500 hover:bg-blue-600"
+										>
+											View
+										</Link>
 									</li>
 								)
 						)}

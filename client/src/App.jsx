@@ -17,6 +17,7 @@ import Tournaments from "./routes/tournaments/Tournaments";
 import CreateTournament from "./routes/tournaments/CreateTournament";
 import BattleSpecific from "./routes/battle/BattleSpecific";
 import Battles from "./routes/battle/Battles";
+import TournamentSpecific from "./routes/tournaments/TournamentSpecific";
 
 function App() {
 	return (
@@ -30,17 +31,16 @@ function App() {
 					<Route path="pokemonsdets/:id" element={<PokemonDetailsPage />} />
 					<Route path="naturing/" element={<NaturePage />} />
 					<Route path="profile/:trainer_id" element={<Profile />} />
+					<Route path="battles/" element={<Battles />} />
+					<Route path="battle/:battleId" element={<BattleSpecific />} />
+					<Route path="tournaments/" element={<Tournaments />} />
+					<Route path="tournaments/:tournamentId" element={<TournamentSpecific />} />
 
 					<Route element={<ProtectedRoute />}>
 						<Route path="queue/" element={<QueuePage />} />
-						<Route path="battles/" element={<Battles />} />
-						<Route path="battle/:battleId" element={<BattleSpecific />} />
 						<Route path="my-teams/" element={<MyTeams />} />
 						<Route path="my-pokemons/" element={<MyPokemons />} />
 						<Route path="team/:team_id" element={<TeamPage />} />
-						<Route path="tournaments/" element={<Tournaments />} />
-						<Route path="tournaments/create" element={<CreateTournament />} />
-						<Route path="tournaments/" element={<Tournaments />} />
 						<Route path="tournaments/create" element={<CreateTournament />} />
 					</Route>
 

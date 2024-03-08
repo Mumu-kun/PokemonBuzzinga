@@ -1241,7 +1241,7 @@ app.get("/api/battle/:battleId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr1.name as trainer_2_name, ts2.team_name as team_2_name
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr2.name as trainer_2_name, ts2.team_name as team_2_name
 				FROM battles b
 				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
 				join trainers tr1 on ts1.trainer_id = tr1.id
@@ -1491,7 +1491,7 @@ app.get("/api/battle/:battleId", async (req, res) => {
 		const { rows } = await pool.query(
 			`
 			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr2.name as trainer_2_name, ts2.team_name as team_2_name
-				FROM battles b
+				FROM casual_battles cb join battles b using (battle_id)
 				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
 				join trainers tr1 on ts1.trainer_id = tr1.id
 				join teams_snapshot as ts2 on b.participant_2 = ts2.team_id
@@ -1596,6 +1596,69 @@ app.get("/api/tournaments", async (req, res) => {
 		`);
 
 		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/tournament/:tournamentId", async (req, res) => {
+	try {
+		const { tournamentId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT tm.*, tr.name as organizer_name, tr2.name as winner_name
+				FROM tournaments tm join trainers tr on tm.organizer = tr.id
+				join trainers tr2 on tm.winner = tr2.id
+				where tm.tournament_id = $1;
+		`,
+			[tournamentId]
+		);
+
+		if (rows.length === 0) {
+			res.status(404).json({ message: "Tournament not found" });
+			return;
+		}
+
+		const { rows: rowsTeams } = await pool.query(
+			`
+				select ts.*, t.name as trainer_name,
+				(select sum(p.total) from pokemon_in_team_snapshot pits
+					join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+					join pokemons p on ops.pokemon_id = p.pokemon_id
+					where pits.team_id = tit.team_id) as team_total
+				from teams_in_tournament tit
+				join teams_snapshot ts on tit.team_id = ts.team_id
+				join trainers t on ts.trainer_id = t.id
+				where tit.tournament_id = $1
+			`,
+			[tournamentId]
+		);
+
+		const { rows: battleRows } = await pool.query(
+			`
+			SELECT tb.tournament_level as level, b.*, t1.id as trainer_1, t1.name as trainer_1_name, ts1.team_name as team_1, t2.id as trainer_2, t2.name as trainer_2_name, ts2.team_name as team_2,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_1) as team_1_total,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_2) as team_2_total
+				FROM tournament_battles tb join battles b using (battle_id)
+				join teams_snapshot ts1 on (b.participant_1 = ts1.team_id)
+				join trainers t1 on (ts1.trainer_id = t1.id)
+				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
+				join trainers t2 on (ts2.trainer_id = t2.id)
+				where tb.tournament_id = $1
+				order by tb.tournament_level desc;
+			`,
+			[tournamentId]
+		);
+
+		res.status(200).json({ ...rows[0], teams: rowsTeams, battles: battleRows });
 	} catch (err) {
 		console.error(err);
 		res.sendStatus(400);

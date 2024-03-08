@@ -129,7 +129,7 @@ function BattlePage() {
 	};
 
 	return (
-		<div className="battle-page">
+		<div className="battle-page bg-slate-700">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<div className="title-background">
 				<h1 className="title-text">Queue</h1>
@@ -137,13 +137,13 @@ function BattlePage() {
 			<div className="challengers-container">
 				{isInQueue && (
 					<>
-						<h2 className="text-h3 mb-4">Challengers</h2>
+						<h2 className="text-h3 mb-4 text-white">Challengers</h2>
 						<ul>
 							{challengers.map((challenger) => (
 								<li key={challenger.id}>
 									<Link
 										to={`/profile/${challenger.id}`}
-										className="mr-2 rounded-md bg-slate-700 p-1 px-4 text-white transition-all hover:bg-slate-800"
+										className="mr-2 rounded-md bg-slate-300 p-1 px-4 transition-all hover:bg-slate-400"
 									>
 										{challenger.name}
 									</Link>
@@ -160,7 +160,7 @@ function BattlePage() {
 			<div className="trainers-container">
 				{isInQueue && (
 					<>
-						<h2 className="text-h3 mb-4">Trainers in Queue</h2>
+						<h2 className="text-h3 mb-4 text-white">Trainers in Queue</h2>
 						<ul>
 							{trainersInQueue.map(
 								(trainer) =>
@@ -168,7 +168,7 @@ function BattlePage() {
 										<li key={trainer.id}>
 											<Link
 												to={`/profile/${trainer.id}`}
-												className="mr-2 rounded-md bg-slate-700 p-1 px-4 text-white transition-all hover:bg-slate-800"
+												className="mr-2 rounded-md bg-slate-300 p-1 px-4 transition-all hover:bg-slate-400"
 											>
 												{trainer.name}
 											</Link>{" "}

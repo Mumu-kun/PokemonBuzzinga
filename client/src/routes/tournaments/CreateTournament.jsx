@@ -33,7 +33,7 @@ const CreateTournament = () => {
 
 	return (
 		<div className="create-tournament-container">
-			 {!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
+			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
 			<h1 className="create-tournament-heading">Create Tournament</h1>
 			<form onSubmit={handleSubmit} className="create-tournament-form">
 				<label htmlFor="name" className="create-tournament-label">

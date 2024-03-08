@@ -32,7 +32,8 @@ app.get("/api/pokemons", async (req, res) => {
 		const { rows: countRows } = await pool.query(
 			`
 			SELECT COUNT(*) as count FROM POKEMONS
-			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
+				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
 			};`,
 			[filterText]
 		);
@@ -41,7 +42,8 @@ app.get("/api/pokemons", async (req, res) => {
 			`
 		SELECT *
 			FROM POKEMONS
-			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
+			WHERE (lower(NAME) LIKE '%' || $1 || '%' OR POKEMON_ID::TEXT LIKE $1 || '%') ${
+				selectedRegion != 0 ? `AND REGION_ID = ${selectedRegion}` : ""
 			}
 			ORDER BY ${sortField} ${sortOrder}
 			LIMIT $2 OFFSET $3;
@@ -198,13 +200,12 @@ app.post("/api/login", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		if (err?.message.includes("Password does not match.")) {
-			res.status(409).send({ message: "Password does not match."});
+			res.status(409).send({ message: "Password does not match." });
 			return;
 		}
 		res.sendStatus(400);
 	}
 });
-
 
 app.post("/api/signup", async (req, res) => {
 	try {
@@ -226,7 +227,7 @@ app.post("/api/signup", async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		if (err?.code === "23505") {
-			res.status(409).send({ message: "user name already exists"});
+			res.status(409).send({ message: "user name already exists" });
 			return;
 		}
 	}
@@ -621,18 +622,17 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 			(SELECT ID FROM OWNED_POKEMONS OP JOIN POKEMONS P ON OP.POKEMON_ID = P.POKEMON_ID WHERE TR.ID = OP.TRAINER_ID ORDER BY P.TOTAL DESC LIMIT 1) AS STRONGEST_POKEMON_ID,
 			(SELECT COUNT(*) FROM OWNED_POKEMONS WHERE TRAINER_ID = TR.ID) AS POKEMON_COUNT,
 			(SELECT COUNT(*) FROM TEAMS WHERE TRAINER_ID = TR.ID) AS TEAM_COUNT,
-			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
 				ON (B.PARTICIPANT_1 = T.TEAM_ID OR B.PARTICIPANT_2 = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_COUNT,
-			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS T
-				ON ((CASE B.WINNER WHEN 1 THEN B.PARTICIPANT_1 WHEN 2 THEN B.PARTICIPANT_2 END) = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS TM
+			(SELECT COUNT(BATTLE_ID) FROM BATTLES B JOIN TEAMS_SNAPSHOT T
+				ON (B.WINNER = T.TEAM_ID) WHERE T.TRAINER_ID = TR.ID) AS BATTLE_WIN_COUNT,
+			(SELECT COUNT(TOURNAMENT_ID) FROM TEAMS_IN_TOURNAMENT TIT JOIN TEAMS_SNAPSHOT TM
 				ON TIT.TEAM_ID = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_COUNT,
-			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM JOIN TEAMS TM
-				ON TRNM.WINNER = TM.TEAM_ID WHERE TM.TRAINER_ID = TR.ID) AS TOURNAMENT_WIN_COUNT
+			(SELECT COUNT(TOURNAMENT_ID) FROM TOURNAMENTS TRNM WHERE TRNM.WINNER = TR.ID) AS TOURNAMENT_WIN_COUNT
 				FROM TRAINERS TR
 				JOIN REGIONS R
 					ON TR.REGION_ID = R.REGION_ID
-				LEFT JOIN TEAMS TM
+				LEFT JOIN TEAMS_SNAPSHOT TM
 					ON TR.BATTLE_TEAM = TM.TEAM_ID
 				WHERE TR.ID = $1;
 		`,
@@ -765,7 +765,7 @@ app.post("/api/trainer_money/:id", async (req, res) => {
 	try {
 		const trainer_id = req.params.id;
 		const formData = req.body;
-		console.log(formData);
+		// console.log(formData);
 		const { rows } = await pool.query(
 			`
 			UPDATE trainers
@@ -776,7 +776,7 @@ app.post("/api/trainer_money/:id", async (req, res) => {
 			[formData.balance, trainer_id]
 		);
 
-		console.log(rows);
+		// console.log(rows);
 
 		res.status(200).json(rows);
 	} catch (err) {
@@ -1042,7 +1042,7 @@ app.put("/api/battle_no/:id", async (req, res) => {
 app.post("/api/send_battle", async (req, res) => {
 	try {
 		const { challenger_id, trainer_id } = req.body;
-		console.log(challenger_id);
+		// console.log(challenger_id);
 		const { rows: cbt } = await pool.query(
 			`
 		SELECT battle_team
@@ -1082,7 +1082,7 @@ app.post("/api/send_battle", async (req, res) => {
 app.get("/api/challengers/:id", async (req, res) => {
 	try {
 		const id = req.params.id;
-		console.log(id);
+		// console.log(id);
 		const { rows } = await pool.query(
 			`
             SELECT t.trainer_id, tr.name
@@ -1107,18 +1107,15 @@ app.get("/api/challengers/:id", async (req, res) => {
 
 		const challengers = rows.map((row) => ({
 			id: row.trainer_id,
-			name: row.name
+			name: row.name,
 		}));
-		console.log(challengers);
+		// console.log(challengers);
 		res.status(200).json(challengers);
 	} catch (err) {
 		console.error(err);
 		res.status(400).send("Failed to fetch challenger IDs and names.");
 	}
 });
-
-
-
 
 app.put("/api/accept_battle", async (req, res) => {
 	try {
@@ -1159,9 +1156,9 @@ app.put("/api/accept_battle", async (req, res) => {
 			SELECT battle_id 
 			FROM battles 
 			WHERE created_at = (SELECT MAX(created_at) FROM battles);
-			`,
+			`
 		);
-		const bat_id= bid[0].battle_id;
+		const bat_id = bid[0].battle_id;
 		// console.log(bat_id);
 		res.status(200).json(bat_id);
 	} catch (err) {
@@ -1203,7 +1200,7 @@ app.get("/api/battle/:battleId", async (req, res) => {
 
 		const { rows } = await pool.query(
 			`
-			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr1.name as trainer_2_name, ts2.team_name as team_2_name
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr2.name as trainer_2_name, ts2.team_name as team_2_name
 				FROM battles b
 				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
 				join trainers tr1 on ts1.trainer_id = tr1.id
@@ -1321,9 +1318,10 @@ app.get("/api/tournaments", async (req, res) => {
 });
 
 app.get("/api/joined_tournaments/:id", async (req, res) => {
-    try {
-        const id = req.params.id;
-        const { rows } = await pool.query(`
+	try {
+		const id = req.params.id;
+		const { rows } = await pool.query(
+			`
             SELECT *
             FROM tournaments
             WHERE tournament_id IN (
@@ -1336,15 +1334,265 @@ app.get("/api/joined_tournaments/:id", async (req, res) => {
                 )
             );
         `,
-        [id]);
-		console.log(rows);
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(400);
-    }
+			[id]
+		);
+		// console.log(rows);
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
 });
 
+app.post("/api/tournaments", async (req, res) => {
+	try {
+		const formData = req.body;
+
+		authenticateRequest(formData.trainer_id, req);
+
+		const { rows: r } = await pool.query(
+			`
+			update trainers set balance=balance-$1
+			where id=$2;
+			`,
+			[formData.reward, formData.max_participants]
+		);
+
+		const { rows } = await pool.query(
+			`
+			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
+			VALUES ($1, $2, $3, $4) RETURNING *;
+			`,
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.post("/api/tournaments/:tournamentId/teams", async (req, res) => {
+	try {
+		const { tournamentId } = req.params;
+		const formData = req.body;
+
+		const { rows: rowsTrainer } = await pool.query(
+			`
+			SELECT TRAINER_ID
+				FROM TEAMS
+				WHERE TEAM_ID = $1;
+		`,
+			[formData.teamId]
+		);
+
+		if (rowsTrainer.length == 0) {
+			throw Error("Team does not exist");
+		}
+
+		authenticateRequest(rowsTrainer[0].trainer_id, req);
+
+		await pool.query(
+			`
+				call add_team_to_tournament($1, $2)
+			`,
+			[tournamentId, formData.teamId]
+		);
+
+		res.status(200).json("Successfully added team to tournament");
+	} catch (err) {
+		console.error(err);
+
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
+
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/battle/:battleId", async (req, res) => {
+	try {
+		const { battleId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT b.*, ts1.trainer_id as trainer_1, tr1.name as trainer_1_name, ts1.team_name as team_1_name, ts2.trainer_id as trainer_2, tr2.name as trainer_2_name, ts2.team_name as team_2_name
+				FROM casual_battles cb join battles b using (battle_id)
+				join teams_snapshot as ts1 on b.participant_1 = ts1.team_id
+				join trainers tr1 on ts1.trainer_id = tr1.id
+				join teams_snapshot as ts2 on b.participant_2 = ts2.team_id
+				join trainers tr2 on ts2.trainer_id = tr2.id
+				WHERE battle_id = $1;
+		`,
+			[battleId]
+		);
+
+		const getPokemonsData = async (teamId) => {
+			const { rows } = await pool.query(
+				`
+				SELECT ops.id, ops.nickname, m.*, p.*
+					FROM teams_snapshot t
+					join pokemon_in_team_snapshot pit on t.team_id = pit.team_id
+					join owned_pokemons_snapshot ops on pit.owned_pokemon_id = ops.id
+					join pokemons p on ops.pokemon_id = p.pokemon_id
+					join moves m on ops.move_id = m.move_id
+					where t.team_id = $1
+					order by pit.p_order;`,
+				[teamId]
+			);
+
+			const pokemons = rows.map((data) => {
+				const {
+					id,
+					nickname,
+					move_id,
+					move_name,
+					type_id,
+					power,
+					accuracy,
+					category,
+					pokemon_id,
+					name,
+					hp,
+					attack,
+					defense,
+					speed,
+					sp_attack,
+					sp_defense,
+					total,
+					price,
+				} = data;
+				return {
+					id,
+					nickname,
+					move: {
+						move_id,
+						name: move_name,
+						type_id,
+						power,
+						accuracy,
+						category,
+					},
+					pokemonData: {
+						pokemon_id,
+						name,
+						price,
+						stats: {
+							hp,
+							attack,
+							defense,
+							speed,
+							sp_attack,
+							sp_defense,
+							total,
+						},
+					},
+				};
+			});
+
+			return pokemons;
+		};
+
+		const pokemons_1 = await getPokemonsData(rows[0].participant_1);
+		const pokemons_2 = await getPokemonsData(rows[0].participant_2);
+
+		const { rows: rowsLogs } = await pool.query(
+			`
+			SELECT *
+				FROM battle_logs
+				WHERE battle_id = $1
+				order by turn;
+		`,
+			[battleId]
+		);
+
+		res.status(200).json({ ...rows[0], pokemons_1, pokemons_2, logs: rowsLogs });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+// Tournaments
+app.get("/api/tournaments", async (req, res) => {
+	try {
+		const { rows } = await pool.query(`
+			SELECT *
+				FROM tournaments order by start_time desc;
+		`);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/tournament/:tournamentId", async (req, res) => {
+	try {
+		const { tournamentId } = req.params;
+
+		const { rows } = await pool.query(
+			`
+			SELECT tm.*, tr.name as organizer_name, tr2.name as winner_name
+				FROM tournaments tm join trainers tr on tm.organizer = tr.id
+				left join trainers tr2 on tm.winner = tr2.id
+				where tm.tournament_id = $1;
+		`,
+			[tournamentId]
+		);
+
+		if (rows.length === 0) {
+			res.status(404).json({ message: "Tournament not found" });
+			return;
+		}
+
+		const { rows: rowsTeams } = await pool.query(
+			`
+				select ts.*, t.name as trainer_name,
+				(select sum(p.total) from pokemon_in_team_snapshot pits
+					join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+					join pokemons p on ops.pokemon_id = p.pokemon_id
+					where pits.team_id = tit.team_id) as team_total
+				from teams_in_tournament tit
+				join teams_snapshot ts on tit.team_id = ts.team_id
+				join trainers t on ts.trainer_id = t.id
+				where tit.tournament_id = $1
+			`,
+			[tournamentId]
+		);
+
+		const { rows: battleRows } = await pool.query(
+			`
+			SELECT tb.tournament_level as level, b.*, t1.id as trainer_1, t1.name as trainer_1_name, ts1.team_name as team_1, t2.id as trainer_2, t2.name as trainer_2_name, ts2.team_name as team_2,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_1) as team_1_total,
+			(select sum(p.total) from pokemon_in_team_snapshot pits
+				join owned_pokemons_snapshot ops on pits.owned_pokemon_id = ops.id
+				join pokemons p on ops.pokemon_id = p.pokemon_id
+				where pits.team_id = b.participant_2) as team_2_total
+				FROM tournament_battles tb join battles b using (battle_id)
+				join teams_snapshot ts1 on (b.participant_1 = ts1.team_id)
+				join trainers t1 on (ts1.trainer_id = t1.id)
+				join teams_snapshot ts2 on (b.participant_2 = ts2.team_id)
+				join trainers t2 on (ts2.trainer_id = t2.id)
+				where tb.tournament_id = $1
+				order by tb.tournament_level desc;
+			`,
+			[tournamentId]
+		);
+
+		res.status(200).json({ ...rows[0], teams: rowsTeams, battles: battleRows });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
 
 app.get("/api/trainer/:trainerId/tournaments", async (req, res) => {
 	try {
@@ -1387,7 +1635,6 @@ app.get("/api/trainer/:trainerId/organize-tournaments", async (req, res) => {
 app.post("/api/join_tournament/", async (req, res) => {
 	try {
 		const { tournament_id, trainer_id } = req.body;
-
 
 		const { rows } = await pool.query(
 			`

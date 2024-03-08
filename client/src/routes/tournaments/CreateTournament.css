@@ -1,12 +1,12 @@
 .create-tournament-container {
     /* background-color: #fff3cd;  */
-    padding: 40px 16rem; 
+    padding: 4rem 16rem; 
     margin-top: 100px; 
     text-align: center; 
 }
 
 .create-tournament-heading {
-    color: #343a40; 
+    color: white;
     font-size: 2rem; 
 }
 
@@ -18,7 +18,7 @@
 
 .create-tournament-label {
     margin-top: 20px;
-    color: #343a40;
+    color: white;
     font-size: 1.2rem; 
 }
 

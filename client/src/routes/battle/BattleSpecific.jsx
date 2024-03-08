@@ -297,7 +297,7 @@ const BattleCanvas = ({ logs, pokemons_1, pokemons_2 }) => {
 				{winCelebration && <ConfettiExplosion className="-mt-4" />}
 			</div>
 			<div
-				className="flex h-[40rem] items-end justify-between gap-40 bg-cover bg-center p-4 px-24"
+				className="flex h-[40rem] w-full items-end justify-between gap-40 bg-cover bg-center p-4 px-24"
 				style={{
 					backgroundImage: `url(${Stage})`,
 				}}
@@ -420,7 +420,7 @@ const BattleSpecific = () => {
 
 	return (
 		<battleContext.Provider value={battleInfo}>
-			<div className="my-8  flex justify-between gap-6">
+			<div className="my-8 flex w-full justify-between gap-6 px-8">
 				<TeamSidebar
 					trainer_id={battleInfo.trainer_1}
 					trainer_name={battleInfo.trainer_1_name}

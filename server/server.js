@@ -1712,6 +1712,34 @@ app.post("/api/tournaments/:tournamentId/teams", async (req, res) => {
 	}
 });
 
+app.get("/api/types", async (req, res) => {
+	try {
+		const { rows } = await pool.query(
+			`SELECT *
+                FROM type;`
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
+app.get("/api/type-matchups", async (req, res) => {
+	try {
+		const { rows } = await pool.query(
+			`SELECT *
+                FROM type_matchups;`
+		);
+
+		res.status(200).json(rows);
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(400);
+	}
+});
+
 // Server Start
 app.listen(PORT, () => {
 	console.log(`Server Started on ${PORT}`);

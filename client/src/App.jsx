@@ -18,6 +18,7 @@ import CreateTournament from "./routes/tournaments/CreateTournament";
 import BattleSpecific from "./routes/battle/BattleSpecific";
 import Battles from "./routes/battle/Battles";
 import TournamentSpecific from "./routes/tournaments/TournamentSpecific";
+import Types from "./routes/types/Types";
 
 function App() {
 	return (
@@ -30,6 +31,7 @@ function App() {
 					<Route path="pokemons/" element={<AllPokemons />} />
 					<Route path="pokemonsdets/:id" element={<PokemonDetailsPage />} />
 					<Route path="naturing/" element={<NaturePage />} />
+					<Route path="types/" element={<Types />} />
 					<Route path="profile/:trainer_id" element={<Profile />} />
 					<Route path="battles/" element={<Battles />} />
 					<Route path="battle/:battleId" element={<BattleSpecific />} />

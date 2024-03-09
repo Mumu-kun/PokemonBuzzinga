@@ -60,9 +60,9 @@ const CreateTournament = () => {
 					onChange={handleChange}
 					className="create-tournament-select"
 				>
-					{[...Array(4).keys()].map((i) => (
-						<option key={i} value={2 ** (i + 1)}>
-							{2 ** (i + 1)}
+					{[...Array(3).keys()].map((i) => (
+						<option key={i} value={2 ** (i + 2)}>
+							{2 ** (i + 2)}
 						</option>
 					))}
 				</select>

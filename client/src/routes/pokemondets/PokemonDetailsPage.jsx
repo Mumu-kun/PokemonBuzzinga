@@ -185,24 +185,28 @@ const PokemonDetailsPage = () => {
 				<div className="my-4 mb-1 text-lg font-bold">Stats :</div>
 				<div className="mb-3">
 					<div className="flex items-center gap-2 text-sm">
-						<p className="ml-2 font-semibold">Types:</p>
+						<Link to={`/types`} className="ml-2 font-semibold underline underline-offset-2">
+							Types:
+						</Link>
 						{pokemonDetails.type1 && (
-							<button
+							<Link
+								to={`/types`}
 								className={`rounded px-3 py-1 ${typeToStyle[pokemonDetails.type1].bgColor} ${
 									typeToStyle[pokemonDetails.type1].textColor
 								}`}
 							>
 								{pokemonDetails.type1}
-							</button>
+							</Link>
 						)}
 						{pokemonDetails.type2 && (
-							<button
+							<Link
+								to={`/types`}
 								className={`rounded px-3 py-1 ${typeToStyle[pokemonDetails.type2].bgColor} ${
 									typeToStyle[pokemonDetails.type2].textColor
 								}`}
 							>
 								{pokemonDetails.type2}
-							</button>
+							</Link>
 						)}
 					</div>
 				</div>
@@ -233,6 +237,12 @@ const PokemonDetailsPage = () => {
 							<p className="ml-1 text-sm italic text-gray-700">What it does: {ability.description}</p>
 						</div>
 					))}
+				</div>
+				<div className="mb-8">
+					<p className="mb-1 text-lg font-bold">Natures:</p>
+					<Link to="/naturing" className="ml-2 text-sm text-blue-500 underline underline-offset-4 hover:text-blue-700">
+						View Natures
+					</Link>
 				</div>
 
 				<EvolutionChain ev_chain={pokemonDetails.ev_chain} />

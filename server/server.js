@@ -634,7 +634,7 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 				FROM TRAINERS TR
 				JOIN REGIONS R
 					ON TR.REGION_ID = R.REGION_ID
-				LEFT JOIN TEAMS_SNAPSHOT TM
+				LEFT JOIN TEAMS TM
 					ON TR.BATTLE_TEAM = TM.TEAM_ID
 				WHERE TR.ID = $1;
 		`,

@@ -3,10 +3,11 @@
     padding: 4rem 16rem; 
     margin-top: 100px; 
     text-align: center; 
+
 }
 
 .create-tournament-heading {
-    color: white;
+    color: black;
     font-size: 2rem; 
 }
 
@@ -18,7 +19,7 @@
 
 .create-tournament-label {
     margin-top: 20px;
-    color: white;
+    color: black;
     font-size: 1.2rem; 
 }
 

@@ -632,7 +632,7 @@ app.get("/api/trainer/:trainerId", async (req, res) => {
 				FROM TRAINERS TR
 				JOIN REGIONS R
 					ON TR.REGION_ID = R.REGION_ID
-				LEFT JOIN TEAMS TM
+				LEFT JOIN TEAMS_SNAPSHOT TM
 					ON TR.BATTLE_TEAM = TM.TEAM_ID
 				WHERE TR.ID = $1;
 		`,
@@ -1350,26 +1350,21 @@ app.post("/api/tournaments", async (req, res) => {
 
 		authenticateRequest(formData.trainer_id, req);
 
-		const { rows: r } = await pool.query(
-			`
-			update trainers set balance=balance-$1
-			where id=$2;
-			`,
-			[formData.reward, formData.max_participants]
-		);
-
 		const { rows } = await pool.query(
 			`
 			INSERT INTO tournaments (tournament_name, organizer, max_participants, reward)
 			VALUES ($1, $2, $3, $4) RETURNING *;
 			`,
-			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward, formData.start_time]
+			[formData.tournament_name, formData.trainer_id, formData.max_participants, formData.reward]
 		);
 
 		res.status(200).json(rows);
 	} catch (err) {
 		console.error(err);
-		res.sendStatus(400);
+		if (err?.code === "P0001") {
+			res.status(409).send({ message: err.detail });
+			return;
+		}
 	}
 });
 

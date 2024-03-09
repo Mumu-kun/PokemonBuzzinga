@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "../../utils/AxiosSetup";
 import useAuthContext from "../../hooks/useAuthContext";
+import TeamCard from "../my-teams/TeamCard";
 import "./Tournaments.css";
 
 const Tournaments = () => {
 	const [allTournaments, setAllTournaments] = useState([]);
 	const [joinedTournaments, setJoinedTournaments] = useState([]);
+	const [battleTeam, setBattleTeam] = useState(null);
 	const { user } = useAuthContext();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		getAllTournaments();
 		getJoinedTournaments();
+		fetchBattleTeam();
 	}, []);
 
 	const getAllTournaments = async () => {
@@ -46,6 +50,42 @@ const Tournaments = () => {
 			getJoinedTournaments();
 		} catch (error) {
 			console.error("Failed to join tournament:", error);
+		}
+	};
+	const fetchBattleTeam = async () => {
+		try {
+			const response = await axios.get(`/trainer/${user.id}`);
+			const data = response.data;
+
+			if (data.team_id) {
+				setBattleTeam({
+					team_id: data.team_id,
+					trainer_id: data.trainer_id,
+					team_name: data.team_name,
+				});
+			} else {
+				setBattleTeam(null);
+			}
+		} catch (error) {
+			console.error("Failed to fetch battle team", error);
+		}
+	};
+
+	const handleSelectBattleTeam = async (teamId) => {
+		try {
+			await axios.put(`/trainer/${user.id}/battle-team`, { team_id: teamId });
+			fetchBattleTeam();
+		} catch (error) {
+			console.error("Failed to select battle team", error);
+		}
+	};
+
+	const handleDeselectBattleTeam = async () => {
+		try {
+			await axios.put(`/trainer/${user.id}/battle-team`, { team_id: null });
+			fetchBattleTeam();
+		} catch (error) {
+			console.error("Failed to deselect battle team", error);
 		}
 	};
 
@@ -113,6 +153,23 @@ const Tournaments = () => {
 				<Link to="/tournaments/create" className="btn create-tournament-btn">
 					Create A Tournament
 				</Link>
+			</div>
+			<div className="battle-team-container">
+				{battleTeam ? (
+					<>
+						<TeamCard {...battleTeam} />
+						<button className="deselect-button" onClick={handleDeselectBattleTeam}>
+							Deselect Battle Team
+						</button>
+					</>
+				) : (
+					<>
+						<p>No Battle Team</p>
+						<button className="select-button" onClick={() => navigate("/my-teams")}>
+							Select Battle Team
+						</button>
+					</>
+				)}
 			</div>
 		</div>
 	);

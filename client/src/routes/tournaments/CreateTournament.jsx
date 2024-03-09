@@ -7,6 +7,7 @@ import "./CreateTournament.css";
 const CreateTournament = () => {
 	const { user } = useAuthContext();
 	const [msg, setMsg] = useState(null);
+	const [bmsg, setbMsg] = useState(null);
 	const [formData, setFormData] = useState({
 		tournament_name: "",
 		max_participants: 2,
@@ -19,6 +20,7 @@ const CreateTournament = () => {
 		try {
 			const response = await axios.post("/tournaments", formData);
 			console.log("Tournament created:", response.data);
+			setbMsg("Tournament Created");
 		} catch (error) {
 			console.error("Failed to create tournament:", error);
 			if (error.response?.data?.message) {
@@ -34,6 +36,7 @@ const CreateTournament = () => {
 	return (
 		<div className="create-tournament-container">
 			{!!msg && <MessagePopup message={msg} setMessage={setMsg} />}
+			{!!bmsg && <MessagePopup message={bmsg} setMessage={setbMsg} />}
 			<h1 className="create-tournament-heading">Create Tournament</h1>
 			<form onSubmit={handleSubmit} className="create-tournament-form">
 				<label htmlFor="name" className="create-tournament-label">

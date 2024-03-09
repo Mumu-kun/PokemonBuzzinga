@@ -92,9 +92,9 @@ const Types = () => {
 			{typeMatchups.length > 0 && (
 				<div className="mb-8">
 					<h3 className="text-h3 mb-4">Type Matchups</h3>
-					<div>Top to Bottom : Defender</div>
-					<div>Left to Right : Attacker</div>
-					<div className="mb-4 mt-4 grid grid-cols-[repeat(19,minmax(0,1fr))]">
+					<div className="mb-4 mt-4 grid grid-cols-[auto_repeat(19,minmax(0,1fr))] grid-rows-[repeat(20,minmax(0,1fr))]">
+						<div className="col-[2_/_span_19] text-center">Attacker</div>
+						<div className="col-span-1 row-span-full text-center [writing-mode:vertical-rl]">Defender</div>
 						<div></div>
 						{types.map((type) => (
 							<div

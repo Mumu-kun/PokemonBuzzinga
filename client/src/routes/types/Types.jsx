@@ -74,59 +74,63 @@ const Types = () => {
 	return (
 		<>
 			<h1 className="text-h1 mb-14 mt-20">Types</h1>
-			<div className="mb-8 w-3/4">
-				<h3 className="text-h3 mb-4">List of types in the game</h3>
-				<div className="flex flex-wrap gap-2">
-					{types.map((type) => (
-						<div
-							key={type.id}
-							className={`m-2 w-24 rounded-md p-2 text-center ${typeToStyle[type.type_name].bgColor} ${typeToStyle[type.type_name].textColor}`}
-						>
-							{type.type_name}
-						</div>
-					))}
+			{types.length > 0 && (
+				<div className="mb-8 w-3/4">
+					<h3 className="text-h3 mb-4">List of types in the game</h3>
+					<div className="flex flex-wrap gap-2">
+						{types.map((type) => (
+							<div
+								key={type.id}
+								className={`m-2 w-24 rounded-md p-2 text-center ${typeToStyle[type.type_name].bgColor} ${typeToStyle[type.type_name].textColor}`}
+							>
+								{type.type_name}
+							</div>
+						))}
+					</div>
 				</div>
-			</div>
-			<div className="mb-8">
-				<h3 className="text-h3 mb-4">Type Matchups</h3>
-				<div>Top to Bottom : Defender</div>
-				<div>Left to Right : Attacker</div>
-				<div className="mb-4 mt-4 grid grid-cols-[repeat(19,minmax(0,1fr))]">
-					<div></div>
-					{types.map((type) => (
-						<div
-							className={`p-1 text-center text-xs ${typeToStyle[type.type_name].bgColor} ${typeToStyle[type.type_name].textColor}`}
-						>
-							{type.type_name}
-						</div>
-					))}
+			)}
+			{typeMatchups.length > 0 && (
+				<div className="mb-8">
+					<h3 className="text-h3 mb-4">Type Matchups</h3>
+					<div>Top to Bottom : Defender</div>
+					<div>Left to Right : Attacker</div>
+					<div className="mb-4 mt-4 grid grid-cols-[repeat(19,minmax(0,1fr))]">
+						<div></div>
+						{types.map((type) => (
+							<div
+								className={`p-1 text-center text-xs ${typeToStyle[type.type_name].bgColor} ${typeToStyle[type.type_name].textColor}`}
+							>
+								{type.type_name}
+							</div>
+						))}
 
-					{types.map((defender) => {
-						const defenderId = defender.type_id;
-						const defenderType = defender.type_name;
-						return (
-							<>
-								<div
-									className={`p-1 text-center text-xs ${typeToStyle[defenderType].bgColor} ${typeToStyle[defenderType].textColor}`}
-								>
-									{defenderType}
-								</div>
-								{types.map((attacker) => {
-									const attackerId = attacker.type_id;
-									const attackerType = attacker.type_name;
-									const multiplier = typeMatchupMatrix[defenderId][attackerId];
-									return (
-										<div className={`p-1 text-center text-xs ${multToCol[multiplier]} text-black`}>{multiplier}</div>
-									);
-								})}
-							</>
-						);
-					})}
+						{types.map((defender) => {
+							const defenderId = defender.type_id;
+							const defenderType = defender.type_name;
+							return (
+								<>
+									<div
+										className={`p-1 text-center text-xs ${typeToStyle[defenderType].bgColor} ${typeToStyle[defenderType].textColor}`}
+									>
+										{defenderType}
+									</div>
+									{types.map((attacker) => {
+										const attackerId = attacker.type_id;
+										const attackerType = attacker.type_name;
+										const multiplier = typeMatchupMatrix[defenderId][attackerId];
+										return (
+											<div className={`p-1 text-center text-xs ${multToCol[multiplier]} text-black`}>{multiplier}</div>
+										);
+									})}
+								</>
+							);
+						})}
+					</div>
+					<div>
+						Pokemons with multiple types will have the total multiplier as the product of the multipliers of each type
+					</div>
 				</div>
-				<div>
-					Pokemons with multiple types will have the total multiplier as the product of the multipliers of each type
-				</div>
-			</div>
+			)}
 		</>
 	);
 };

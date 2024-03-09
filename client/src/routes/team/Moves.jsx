@@ -44,7 +44,7 @@ const Moves = ({ moves, setMove }) => {
 						onClick={() => {
 							setMove(move.move_id);
 						}}
-						className="flex cursor-pointer items-center justify-between gap-2 px-4 py-0 hover:bg-slate-700"
+						className="flex cursor-pointer items-center justify-between gap-2 px-4 py-0 hover:bg-slate-200"
 					>
 						<span className="w-44  px-4 py-4">{move.move_name}</span>
 						<span className="flex w-28 flex-col justify-center self-stretch  pr-3">

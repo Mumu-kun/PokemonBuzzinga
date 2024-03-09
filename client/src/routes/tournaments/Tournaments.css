@@ -22,7 +22,7 @@
     font-family: 'roboto', cursive; 
     color: #db88ff  ;
     font-size: 20px; 
-    margin-bottom: 5px;
+    /* margin-bottom: 5px; */
     margin-right: auto;
 }
 
@@ -84,3 +84,49 @@
     background-color: #218838; 
 }
 
+
+.battle-team-container {
+    position: absolute;
+    bottom: 20px; 
+    right: 20px; 
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 1; 
+  }
+  
+  .battle-team-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .select-button,
+  .deselect-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-top: 10px;
+  }
+  
+  .select-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .select-button:hover {
+    background-color: #45a049;
+  }
+  
+  .deselect-button {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .deselect-button:hover {
+    background-color: #d32f2f;
+  }

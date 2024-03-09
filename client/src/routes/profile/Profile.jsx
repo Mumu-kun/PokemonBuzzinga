@@ -115,8 +115,12 @@ const Profile = () => {
 						<InfoList>
 							<Info title="Name" value={profileData.name} />
 							<Info title="Region" value={profileData.region_name} />
-							<Info title="Balance" value={profileData.balance} />
+							<Info title="Balance" value={`${profileData.balance}$`} />
 							<Info title="Pokemons Collected" value={profileData.pokemon_count} />
+							<Info
+								title="Pokedex Completed"
+								value={`${profileData.pokedex_count}/${profileData.total_pokedex_count}`}
+							/>
 							<Info title="Teams Created" value={profileData.team_count} />
 						</InfoList>
 					</div>

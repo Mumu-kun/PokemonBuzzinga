@@ -115,7 +115,7 @@ function AllPokemons() {
 						setOffset(0);
 						setFilterText(e.target.value);
 					}}
-					className="w-60 rounded-md px-4 py-2 text-black focus:outline-none active:outline-none"
+					className="w-60 rounded-md px-4 py-2 text-black ring-2 ring-slate-700 focus:outline-none active:outline-none"
 				/>
 
 				<div className="rounded-md bg-slate-700 p-1">
